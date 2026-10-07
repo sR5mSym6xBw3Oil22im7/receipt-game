@@ -44,25 +44,28 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             """;
 
     private final String model;
+    private final String apiKey;
     private final Gson gson = new Gson();
 
     public GeminiReceiptAnalyzer(
-            @Value("${gemini.receipt-model:gemini-3.5-flash-lite}") String model) {
+            @Value("${gemini.receipt-model:gemini-3.5-flash-lite}") String model,
+            @Value("${gemini.api-key:}") String apiKey) {
         this.model = model;
+        this.apiKey = apiKey;
     }
 
     @Override
-    public ReceiptText analyze(byte[] imageBytes, String mimeType, String geminiApiKey) {
+    public ReceiptText analyze(byte[] imageBytes, String mimeType) {
         final String activeApiKey;
         try {
-            activeApiKey = GeminiApiKeyPolicy.requireValid(geminiApiKey);
+            activeApiKey = GeminiApiKeyPolicy.requireValid(apiKey);
         } catch (IllegalArgumentException e) {
-            String normalized = geminiApiKey == null ? "" : geminiApiKey.trim();
+            String normalized = apiKey == null ? "" : apiKey.trim();
             String code = normalized.isBlank() ? "GEMINI_API_KEY_MISSING" : "INVALID_GEMINI_API_KEY";
             String message = normalized.isBlank()
-                    ? "Gemini APIキーをWeb画面で入力してください。"
-                    : "Gemini APIキーの形式を確認してください。";
-            throw new ReceiptException(HttpStatus.BAD_REQUEST, code, message);
+                    ? "Gemini APIキーが設定されていません。.envのGEMINI_API_KEYを設定してください。"
+                    : "Gemini APIキーの形式を確認してください。.envのGEMINI_API_KEYを確認してください。";
+            throw new ReceiptException(HttpStatus.SERVICE_UNAVAILABLE, code, message);
         }
 
         try (Client client = Client.builder()
@@ -178,7 +181,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             return new ReceiptException(
                     HttpStatus.TOO_MANY_REQUESTS,
                     "GEMINI_QUOTA_EXCEEDED",
-                    "Gemini APIの利用上限に達しました。別の利用可能なAPIキーを入力して再試行してください。"
+                    "Gemini APIの利用上限に達しました。少し待って再試行してください。"
             );
         }
         if (normalized.contains("401") || normalized.contains("403")
@@ -187,7 +190,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             return new ReceiptException(
                     HttpStatus.UNAUTHORIZED,
                     "GEMINI_API_KEY_REJECTED",
-                    "Gemini APIキーが無効、ブロック済み、または権限不足です。別のAPIキーを入力してください。"
+                    "Gemini APIキーが無効、ブロック済み、または権限不足です。.envのGEMINI_API_KEYを確認してください。"
             );
         }
         return null;
@@ -204,7 +207,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             return new ReceiptException(
                     HttpStatus.TOO_MANY_REQUESTS,
                     "GEMINI_QUOTA_EXCEEDED",
-                    "Gemini APIの利用上限に達しました。少し待って再試行するか、別の利用可能なAPIキーを入力して再試行してください。"
+                    "Gemini APIの利用上限に達しました。少し待って再試行してください。"
             );
         }
 
@@ -215,7 +218,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             return new ReceiptException(
                     HttpStatus.UNAUTHORIZED,
                     "GEMINI_API_KEY_REJECTED",
-                    "Gemini APIキーが無効、ブロック済み、または権限不足です。別のAPIキーを入力してください。"
+                    "Gemini APIキーが無効、ブロック済み、または権限不足です。.envのGEMINI_API_KEYを確認してください。"
             );
         }
 

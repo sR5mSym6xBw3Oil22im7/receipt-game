@@ -18,7 +18,7 @@
         <p class="eyebrow">Analyze</p>
         <h1>レシート解析</h1>
         <div class="flourish is-left"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
-        <p class="lead">JPEG / PNG / ZIP のレシート画像を選択し、Gemini APIキーを入力してください。ZIPは複数のレシート画像をまとめて解析できます（中身はJPEG/PNGのみ）。</p>
+        <p class="lead">JPEG / PNG / ZIP のレシート画像を選択してください。ZIPは複数のレシート画像をまとめて解析できます（中身はJPEG/PNGのみ）。</p>
       </div>
     </section>
 
@@ -39,14 +39,6 @@
             <span id="receipt-file-name-1" class="file-chip selected-file-name is-empty">未選択</span>
           </label>
         </div>
-        <div id="api-key-panel" class="api-key-panel">
-          <label class="field-label" for="gemini-api-key">Gemini APIキー</label>
-          <div class="api-key-row">
-            <input id="gemini-api-key" class="text-input" name="geminiApiKey" type="password" autocomplete="off" spellcheck="false" maxlength="512" aria-describedby="api-key-note" required>
-            <button id="clear-api-key" class="secondary-button small-button" type="button">入力を消去</button>
-          </div>
-          <p id="api-key-note" class="help-text">この値だけをGemini API呼び出しに使用します。APIキーは保存しません。</p>
-        </div>
         <p class="help-text">「解析」は文字抽出と表示だけを行い、PostgreSQLには登録しません。内容を確認後、「PostgreSQLへ保存」を押すと解析結果を保存します。</p>
         <div class="button-row">
           <button id="submit-button" class="primary-button" type="submit">解析</button>
@@ -62,8 +54,8 @@
       <div id="receipt-results" class="receipt-results"></div>
     </section>
   </main>
-  <script src="./config.js?v=20261006-no-kinun"></script>
+  <script src="./config.js?v=20261007-local-front-5051"></script>
   <script src="./admin-api.js?v=20261004-admin-only-receipt-api"></script>
-  <script src="./app.js?v=20261004-admin-only-receipt-api"></script>
+  <script src="./app.js?v=20261007-server-gemini-key"></script>
 </body>
 </html>

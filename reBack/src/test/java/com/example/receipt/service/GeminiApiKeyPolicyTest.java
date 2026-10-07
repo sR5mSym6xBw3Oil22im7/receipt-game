@@ -7,19 +7,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class GeminiApiKeyPolicyTest {
     @Test
-    void acceptsAndTrimsWebApiKey() {
+    void acceptsAndTrimsApiKey() {
         assertThat(GeminiApiKeyPolicy.requireValid("  web-key  "))
                 .isEqualTo("web-key");
     }
 
     @Test
-    void rejectsBlankWebApiKey() {
+    void rejectsBlankApiKey() {
         assertThatThrownBy(() -> GeminiApiKeyPolicy.requireValid("  "))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    void rejectsUnreasonablyLongWebApiKey() {
+    void rejectsUnreasonablyLongApiKey() {
         String tooLong = "x".repeat(GeminiApiKeyPolicy.MAX_API_KEY_LENGTH + 1);
 
         assertThatThrownBy(() -> GeminiApiKeyPolicy.requireValid(tooLong))

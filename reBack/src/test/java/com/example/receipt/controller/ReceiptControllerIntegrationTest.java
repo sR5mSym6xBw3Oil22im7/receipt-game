@@ -44,7 +44,7 @@ class ReceiptControllerIntegrationTest {
 
     @BeforeEach
     void resetAnalyzer() {
-        analyzer.lastGeminiApiKey = null;
+        analyzer.calls = 0;
         jdbcTemplate.queryForList(
                 "SELECT table_name FROM information_schema.tables " +
                         "WHERE table_schema = 'public' AND table_name LIKE 'receipt_%'",
@@ -59,12 +59,11 @@ class ReceiptControllerIntegrationTest {
         mockMvc.perform(multipart("/api/receipts")
                         .with(user("test-admin").roles("ADMIN"))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(sampleFile())
-                        .param("geminiApiKey", "web-key"))
+                        .file(sampleFile()))
                 .andExpect(status().isMethodNotAllowed());
 
         assertThat(receiptTableCount()).isEqualTo(before);
-        assertThat(analyzer.lastGeminiApiKey).isNull();
+        assertThat(analyzer.calls).isZero();
     }
 
     @Test
@@ -74,8 +73,7 @@ class ReceiptControllerIntegrationTest {
         mockMvc.perform(multipart("/api/receipts/analyze")
                         .with(user("test-admin").roles("ADMIN"))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(sampleFile())
-                        .param("geminiApiKey", "web-key"))
+                        .file(sampleFile()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.lines[0]").value("SAMPLE STORE"));
 
@@ -83,26 +81,11 @@ class ReceiptControllerIntegrationTest {
     }
 
     @Test
-    void analyzePassesWebApiKeyToAnalyzer() throws Exception {
-        MockMultipartFile file = sampleFile();
-
-        mockMvc.perform(multipart("/api/receipts/analyze")
-                        .with(user("test-admin").roles("ADMIN"))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(file)
-                        .param("geminiApiKey", "web-key-2"))
-                .andExpect(status().isOk());
-
-        assertThat(analyzer.lastGeminiApiKey).isEqualTo("web-key-2");
-    }
-
-    @Test
     void analyzeReturnsAndStoresImageSha256() throws Exception {
         mockMvc.perform(multipart("/api/receipts/analyze")
                         .with(user("test-admin").roles("ADMIN"))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(sampleFile())
-                        .param("geminiApiKey", "web-key"))
+                        .file(sampleFile()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.sha256").value("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a"));
 
@@ -118,27 +101,14 @@ class ReceiptControllerIntegrationTest {
         mockMvc.perform(multipart("/api/receipts/analyze")
                         .with(user("test-admin").roles("ADMIN"))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(sampleFile())
-                        .param("geminiApiKey", "web-key"))
+                        .file(sampleFile()))
                 .andExpect(status().isOk());
 
         mockMvc.perform(multipart("/api/receipts/analyze")
                         .with(user("test-admin").roles("ADMIN"))
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(sampleFile())
-                        .param("geminiApiKey", "web-key"))
+                        .file(sampleFile()))
                 .andExpect(status().isOk());
-    }
-
-    @Test
-    void analyzeRequiresWebApiKey() throws Exception {
-        MockMultipartFile file = sampleFile();
-
-        mockMvc.perform(multipart("/api/receipts/analyze")
-                        .with(user("test-admin").roles("ADMIN"))
-                        .with(SecurityMockMvcRequestPostProcessors.csrf())
-                        .file(file))
-                .andExpect(status().isBadRequest());
     }
 
     private MockMultipartFile sampleFile() {
@@ -168,11 +138,11 @@ class ReceiptControllerIntegrationTest {
     }
 
     static class CapturingReceiptAnalyzer implements ReceiptAnalyzer {
-        volatile String lastGeminiApiKey;
+        volatile int calls;
 
         @Override
-        public ReceiptText analyze(byte[] bytes, String mimeType, String geminiApiKey) {
-            lastGeminiApiKey = geminiApiKey;
+        public ReceiptText analyze(byte[] bytes, String mimeType) {
+            calls++;
             return new ReceiptText(List.of(
                     "SAMPLE STORE",
                     "ITEM 100",

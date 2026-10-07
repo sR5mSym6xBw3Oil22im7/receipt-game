@@ -15,6 +15,7 @@
 
 | ファイル | 内容 |
 | --- | --- |
+| `server.mjs` | ローカル確認用の静的ファイルサーバー（`http://localhost:5051`） |
 | `config.js` | 接続先URL（`window.APP_CONFIG`）の設定と、背景や見出しの装飾（金貨のSVG）の描画 |
 | `styles.css` | 画面共通のスタイル |
 | `app.js` / `select.js` / `login.js` / `admin-api.js` | 管理画面のスクリプト。バックエンド側の同名ファイルと同じ内容です。 |
@@ -27,14 +28,14 @@
 
 | 開き方 | バックエンド | 「メニューへ戻る」の移動先 |
 | --- | --- | --- |
-| ファイルとして開く、またはlocalhost / 127.0.0.1 | `http://localhost:8081` | `http://localhost:5500/index.html` |
+| ファイルとして開く、またはlocalhost / 127.0.0.1 | `http://localhost:8081` | `http://localhost:5051/index.html` |
 | 上記以外 | `https://receipt-analysis-b8po.onrender.com` | `https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html` |
 
 ## ローカルでの利用
 
 1. バックエンドとPostgreSQLを起動します（[reBack/README.md](../reBack/README.md) を参照）。
-2. `index.html` をブラウザーで開きます。
-3. デモはバックエンドなしで動作します。解析にはログインとGemini APIキーの入力が必要です。
+2. リポジトリ直下で `node reFront/server.mjs` を実行し、`http://localhost:5051/index.html` を開きます。ポートは5051に固定しています（`config.js` の「メニューへ戻る」の移動先と同じ）。
+3. デモはバックエンドなしで動作します。解析にはログインと、バックエンドの `.env` への `GEMINI_API_KEY` の設定が必要です。
 
 ## 解析画面の動作（app.js）
 
@@ -42,7 +43,7 @@
 - ZIPはブラウザーで展開し、中の画像を1枚ずつ解析APIへ送ります。JPEG / PNG以外のファイル、暗号化されたファイル、未対応の圧縮方式が含まれる場合は処理を中断します。
 - 解析の要求は210秒、保存の要求は30秒で打ち切ります。解析中は15秒ごとに経過時間を表示します。
 - すべての画像の解析が成功すると「PostgreSQLへ保存」ボタンが表示されます。
-- Gemini APIキーの上限超過や無効などのエラーでは、APIキー欄にフォーカスし、キーを入れ替えて再度解析するよう案内します。
+- Gemini APIキーの未設定・無効・上限超過のエラーでは、バックエンドの `.env` の `GEMINI_API_KEY` の確認や、時間をおいての再解析を案内します。
 - 管理APIの呼び出しには `admin-api.js` の `adminFetch` を使い、POST・DELETEの要求にCSRFトークンを付けます。
 
 ## 管理画面スクリプトの同期
@@ -57,7 +58,7 @@
 node --test reFront/test/smoke.test.mjs
 ```
 
-画面の要素、デモが通信しないこと、Gemini APIキーをブラウザーのストレージに保存しないこと、管理画面スクリプトの内容が一致することなどを検査します。
+画面の要素、デモが通信しないこと、解析画面にGemini APIキーの入力欄がなく送信もしないこと、管理画面スクリプトの内容が一致することなどを検査します。
 
 ## 変更時の注意
 

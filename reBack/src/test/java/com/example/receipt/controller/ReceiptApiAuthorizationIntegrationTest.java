@@ -265,8 +265,7 @@ class ReceiptApiAuthorizationIntegrationTest {
 
     private MockMultipartHttpServletRequestBuilder analyzeRequest() {
         return multipart("/api/receipts/analyze")
-                .file(new MockMultipartFile("file", "sample.jpg", "image/jpeg", new byte[]{1, 2, 3, 4}))
-                .param("geminiApiKey", "web-key");
+                .file(new MockMultipartFile("file", "sample.jpg", "image/jpeg", new byte[]{1, 2, 3, 4}));
     }
 
     private MockHttpServletRequestBuilder saveRequest(String hash) {
@@ -350,7 +349,7 @@ class ReceiptApiAuthorizationIntegrationTest {
         volatile int calls;
 
         @Override
-        public ReceiptText analyze(byte[] bytes, String mimeType, String geminiApiKey) {
+        public ReceiptText analyze(byte[] bytes, String mimeType) {
             calls++;
             return new ReceiptText(List.of("AUTHZ STORE", "TOTAL 100"));
         }

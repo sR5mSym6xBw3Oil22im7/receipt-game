@@ -8,7 +8,7 @@ const backendBaseUrl = isLocalFrontend
   : "https://receipt-analysis-b8po.onrender.com";
 
 const publicBaseUrl = isLocalFrontend
-  ? "http://localhost:5500/index.html"
+  ? "http://localhost:5051/index.html"
   : "https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html";
 
 window.APP_CONFIG = {

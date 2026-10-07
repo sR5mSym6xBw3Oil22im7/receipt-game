@@ -30,11 +30,11 @@ reBack/
 ## ローカルでの起動
 
 ```sh
-export DB_PASSWORD='<ローカルDBのパスワード>'
-export ADMIN_USERNAME=admin
-export ADMIN_PASSWORD_HASH='<BCrypt形式のハッシュ>'
+cp .env.example .env   # 値を編集
 mvn spring-boot:run -Dspring-boot.run.profiles=local
 ```
+
+- 起動したディレクトリ（`reBack/`）の `.env` を設定として読み込みます（`spring.config.import: optional:file:.env[.properties]`）。OSの環境変数を設定した場合はそちらが優先されます。
 
 - HTTP待受ポートの既定値は `8081` です。
 - `local` プロファイルでは、CookieのSecure属性を無効にし、ログを `log/backend.log` に出力します。
@@ -55,8 +55,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 | `SESSION_COOKIE_SECURE` | `true` | セッションCookieとCSRF CookieのSecure属性 |
 | `LOGIN_MAX_FAILURES` | `5` | ログインをロックするまでの連続失敗回数 |
 | `LOGIN_LOCK_MINUTES` | `15` | ロックする時間（分） |
+| `GEMINI_API_KEY` | なし | Gemini APIキー。未設定の場合、解析APIは503（`GEMINI_API_KEY_MISSING`）を返します |
 
-設定例は `.env.example` にあります。Geminiのモデルは `application.yml` の `gemini.receipt-model`（`gemini-3.5-flash-lite`）で指定します。Gemini APIキーはサーバーに設定せず、解析の要求ごとに受け取ります。
+設定例は `.env.example` にあります。Geminiのモデルは `application.yml` の `gemini.receipt-model`（`gemini-3.5-flash-lite`）で指定します。Gemini APIキーは `GEMINI_API_KEY` で設定します。
 
 ## API
 
@@ -67,7 +68,7 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 | GET | `/api/auth/session` | 公開 | ログイン状態を返す |
 | POST | `/api/auth/login` | 公開 | ログイン（JSON：`username`、`password`） |
 | POST | `/api/auth/logout` | ログイン済み | ログアウト（成功時204） |
-| POST | `/api/receipts/analyze` | 管理者 | multipart（`file`、`geminiApiKey`）の画像を解析。DBには登録しない |
+| POST | `/api/receipts/analyze` | 管理者 | multipart（`file`）の画像を解析。DBには登録しない |
 | POST | `/api/receipts/save` | 管理者 | 解析結果（JSON：`lines`、`sha256`、`structuredData`）を保存 |
 | GET | `/api/receipts` | 管理者 | 保存済みレシートの一覧 |
 | GET | `/api/receipts/{tableName}` | 管理者 | 保存済みレシートの詳細 |
@@ -106,7 +107,7 @@ mvn test
 
 `Dockerfile` はMavenでJARをビルドし、Java 21のJREイメージで実行します（ポート8081）。
 
-`render.yml` には、Web Service `receipt-analysis-b8po` とPostgreSQL `receipt-analysis-psl-service` が定義されています。DB接続用の環境変数はデータベースから設定され、`ADMIN_USERNAME` と `ADMIN_PASSWORD_HASH` は値を手動で設定する項目（`sync: false`）です。サービス名を変える場合は、`reFront/config.js` の接続先も変更してください。
+`render.yml` には、Web Service `receipt-analysis-b8po` とPostgreSQL `receipt-analysis-psl-service` が定義されています。DB接続用の環境変数はデータベースから設定され、`ADMIN_USERNAME`、`ADMIN_PASSWORD_HASH`、`GEMINI_API_KEY` は値を手動で設定する項目（`sync: false`）です。サービス名を変える場合は、`reFront/config.js` の接続先も変更してください。
 
 ## 管理画面のスクリプト
 

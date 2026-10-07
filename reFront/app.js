@@ -1,7 +1,5 @@
 const form = document.getElementById("receipt-form");
 const fileInputs = [...document.querySelectorAll('input[name="file"]')];
-const apiKeyInput = document.getElementById("gemini-api-key");
-const clearApiKeyButton = document.getElementById("clear-api-key");
 const submitButton = document.getElementById("submit-button");
 const saveButton = document.getElementById("save-button");
 const statusElement = document.getElementById("status");
@@ -24,7 +22,7 @@ const API_BASE_URL = window.APP_CONFIG?.API_BASE_URL ?? "http://localhost:8081";
 const ANALYZE_REQUEST_TIMEOUT_MS = 210000;
 const ANALYSIS_WAIT_MESSAGE_INTERVAL_MS = 15000;
 const SAVE_REQUEST_TIMEOUT_MS = 30000;
-const API_KEY_RETRY_CODES = new Set([
+const API_KEY_ERROR_CODES = new Set([
   "GEMINI_QUOTA_EXCEEDED",
   "GEMINI_API_KEY_REJECTED",
   "GEMINI_API_KEY_MISSING",
@@ -57,9 +55,7 @@ function invalidateAnalysis() {
   updateSaveButton();
 }
 
-function resetUploadPagePreservingApiKey() {
-  const geminiApiKey = apiKeyInput.value;
-
+function resetUploadPage() {
   fileInputs.forEach((input, index) => {
     input.value = "";
     const nameElement = document.getElementById(`receipt-file-name-${index + 1}`);
@@ -74,7 +70,6 @@ function resetUploadPagePreservingApiKey() {
   resultCard.classList.add("hidden");
   statusElement.classList.remove("error-message");
   statusElement.textContent = "";
-  apiKeyInput.value = geminiApiKey;
   busy = false;
   submitButton.disabled = false;
   submitButton.textContent = "解析";
@@ -131,25 +126,22 @@ function setBusy(mode) {
   updateSaveButton();
 }
 
-function showApiKeyRetry(errorCode, fallbackMessage) {
-  apiKeyInput.focus();
-  apiKeyInput.select();
-
+function showApiKeyError(errorCode, fallbackMessage) {
   if (errorCode === "GEMINI_QUOTA_EXCEEDED") {
     statusElement.textContent =
-      "Gemini APIの利用上限に達しました。次のAPIキーへ入れ替え、同じ画像のまま再度解析してください。";
+      "Gemini APIの利用上限に達しました。少し待ってから、同じ画像のまま再度解析してください。";
     return;
   }
 
   if (errorCode === "GEMINI_API_KEY_REJECTED") {
     statusElement.textContent =
-      "Gemini APIキーが利用できません。別のAPIキーへ入れ替え、同じ画像のまま再度解析してください。";
+      "Gemini APIキーが利用できません。サーバーの.envに設定したGEMINI_API_KEYを確認してください。";
     return;
   }
 
   if (errorCode === "GEMINI_API_KEY_MISSING" || errorCode === "INVALID_GEMINI_API_KEY") {
     statusElement.textContent =
-      "Gemini APIキーを確認して再度解析してください。";
+      "Gemini APIキーが設定されていません。サーバーの.envにGEMINI_API_KEYを設定してください。";
     return;
   }
 
@@ -371,11 +363,6 @@ function buildSaveCompletionMessage(receipts) {
   return "PostgreSQLへ保存する対象がありません。";
 }
 
-clearApiKeyButton.addEventListener("click", () => {
-  apiKeyInput.value = "";
-  apiKeyInput.focus();
-});
-
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   resultCard.classList.add("hidden");
@@ -384,13 +371,6 @@ form.addEventListener("submit", async (event) => {
   statusElement.classList.remove("error-message");
   statusElement.textContent = "";
   updateSaveButton();
-
-  const geminiApiKey = apiKeyInput.value.trim();
-  if (!geminiApiKey) {
-    statusElement.textContent = "Gemini APIキーを入力してください。";
-    apiKeyInput.focus();
-    return;
-  }
 
   const selectedInput = fileInputs
     .map((input, index) => ({ file: input.files?.[0], fileNumber: index + 1 }))
@@ -411,7 +391,6 @@ form.addEventListener("submit", async (event) => {
       statusElement.textContent = `画像${fileNumber}/${selectedFiles.length}を解析中です。`;
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("geminiApiKey", geminiApiKey);
 
       const waitMessageTimer = startAnalysisWaitMessage(fileNumber, selectedFiles.length);
       let analyzeResponse;
@@ -447,8 +426,8 @@ form.addEventListener("submit", async (event) => {
   } catch (error) {
     analysisReady = false;
     setStep(0);
-    if (API_KEY_RETRY_CODES.has(error.code)) {
-      showApiKeyRetry(error.code, error.message);
+    if (API_KEY_ERROR_CODES.has(error.code)) {
+      showApiKeyError(error.code, error.message);
     } else {
       const fileMessage = error.fileNumber ? `（画像${error.fileNumber}）` : "";
       statusElement.textContent = `解析エラー${fileMessage}: ${error.message}`;
@@ -502,7 +481,7 @@ saveButton.addEventListener("click", async () => {
   } finally {
     if (saveCompleted) {
       // 保存成功後は初期状態へ戻し、次の解析を開始できるようにする。
-      resetUploadPagePreservingApiKey();
+      resetUploadPage();
     } else {
       // 保存失敗時は解析結果と保存ボタンを残し、再試行できるようにする。
       setStep(2);

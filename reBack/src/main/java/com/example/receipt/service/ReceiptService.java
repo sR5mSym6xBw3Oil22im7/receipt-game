@@ -29,14 +29,13 @@ public class ReceiptService {
         this.repository = repository;
     }
 
-    public ReceiptText analyze(MultipartFile file, String geminiApiKey) throws IOException {
+    public ReceiptText analyze(MultipartFile file) throws IOException {
         validator.validate(file);
         byte[] imageBytes = file.getBytes();
         String sha256 = sha256(imageBytes);
         ReceiptText analyzed = receiptAnalyzer.analyze(
                 imageBytes,
-                file.getContentType(),
-                geminiApiKey
+                file.getContentType()
         );
         repository.reserveImageHash(sha256);
         return new ReceiptText(analyzed.lines(), sha256, analyzed.structuredData());

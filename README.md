@@ -17,7 +17,7 @@
 ## データの扱い
 
 - 画像ファイルそのものは保存しません。重複判定に使うSHA-256、読み取った文字列、構造化データを保存します。
-- Gemini APIキーは解析のたびに画面で入力し、サーバー設定やDBには保存しません。
+- Gemini APIキーはバックエンドの環境変数 `GEMINI_API_KEY`（ローカルでは `reBack/.env`）で設定します。画面での入力やDBへの保存は行いません。
 - 解析・保存・一覧・詳細・削除のAPIは、バックエンドのSpring Securityで管理者（ROLE_ADMIN）だけに制限しています。
 
 ## 構成
@@ -35,17 +35,19 @@
 必要なもの：Java 21、Maven、PostgreSQL。フロントエンドのテストにはNode.jsも必要です。
 
 1. PostgreSQLにデータベースを用意します（既定値は `localhost:5432/receipt_db`、ユーザー `postgres`）。テーブルはアプリが実行時に作成します。
-2. 環境変数を設定してバックエンドを起動します。`ADMIN_PASSWORD_HASH` にはBCrypt形式のハッシュを設定します。
+2. `reBack/.env.example` を `reBack/.env` にコピーし、値を設定してバックエンドを起動します。`ADMIN_PASSWORD_HASH` にはBCrypt形式のハッシュ、`GEMINI_API_KEY` にはGemini APIキーを設定します。
 
    ```sh
-   export DB_PASSWORD='<ローカルDBのパスワード>'
-   export ADMIN_USERNAME=admin
-   export ADMIN_PASSWORD_HASH='<BCrypt形式のハッシュ>'
    cd reBack
+   cp .env.example .env   # DB_PASSWORD、ADMIN_USERNAME、ADMIN_PASSWORD_HASH、GEMINI_API_KEY を編集
    mvn spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-3. `reFront/index.html` をブラウザーで開きます。ファイルとして開いた場合やlocalhostで開いた場合、接続先は `http://localhost:8081` になります。
+3. 別のターミナルでフロントエンドを起動し、`http://localhost:5051/index.html` を開きます。ポートは5051に固定しています。接続先のバックエンドは `http://localhost:8081` です。
+
+   ```sh
+   node reFront/server.mjs
+   ```
 
 環境変数の一覧は [reBack/README.md](reBack/README.md) を参照してください。
 

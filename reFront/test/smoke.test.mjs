@@ -42,7 +42,7 @@ test("analysis reports per-image progress and does not wait forever", () => {
 
 
 test("upload page cache-busts app.js so old upload code is not reused", () => {
-  assert.match(html, /<script src="\.\/app\.js\?v=20261004-admin-only-receipt-api"><\/script>/);
+  assert.match(html, /<script src="\.\/app\.js\?v=20261007-server-gemini-key"><\/script>/);
 });
 
 test("frontend posts multipart data to the receipt endpoint", () => {
@@ -80,8 +80,7 @@ test("save button stores each analyzed receipt", () => {
   assert.match(js, /AbortController/);
   assert.match(js, /バックエンドサーバーから応答がありません/);
   assert.doesNotMatch(js, /PostgreSQLへ追加しました/);
-  assert.match(js, /resetUploadPagePreservingApiKey/);
-  assert.match(js, /apiKeyInput\.value = geminiApiKey/);
+  assert.match(js, /resetUploadPage\(\)/);
 });
 
 test("frontend has a configurable Render backend URL", () => {
@@ -91,22 +90,20 @@ test("frontend has a configurable Render backend URL", () => {
   assert.match(config, /receipt-analysis-b8po\.onrender\.com/);
 });
 
-test("frontend requires a masked Gemini API key", () => {
-  assert.match(html, /id="gemini-api-key"/);
-  assert.match(html, /type="password"/);
-  assert.match(html, /autocomplete="off"/);
-  assert.match(html, /id="gemini-api-key"[\s\S]*?required/);
+test("upload page has no Gemini API key input", () => {
+  assert.doesNotMatch(html, /gemini-api-key/);
+  assert.doesNotMatch(html, /type="password"/);
 });
 
-test("frontend always sends the entered Gemini API key", () => {
-  assert.match(js, /if \(!geminiApiKey\)/);
-  assert.match(js, /formData\.append\("geminiApiKey", geminiApiKey\)/);
+test("frontend does not send a Gemini API key", () => {
+  assert.doesNotMatch(js, /geminiApiKey/);
+  assert.doesNotMatch(js, /apiKeyInput/);
 });
 
-test("frontend focuses API key input when Gemini quota is exhausted", () => {
+test("frontend explains server-side Gemini API key errors", () => {
   assert.match(js, /GEMINI_QUOTA_EXCEEDED/);
-  assert.match(js, /apiKeyInput\.focus\(\)/);
-  assert.match(js, /次のAPIキーへ入れ替え/);
+  assert.match(js, /GEMINI_API_KEY_MISSING/);
+  assert.match(js, /GEMINI_API_KEYを設定してください/);
 });
 
 test("frontend does not persist the Gemini API key in browser storage", () => {

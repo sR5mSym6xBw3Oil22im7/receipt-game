@@ -38,7 +38,7 @@ class AuthenticationIntegrationTest {
     void allReceiptApisRejectUnauthenticatedRequestsAndHealthIsPublic() throws Exception {
         mockMvc.perform(get("/api/receipts")).andExpect(status().isUnauthorized());
         mockMvc.perform(get("/api/receipts/receipt_deadbeef")).andExpect(status().isUnauthorized());
-        mockMvc.perform(multipart("/api/receipts/analyze").file("file", new byte[]{1}).param("geminiApiKey", "not-an-auth-token"))
+        mockMvc.perform(multipart("/api/receipts/analyze").file("file", new byte[]{1}))
                 .andExpect(status().isUnauthorized());
         mockMvc.perform(multipart("/api/receipts").file("file", new byte[]{1}))
                 .andExpect(status().isUnauthorized());

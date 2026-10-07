@@ -9,12 +9,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class GeminiReceiptAnalyzerTest {
     @Test
-    void failsCleanlyWhenWebApiKeyIsMissing() {
-        GeminiReceiptAnalyzer analyzer = new GeminiReceiptAnalyzer("gemini-3.5-flash-lite");
+    void failsCleanlyWhenConfiguredApiKeyIsMissing() {
+        GeminiReceiptAnalyzer analyzer = new GeminiReceiptAnalyzer("gemini-3.5-flash-lite", "");
 
-        assertThatThrownBy(() -> analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg", ""))
+        assertThatThrownBy(() -> analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg"))
                 .isInstanceOfSatisfying(ReceiptException.class, e -> {
-                    assertThat(e.status()).isEqualTo(HttpStatus.BAD_REQUEST);
+                    assertThat(e.status()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
                     assertThat(e.code()).isEqualTo("GEMINI_API_KEY_MISSING");
                 });
     }
