@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+  <title>レシート解析システム</title>
+  <link rel="stylesheet" href="./styles.css?v=20261006-no-kinun">
+</head>
+<body>
+  <main class="container is-wide">
+    <section class="card hero">
+      <div class="motif" data-motif="hero" data-seed="3"></div>
+      <div>
+        <p class="hero-sub">Receipt Analysis</p>
+        <h1 class="hero-title">レシート解析システム</h1>
+        <div class="flourish is-left"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
+        <p class="lead">レシートの解析・保存と、保存済みデータの確認ができます。</p>
+        <nav class="menu" aria-label="メニュー">
+          <a class="menu-link is-demo" href="./demo.html">
+            <span class="motif" data-motif="tile" data-seed="21"></span>
+            <span>
+              <span class="menu-title">デモを試す <span class="badge">APIキー不要</span></span>
+              <span class="menu-desc">サンプルレシートと固定データで、解析の操作感を確認できます。</span>
+            </span>
+            <span class="menu-arrow" aria-hidden="true">→</span>
+          </a>
+          <a class="menu-link admin-upload-link" href="https://receipt-analysis-b8po.onrender.com/admin/login.html?returnTo=upload">
+            <span class="motif" data-motif="tile" data-seed="34"></span>
+            <span>
+              <span class="menu-title">レシートを解析 <span class="badge is-accent is-lock">管理者</span></span>
+              <span class="menu-desc">画像を解析し、内容を確認してからPostgreSQLへ保存します。</span>
+            </span>
+            <span class="menu-arrow" aria-hidden="true">→</span>
+          </a>
+          <a id="select-link" class="menu-link" href="https://receipt-analysis-b8po.onrender.com/admin/login.html">
+            <span class="motif" data-motif="tile" data-seed="55"></span>
+            <span>
+              <span class="menu-title">保存済みレシートを確認する <span class="badge is-accent is-lock">管理者</span></span>
+              <span class="menu-desc">保存されたレシート一覧と詳細を確認します。</span>
+            </span>
+            <span class="menu-arrow" aria-hidden="true">→</span>
+          </a>
+        </nav>
+      </div>
+    </section>
+    <p class="footer-note">— Receipt Analysis —</p>
+  </main>
+  <script src="./config.js?v=20261006-no-kinun"></script>
+  <script src="./index.js?v=20260924-login-upload-routing"></script>
+</body>
+</html>

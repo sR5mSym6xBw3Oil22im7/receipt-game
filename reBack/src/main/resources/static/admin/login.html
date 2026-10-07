@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+  <title>管理画面ログイン</title>
+  <link rel="stylesheet" href="./styles.css?v=20261006-no-kinun">
+</head>
+<body>
+  <main class="container">
+    <p class="page-actions"><a id="back-link" class="back-link" href="https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html">← メニューへ戻る</a></p>
+    <section class="card login-card">
+      <div class="motif" data-motif="small" data-seed="8"></div>
+      <p class="eyebrow">Administrator</p>
+      <h1>管理画面ログイン</h1>
+      <div class="flourish"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
+      <form id="login-form">
+        <div class="field">
+          <label class="field-label" for="user-id">ユーザーID</label>
+          <input id="user-id" class="text-input" name="username" type="text" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label class="field-label" for="password">パスワード</label>
+          <input id="password" class="text-input" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="primary-button" type="submit">ログイン</button>
+        <p id="login-status" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <script src="./config.js?v=20261006-no-kinun"></script>
+  <script src="./admin-api.js?v=20261004-admin-only-receipt-api"></script>
+  <script src="./login.js?v=20260924-login-destination-routing"></script>
+</body>
+</html>

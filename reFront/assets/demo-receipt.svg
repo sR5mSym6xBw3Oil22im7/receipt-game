@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="650" viewBox="0 0 420 650" role="img" aria-labelledby="title desc">
+  <title id="title">サンプルストアの架空レシート</title>
+  <desc id="desc">2026年9月15日のサンプルストアでの買い物。合計1082円。</desc>
+  <rect width="420" height="650" fill="#e5e7eb"/>
+  <path d="M55 24h310v592l-26-12-26 12-26-12-26 12-26-12-26 12-26-12-26 12-26-12-26 12-26-12-26 12-26-12V24z" fill="#fffdf7" stroke="#d1d5db" stroke-width="2"/>
+  <g fill="#1f2937" font-family="monospace, sans-serif" text-anchor="middle">
+    <text x="210" y="70" font-size="25" font-weight="700">サンプルストア</text>
+    <text x="210" y="100" font-size="15">デモ専用レシート</text>
+    <text x="210" y="132" font-size="14">2026/09/15 12:34</text>
+    <path d="M85 154h250" stroke="#9ca3af" stroke-dasharray="5 5"/>
+    <text x="108" y="188" font-size="16" text-anchor="start">牛乳</text>
+    <text x="332" y="188" font-size="16" text-anchor="end">218円</text>
+    <text x="108" y="224" font-size="16" text-anchor="start">食パン</text>
+    <text x="332" y="224" font-size="16" text-anchor="end">168円</text>
+    <text x="108" y="260" font-size="16" text-anchor="start">卵</text>
+    <text x="332" y="260" font-size="16" text-anchor="end">298円</text>
+    <text x="108" y="296" font-size="16" text-anchor="start">コーヒー</text>
+    <text x="332" y="296" font-size="16" text-anchor="end">398円</text>
+    <path d="M85 322h250" stroke="#9ca3af" stroke-dasharray="5 5"/>
+    <text x="108" y="365" font-size="18" font-weight="700" text-anchor="start">合計</text>
+    <text x="332" y="365" font-size="22" font-weight="700" text-anchor="end">1,082円</text>
+    <text x="210" y="410" font-size="15">支払方法：クレジットカード</text>
+    <text x="210" y="470" font-size="14">ありがとうございました</text>
+    <text x="210" y="520" font-size="13" fill="#6b7280">これは架空のデモデータです</text>
+  </g>
+</svg>

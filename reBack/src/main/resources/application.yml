@@ -1,0 +1,44 @@
+server:
+  port: ${PORT:8081}
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    session:
+      cookie:
+        http-only: true
+        secure: ${SESSION_COOKIE_SECURE:true}
+        same-site: lax
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:receipt_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  jdbc:
+    template:
+      query-timeout: 20s
+
+app:
+  max-upload-bytes: 5242880
+  auth:
+    admin-username: ${ADMIN_USERNAME}
+    admin-password-hash: ${ADMIN_PASSWORD_HASH}
+    cookie-secure: ${SESSION_COOKIE_SECURE:true}
+    login-max-failures: ${LOGIN_MAX_FAILURES:5}
+    login-lock-minutes: ${LOGIN_LOCK_MINUTES:15}
+
+gemini:
+  receipt-model: gemini-3.5-flash-lite
+
+logging:
+  logback:
+    rollingpolicy:
+      file-name-pattern: "${LOG_FILE}.%d{yyyy-MM-dd}.%i.zip"
+

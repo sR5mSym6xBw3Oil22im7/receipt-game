@@ -1,0 +1,43 @@
+services:
+  - type: web
+    # Keep the Render service name aligned with reFront/config.js.
+    # Render derives the public onrender.com hostname from this name.
+    name: receipt-analysis-b8po
+    runtime: docker
+    rootDir: reBack
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD_HASH
+        sync: false
+      - key: SESSION_COOKIE_SECURE
+        value: "true"
+      - key: DB_HOST
+        fromDatabase:
+          name: receipt-analysis-psl-service
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: receipt-analysis-psl-service
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: receipt-analysis-psl-service
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: receipt-analysis-psl-service
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: receipt-analysis-psl-service
+          property: password
+
+databases:
+  - name: receipt-analysis-psl-service
+    plan: free
+    postgresMajorVersion: "18"

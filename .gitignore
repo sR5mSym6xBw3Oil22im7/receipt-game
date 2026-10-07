@@ -1,0 +1,37 @@
+# Local Maven distribution used only by this workspace.
+/apache-maven-3.9.16/
+
+# Local editor/workspace settings.
+/.vscode/
+
+# Runtime logs
+*.log
+
+# LibreOffice / OpenDocument files
+*.ods
+*.odt
+*.odp
+*.odg
+*.odf
+*.odb
+# LibreOffice lock files
+.~lock.*#
+
+# Microsoft Office files
+*.xls
+*.xlsx
+*.xlsm
+*.xlsb
+*.doc
+*.docx
+*.docm
+*.ppt
+*.pptx
+*.pptm
+*.mdb
+*.accdb
+# Office temp files
+~$*
+
+# Local environment variables
+.env
