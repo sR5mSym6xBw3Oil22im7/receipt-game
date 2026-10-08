@@ -1,12 +1,11 @@
 # レシート解析システム
 
-レシート画像をGoogle Gemini APIで解析し、読み取った文字列を確認してからPostgreSQLへ保存するWebシステムです。Gemini APIを呼び出さずに画面の流れを確認できるデモもあります。
+レシート画像をGoogle Gemini APIで解析し、読み取った文字列を確認してからPostgreSQLへ保存するWebシステムです。
 
 ## 機能
 
 | 機能 | 利用者 | 内容 |
 | --- | --- | --- |
-| デモ | だれでも | 架空のレシート画像と固定データで解析結果を表示します。Gemini API・バックエンド・DBは呼び出しません。 |
 | ログイン | 管理者 | ユーザーIDとパスワードでログインします。 |
 | レシート解析 | 管理者 | JPEG / PNG画像をGeminiで解析し、行ごとの文字列と構造化データ（店舗名、購入日時、合計金額、商品など）を返します。JPEG / PNGだけを含むZIPは、ブラウザーで展開して1枚ずつ解析します。 |
 | 保存 | 管理者 | 解析結果をPostgreSQLへ保存します。同じ画像（SHA-256が一致）は再登録できません。 |
@@ -24,7 +23,7 @@
 
 | パス | 内容 |
 | --- | --- |
-| `reFront/` | メニューとデモの静的ページ（HTML / CSS / JavaScript）。詳細は [reFront/README.md](reFront/README.md) |
+| `reFront/` | メニューの静的ページ（HTML / CSS / JavaScript）。詳細は [reFront/README.md](reFront/README.md) |
 | `reBack/` | Java 21 / Spring Boot のREST API、管理画面（ログイン・解析・一覧）、テスト、Dockerfile、render.yml。詳細は [reBack/README.md](reBack/README.md) |
 | `index.html` | `reFront/index.html` へ転送するページ |
 

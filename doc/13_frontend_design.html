@@ -2,16 +2,12 @@
 <section><h2>1. ディレクトリ構成</h2><pre><code>reFront/
 ├── index.html
 ├── index.js
-├── demo.html
-├── demo.js
 ├── config.js
 ├── styles.css
 ├── app.js           （static/admin/app.js と同じ内容）
 ├── select.js        （static/admin/select.js と同じ内容）
 ├── login.js         （static/admin/login.js と同じ内容）
 ├── admin-api.js     （static/admin/admin-api.js と同じ内容）
-├── assets/
-│   └── demo-receipt.svg
 └── test/
     └── smoke.test.mjs
 
@@ -25,7 +21,7 @@ reBack/src/main/resources/static/admin/
 ├── admin-api.js
 ├── config.js
 └── styles.css</code></pre></section>
-<section><h2>2. ファイル責務</h2><div class="table-wrap"><table class=""><thead><tr><th>ファイル</th><th>責務</th></tr></thead><tbody><tr><td>index.html / index.js</td><td>メニューのDOM構造。index.js は管理画面へのリンクを APP_CONFIG.ADMIN_BASE_URL に合わせて設定する。</td></tr><tr><td>demo.html / demo.js</td><td>デモ画面。固定データから結果の行を作り、0.9秒後に表示する。</td></tr><tr><td>config.js</td><td>接続先URL（window.APP_CONFIG）の設定と、金貨の装飾SVGの描画。</td></tr><tr><td>login.html / login.js</td><td>ログインフォーム、ログイン要求、ステータス別メッセージ、遷移先の決定。</td></tr><tr><td>upload.html / app.js</td><td>解析画面。ファイル指定、ZIP展開、解析・保存の呼び出し、段階表示、状態管理。</td></tr><tr><td>select.html / select.js</td><td>一覧の取得・表示、詳細表示、選択削除。</td></tr><tr><td>admin-api.js</td><td>CSRFトークン付きの fetch（adminFetch）、ログアウト、「メニューへ戻る」リンクの設定。</td></tr><tr><td>styles.css</td><td>全画面の配色、レイアウト、フォーム、一覧、レスポンシブ。</td></tr></tbody></table></div></section>
+<section><h2>2. ファイル責務</h2><div class="table-wrap"><table class=""><thead><tr><th>ファイル</th><th>責務</th></tr></thead><tbody><tr><td>index.html / index.js</td><td>メニューのDOM構造。index.js は管理画面へのリンクを APP_CONFIG.ADMIN_BASE_URL に合わせて設定する。</td></tr><tr><td>config.js</td><td>接続先URL（window.APP_CONFIG）の設定と、金貨の装飾SVGの描画。</td></tr><tr><td>login.html / login.js</td><td>ログインフォーム、ログイン要求、ステータス別メッセージ、遷移先の決定。</td></tr><tr><td>upload.html / app.js</td><td>解析画面。ファイル指定、ZIP展開、解析・保存の呼び出し、段階表示、状態管理。</td></tr><tr><td>select.html / select.js</td><td>一覧の取得・表示、詳細表示、選択削除。</td></tr><tr><td>admin-api.js</td><td>CSRFトークン付きの fetch（adminFetch）、ログアウト、「メニューへ戻る」リンクの設定。</td></tr><tr><td>styles.css</td><td>全画面の配色、レイアウト、フォーム、一覧、レスポンシブ。</td></tr></tbody></table></div></section>
 <section><h2>3. 状態管理</h2><div class="table-wrap"><table class=""><thead><tr><th>状態</th><th>保存先</th><th>用途</th><th>削除</th></tr></thead><tbody><tr><td>analyzedReceipts</td><td>JavaScript変数（app.js）</td><td>画像ごとの解析結果（lines、sha256、structuredData、保存済みかどうか）を保持。</td><td>ファイル変更時、全件保存成功時。</td></tr><tr><td>analysisReady</td><td>JavaScript変数（app.js）</td><td>全画像の解析が成功したかを示し、保存ボタンの表示を決める。</td><td>解析開始時・失敗時にfalse。</td></tr><tr><td>busy</td><td>JavaScript変数（app.js）</td><td>解析・保存の多重実行を防ぐ。</td><td>処理終了時にfalse。</td></tr><tr><td>selectedTableNames</td><td>JavaScript変数（select.js）</td><td>削除対象として選択したテーブル名。</td><td>削除成功時に該当分を削除。</td></tr><tr><td>Gemini APIキー</td><td>入力欄のみ</td><td>解析要求ごとに送信。ブラウザーのストレージには保存しない。</td><td>「入力を消去」ボタン、ページを閉じる。</td></tr></tbody></table></div></section>
 <section><h2>4. API呼出し</h2><div class="table-wrap"><table class=""><thead><tr><th>画面</th><th>API</th><th>方式</th></tr></thead><tbody><tr><td>ログイン</td><td>POST /api/auth/login</td><td>JSON。adminFetch がCSRFトークンを付ける。</td></tr><tr><td>解析</td><td>POST /api/receipts/analyze</td><td>multipart（file、geminiApiKey）。画像1枚ごとに送信。210秒で中断。</td></tr><tr><td>解析</td><td>POST /api/receipts/save</td><td>JSON（lines、sha256、structuredData）。未保存の結果ごとに送信。30秒で中断。</td></tr><tr><td>一覧</td><td>GET /api/receipts、GET /api/receipts/{tableName}</td><td>一覧と詳細の取得。</td></tr><tr><td>一覧</td><td>DELETE /api/receipts/{tableName}</td><td>選択した件ごとに送信。</td></tr><tr><td>解析・一覧</td><td>POST /api/auth/logout</td><td>ログアウト後に /admin/login.html へ移動。</td></tr></tbody></table></div><p>adminFetch は GET・HEAD・OPTIONS 以外の要求の前に GET /api/auth/csrf でトークンを取得し、X-XSRF-TOKEN ヘッダーに設定する。送信は credentials: "same-origin" で行う。</p></section>
-<section><h2>5. 実装完了内容</h2><ul><li>メニュー、デモ、ログイン、解析、一覧（詳細パネルを含む）の5画面。</li><li>JPEG / PNG と ZIP の受付、ドラッグ＆ドロップ、ブラウザー内のZIP展開。</li><li>解析・保存の時間制限と、15秒ごとの経過表示。</li><li>APIキーに関するエラー時の入れ替え案内。</li><li>保存失敗時に、保存済みの結果を残して未保存分だけ再試行できる動作。</li><li>reFront/ と static/admin/ の管理画面スクリプトの一致を確認するスモークテスト。</li></ul></section><div class="nav-links"><a href="12_system_architecture.html">← システム構成図</a><a href="14_backend_design.html">バックエンド基本設計書 →</a></div></article></main></div><footer class="footer">レシート解析システム 開発文書 / Version 1.0</footer><script src="js/script.js"></script></body></html>
+<section><h2>5. 実装完了内容</h2><ul><li>メニュー、ログイン、解析、一覧（詳細パネルを含む）の4画面。</li><li>JPEG / PNG と ZIP の受付、ドラッグ＆ドロップ、ブラウザー内のZIP展開。</li><li>解析・保存の時間制限と、15秒ごとの経過表示。</li><li>APIキーに関するエラー時の入れ替え案内。</li><li>保存失敗時に、保存済みの結果を残して未保存分だけ再試行できる動作。</li><li>reFront/ と static/admin/ の管理画面スクリプトの一致を確認するスモークテスト。</li></ul></section><div class="nav-links"><a href="12_system_architecture.html">← システム構成図</a><a href="14_backend_design.html">バックエンド基本設計書 →</a></div></article></main></div><footer class="footer">レシート解析システム 開発文書 / Version 1.0</footer><script src="js/script.js"></script></body></html>

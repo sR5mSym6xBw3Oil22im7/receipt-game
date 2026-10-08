@@ -6,8 +6,7 @@
 
 | ファイル | 内容 |
 | --- | --- |
-| `index.html` / `index.js` | メニュー。デモ、レシート解析、保存済みレシートの確認への入口です。 |
-| `demo.html` / `demo.js` | デモ。架空のレシート画像（`assets/demo-receipt.svg`）と固定データで解析結果を表示します。Gemini API・バックエンド・DBは呼び出しません。 |
+| `index.html` / `index.js` | メニュー。レシート解析、保存済みレシートの確認への入口です。 |
 
 ログイン、レシート解析、保存済みレシート一覧の画面は、バックエンドの `reBack/src/main/resources/static/admin/` から配信します。メニューの「レシートを解析」と「保存済みレシートを確認する」は、バックエンドのログイン画面へ移動します。
 
@@ -19,7 +18,6 @@
 | `config.js` | 接続先URL（`window.APP_CONFIG`）の設定と、背景や見出しの装飾（金貨のSVG）の描画 |
 | `styles.css` | 画面共通のスタイル |
 | `app.js` / `select.js` / `login.js` / `admin-api.js` | 管理画面のスクリプト。バックエンド側の同名ファイルと同じ内容です。 |
-| `assets/demo-receipt.svg` | デモ用の架空のレシート画像 |
 | `test/smoke.test.mjs` | HTMLとスクリプトの内容を検査するテスト |
 
 ## 接続先
@@ -35,7 +33,7 @@
 
 1. バックエンドとPostgreSQLを起動します（[reBack/README.md](../reBack/README.md) を参照）。
 2. リポジトリ直下で `node reFront/server.mjs` を実行し、`http://localhost:5051/index.html` を開きます。ポートは5051に固定しています（`config.js` の「メニューへ戻る」の移動先と同じ）。
-3. デモはバックエンドなしで動作します。解析にはログインと、バックエンドの `.env` への `GEMINI_API_KEY` の設定が必要です。
+3. 解析にはログインと、バックエンドの `.env` への `GEMINI_API_KEY` の設定が必要です。
 
 ## 解析画面の動作（app.js）
 
@@ -58,7 +56,7 @@
 node --test reFront/test/smoke.test.mjs
 ```
 
-画面の要素、デモが通信しないこと、解析画面にGemini APIキーの入力欄がなく送信もしないこと、管理画面スクリプトの内容が一致することなどを検査します。
+画面の要素、解析画面にGemini APIキーの入力欄がなく送信もしないこと、管理画面スクリプトの内容が一致することなどを検査します。
 
 ## 変更時の注意
 
