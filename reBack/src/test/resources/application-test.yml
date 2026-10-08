@@ -10,3 +10,4 @@ app:
     cookie-secure: false
 gemini:
   receipt-model: gemini-3.5-flash-lite
+  default-api-key: test-default-key

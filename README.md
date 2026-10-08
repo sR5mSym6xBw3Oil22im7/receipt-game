@@ -17,7 +17,7 @@
 ## データの扱い
 
 - 画像ファイルそのものは保存しません。重複判定に使うSHA-256、読み取った文字列、構造化データを保存します。
-- Gemini APIキーはバックエンドの環境変数 `GEMINI_API_KEY`（ローカルでは `reBack/.env`）で設定します。画面での入力やDBへの保存は行いません。
+- Gemini APIキーはバックエンドの環境変数 `GEMINI_API_DEFAULT`（必須）と用途別の `GEMINI_API_ANALYZE` など（ローカルでは `reBack/.env`）で設定します。画面での入力やDBへの保存は行いません。
 - 解析・保存・一覧・詳細・削除のAPIは、バックエンドのSpring Securityで管理者（ROLE_ADMIN）だけに制限しています。
 
 ## 構成
@@ -35,11 +35,11 @@
 必要なもの：Java 21、Maven、PostgreSQL。フロントエンドのテストにはNode.jsも必要です。
 
 1. PostgreSQLにデータベースを用意します（既定値は `localhost:5432/receipt_db`、ユーザー `postgres`）。テーブルはアプリが実行時に作成します。
-2. `reBack/.env.example` を `reBack/.env` にコピーし、値を設定してバックエンドを起動します。`ADMIN_PASSWORD_HASH` にはBCrypt形式のハッシュ、`GEMINI_API_KEY` にはGemini APIキーを設定します。
+2. `reBack/.env.example` を `reBack/.env` にコピーし、値を設定してバックエンドを起動します。`ADMIN_PASSWORD_HASH` にはBCrypt形式のハッシュ、`GEMINI_API_DEFAULT` にはGemini APIキーを設定します。
 
    ```sh
    cd reBack
-   cp .env.example .env   # DB_PASSWORD、ADMIN_USERNAME、ADMIN_PASSWORD_HASH、GEMINI_API_KEY を編集
+   cp .env.example .env   # DB_PASSWORD、ADMIN_USERNAME、ADMIN_PASSWORD_HASH、GEMINI_API_DEFAULT を編集
    mvn spring-boot:run -Dspring-boot.run.profiles=local
    ```
 

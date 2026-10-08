@@ -55,9 +55,10 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 | `SESSION_COOKIE_SECURE` | `true` | セッションCookieとCSRF CookieのSecure属性 |
 | `LOGIN_MAX_FAILURES` | `5` | ログインをロックするまでの連続失敗回数 |
 | `LOGIN_LOCK_MINUTES` | `15` | ロックする時間（分） |
-| `GEMINI_API_KEY` | なし | Gemini APIキー。未設定の場合、解析APIは503（`GEMINI_API_KEY_MISSING`）を返します |
+| `GEMINI_API_DEFAULT` | なし | Gemini APIの既定キー。必須。未設定または空の場合、バックエンドは起動しません |
+| `GEMINI_API_PLAYER1` / `GEMINI_API_PLAYER2` / `GEMINI_API_MONSTER` / `GEMINI_API_ANALYZE` | `GEMINI_API_DEFAULT` | 用途別のGemini APIキー。任意。設定すると `GEMINI_API_DEFAULT` より優先し、未設定なら `GEMINI_API_DEFAULT` を使います。レシート解析は `GEMINI_API_ANALYZE` を使います |
 
-設定例は `.env.example` にあります。Geminiのモデルは `application.yml` の `gemini.receipt-model`（`gemini-3.5-flash-lite`）で指定します。Gemini APIキーは `GEMINI_API_KEY` で設定します。
+設定例は `.env.example` にあります。Geminiのモデルは `application.yml` の `gemini.receipt-model`（`gemini-3.5-flash-lite`）で指定します。Gemini APIキーは `GEMINI_API_DEFAULT`（必須）と用途別の `GEMINI_API_*` で設定します。
 
 ## API
 
@@ -107,7 +108,7 @@ mvn test
 
 `Dockerfile` はMavenでJARをビルドし、Java 21のJREイメージで実行します（ポート8081）。
 
-`render.yml` には、Web Service `receipt-analysis-b8po` とPostgreSQL `receipt-analysis-psl-service` が定義されています。DB接続用の環境変数はデータベースから設定され、`ADMIN_USERNAME`、`ADMIN_PASSWORD_HASH`、`GEMINI_API_KEY` は値を手動で設定する項目（`sync: false`）です。サービス名を変える場合は、`reFront/config.js` の接続先も変更してください。
+`render.yml` には、Web Service `receipt-analysis-b8po` とPostgreSQL `receipt-analysis-psl-service` が定義されています。DB接続用の環境変数はデータベースから設定され、`ADMIN_USERNAME`、`ADMIN_PASSWORD_HASH`、`GEMINI_API_DEFAULT`、`GEMINI_API_PLAYER1`、`GEMINI_API_PLAYER2`、`GEMINI_API_MONSTER`、`GEMINI_API_ANALYZE` は値を手動で設定する項目（`sync: false`）です。サービス名を変える場合は、`reFront/config.js` の接続先も変更してください。
 
 ## 管理画面のスクリプト
 

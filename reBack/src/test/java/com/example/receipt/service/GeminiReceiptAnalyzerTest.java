@@ -1,5 +1,6 @@
 package com.example.receipt.service;
 
+import com.example.receipt.config.GeminiApiKeys;
 import com.example.receipt.exception.ReceiptException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -10,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class GeminiReceiptAnalyzerTest {
     @Test
     void failsCleanlyWhenConfiguredApiKeyIsMissing() {
-        GeminiReceiptAnalyzer analyzer = new GeminiReceiptAnalyzer("gemini-3.5-flash-lite", "");
+        GeminiReceiptAnalyzer analyzer = new GeminiReceiptAnalyzer("gemini-3.5-flash-lite", new GeminiApiKeys("", "", "", "", ""));
 
         assertThatThrownBy(() -> analyzer.analyze(new byte[]{1, 2, 3}, "image/jpeg"))
                 .isInstanceOfSatisfying(ReceiptException.class, e -> {

@@ -14,7 +14,15 @@ services:
         sync: false
       - key: ADMIN_PASSWORD_HASH
         sync: false
-      - key: GEMINI_API_KEY
+      - key: GEMINI_API_DEFAULT
+        sync: false
+      - key: GEMINI_API_PLAYER1
+        sync: false
+      - key: GEMINI_API_PLAYER2
+        sync: false
+      - key: GEMINI_API_MONSTER
+        sync: false
+      - key: GEMINI_API_ANALYZE
         sync: false
       - key: SESSION_COOKIE_SECURE
         value: "true"

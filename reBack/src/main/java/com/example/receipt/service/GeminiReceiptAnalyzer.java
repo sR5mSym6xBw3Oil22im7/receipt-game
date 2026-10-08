@@ -1,5 +1,6 @@
 package com.example.receipt.service;
 
+import com.example.receipt.config.GeminiApiKeys;
 import com.example.receipt.dto.ReceiptText;
 import com.example.receipt.dto.ReceiptItemData;
 import com.example.receipt.dto.ReceiptStructuredData;
@@ -49,9 +50,9 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
 
     public GeminiReceiptAnalyzer(
             @Value("${gemini.receipt-model:gemini-3.5-flash-lite}") String model,
-            @Value("${gemini.api-key:}") String apiKey) {
+            GeminiApiKeys apiKeys) {
         this.model = model;
-        this.apiKey = apiKey;
+        this.apiKey = apiKeys.analyze();
     }
 
     @Override
@@ -63,8 +64,8 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             String normalized = apiKey == null ? "" : apiKey.trim();
             String code = normalized.isBlank() ? "GEMINI_API_KEY_MISSING" : "INVALID_GEMINI_API_KEY";
             String message = normalized.isBlank()
-                    ? "Gemini APIキーが設定されていません。.envのGEMINI_API_KEYを設定してください。"
-                    : "Gemini APIキーの形式を確認してください。.envのGEMINI_API_KEYを確認してください。";
+                    ? "Gemini APIキーが設定されていません。.envのGEMINI_API_ANALYZEまたはGEMINI_API_DEFAULTを設定してください。"
+                    : "Gemini APIキーの形式を確認してください。.envのGEMINI_API_ANALYZEまたはGEMINI_API_DEFAULTを確認してください。";
             throw new ReceiptException(HttpStatus.SERVICE_UNAVAILABLE, code, message);
         }
 
@@ -190,7 +191,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             return new ReceiptException(
                     HttpStatus.UNAUTHORIZED,
                     "GEMINI_API_KEY_REJECTED",
-                    "Gemini APIキーが無効、ブロック済み、または権限不足です。.envのGEMINI_API_KEYを確認してください。"
+                    "Gemini APIキーが無効、ブロック済み、または権限不足です。.envのGEMINI_API_ANALYZEまたはGEMINI_API_DEFAULTを確認してください。"
             );
         }
         return null;
@@ -218,7 +219,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             return new ReceiptException(
                     HttpStatus.UNAUTHORIZED,
                     "GEMINI_API_KEY_REJECTED",
-                    "Gemini APIキーが無効、ブロック済み、または権限不足です。.envのGEMINI_API_KEYを確認してください。"
+                    "Gemini APIキーが無効、ブロック済み、または権限不足です。.envのGEMINI_API_ANALYZEまたはGEMINI_API_DEFAULTを確認してください。"
             );
         }
 

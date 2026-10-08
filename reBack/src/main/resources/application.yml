@@ -39,7 +39,11 @@ app:
 
 gemini:
   receipt-model: gemini-3.5-flash-lite
-  api-key: ${GEMINI_API_KEY:}
+  default-api-key: ${GEMINI_API_DEFAULT:}
+  player1-api-key: ${GEMINI_API_PLAYER1:}
+  player2-api-key: ${GEMINI_API_PLAYER2:}
+  monster-api-key: ${GEMINI_API_MONSTER:}
+  analyze-api-key: ${GEMINI_API_ANALYZE:}
 
 logging:
   logback:
