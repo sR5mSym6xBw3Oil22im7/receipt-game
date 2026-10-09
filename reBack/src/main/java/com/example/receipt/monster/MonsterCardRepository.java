@@ -132,6 +132,12 @@ public class MonsterCardRepository {
         return count == null ? 0 : count;
     }
 
+    /** 保存済みのレシート（古い順）。 */
+    public List<String> savedReceiptTables() {
+        if (!tableExists("receipt_structured_summary")) return List.of();
+        return jdbc.queryForList("SELECT receipt_table_name FROM receipt_structured_summary ORDER BY id", String.class);
+    }
+
     /** カードを持たない保存済みレシート（機能追加前のもの）。 */
     public List<String> receiptTablesWithoutCard() {
         if (!tableExists("receipt_structured_summary")) return List.of();

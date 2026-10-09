@@ -92,6 +92,11 @@ public class MonsterCardService {
      * 解析時の下書きは、このカードで上書きする。
      */
     public MonsterCard prepareCardForSave(String sha256, ReceiptStructuredData cleanData, List<String> cleanLines) {
+        return generateForSave(sha256, cleanData, cleanLines).card();
+    }
+
+    /** {@link #prepareCardForSave} と同じだが、生成AIで作れたかどうかも返す（一括処理で再試行するかの判断用）。 */
+    public GeneratedCard generateForSave(String sha256, ReceiptStructuredData cleanData, List<String> cleanLines) {
         List<AiKey> aiKeys = new ArrayList<>(List.of(new AiKey("MONSTER", keys.monster())));
         // GEMINI_API_MONSTER が未設定なら monster() は既定のキーなので、同じキーで2回は呼ばない
         if (!keys.defaultKey().equals(keys.monster())) aiKeys.add(new AiKey("DEFAULT", keys.defaultKey()));
@@ -102,21 +107,25 @@ public class MonsterCardService {
     record AiKey(String name, String apiKey) {
     }
 
+    /** 作ったカードと、パラメータ・イラストを生成AIで作れたかどうか（false なら計算式の値・代替イラスト）。 */
+    public record GeneratedCard(MonsterCard card, boolean aiParameters, boolean aiIllustration) {
+    }
+
     /**
      * カードを作る。パラメータとイラストは、それぞれ aiKeys を前から順に試して生成AIで作る。
      * どのキーでも作れなければ、計算式のパラメータ・代替イラストのまま。呼び出しは1回ずつキーごとの1日の上限に数える。
      */
-    MonsterCard generateWithAi(ReceiptStructuredData cleanData, String sha256, List<String> cleanLines, String source,
-                               List<AiKey> aiKeys) {
+    GeneratedCard generateWithAi(ReceiptStructuredData cleanData, String sha256, List<String> cleanLines, String source,
+                                 List<AiKey> aiKeys) {
         int charCount = MonsterCardGenerator.charCount(cleanLines);
         MonsterCard base = MonsterCardGenerator.generate(cleanData, sha256, charCount, source);
-        if (!settings.aiIllustrationEnabled()) return base;
-        MonsterCard card = firstSuccess(aiKeys, "parameters", key -> ai.generateParameters(cleanData, charCount, key.apiKey()))
-                .map(p -> MonsterCardGenerator.applyParameters(base, p))
-                .orElse(base);
-        return firstSuccess(aiKeys, "illustration", key -> ai.illustrate(card, key.apiKey()))
-                .map(card::withSvg)
-                .orElse(card);
+        if (!settings.aiIllustrationEnabled()) return new GeneratedCard(base, false, false);
+        Optional<MonsterCard> withParameters = firstSuccess(aiKeys, "parameters",
+                key -> ai.generateParameters(cleanData, charCount, key.apiKey()))
+                .map(p -> MonsterCardGenerator.applyParameters(base, p));
+        MonsterCard card = withParameters.orElse(base);
+        Optional<String> svg = firstSuccess(aiKeys, "illustration", key -> ai.illustrate(card, key.apiKey()));
+        return new GeneratedCard(svg.map(card::withSvg).orElse(card), withParameters.isPresent(), svg.isPresent());
     }
 
     private <T> Optional<T> firstSuccess(List<AiKey> aiKeys, String label, Function<AiKey, Optional<T>> call) {
