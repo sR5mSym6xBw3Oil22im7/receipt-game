@@ -5,6 +5,7 @@ import com.example.receipt.dto.ReceiptStructuredData;
 
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Objects;
 /**
  * カード生成（要件定義書 5章、アルゴリズム版数 2）。
  * 画像ハッシュの先頭32ビットを種にし、同じ入力からは必ず同じカードを作る。
+ * ただしイラスト（SVG）だけは、種にカードを作った時刻を混ぜるので、作るたびに変わる。
  * 入力の構造化データは {@link PersonalInfoSanitizer} を通したものを渡すこと。
  */
 public final class MonsterCardGenerator {
@@ -36,6 +38,7 @@ public final class MonsterCardGenerator {
             "雷", List.of("ボルト", "ライ", "テンペ", "スパー"),
             "無", List.of("ノア", "ヌル", "ゼロ", "ボイド"));
     private static final List<String> NAME_SUFFIX = List.of("ン", "ドラ", "モン", "ゴン", "ラス", "ビー");
+    private static final DateTimeFormatter CREATED_AT_DIGITS = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
 
     private MonsterCardGenerator() {
     }
@@ -55,6 +58,12 @@ public final class MonsterCardGenerator {
     }
 
     public static MonsterCard generate(ReceiptStructuredData receipt, String sha256, int charCount, String source) {
+        return generate(receipt, sha256, charCount, source, LocalDateTime.now());
+    }
+
+    /** createdAt はイラストの種にだけ使う。名前・ステータスは createdAt によらない。 */
+    public static MonsterCard generate(ReceiptStructuredData receipt, String sha256, int charCount, String source,
+                                       LocalDateTime createdAt) {
         ReceiptStructuredData data = receipt == null
                 ? new ReceiptStructuredData(null, null, "その他", null, null, null, null, List.of())
                 : receipt;
@@ -112,7 +121,17 @@ public final class MonsterCardGenerator {
 
         MonsterCard card = new MonsterCard(null, sha256, source, name, element, rarity, hp, atk, def, spd, luck, power,
                 skillName, skillPower, lucky, flavor, storeCategory, null, ALGORITHM_VERSION);
-        return card.withSvg(MonsterSvgRenderer.fallbackSvg(element, rarity, seed));
+        return card.withSvg(MonsterSvgRenderer.fallbackSvg(element, rarity, illustrationSeed(seed, createdAt)));
+    }
+
+    /**
+     * イラストの乱数の種。画像ハッシュの種に、作成時刻 YYYYMMDDHHMMSS（14桁の数字）を混ぜて32ビットにする。
+     * 1秒違いでも絵が大きく変わるよう、時刻の数字はかき混ぜてから合わせる。
+     */
+    public static long illustrationSeed(long seed, LocalDateTime createdAt) {
+        long digits = Long.parseLong(createdAt.format(CREATED_AT_DIGITS));
+        long mixed = digits * 0x9E3779B97F4A7C15L;
+        return (seed ^ mixed ^ (mixed >>> 32)) & 0xFFFFFFFFL;
     }
 
     static String determineElement(List<ReceiptItemData> items) {

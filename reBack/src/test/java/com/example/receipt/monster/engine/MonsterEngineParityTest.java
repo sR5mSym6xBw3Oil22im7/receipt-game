@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * フィクスチャは架空のレシート12件＋端のケース2件と、それらの対戦12件。
  */
 class MonsterEngineParityTest {
+    private static final LocalDateTime CREATED_AT = LocalDateTime.of(2026, 10, 10, 0, 15, 30);
     private final JsonObject fixture = load();
 
     @Test
@@ -48,7 +49,12 @@ class MonsterEngineParityTest {
             if (!expected.get("flavor").isJsonNull()) {
                 assertThat(card.flavor()).as(label).isEqualTo(expected.get("flavor").getAsString());
             }
-            assertThat(card.svg()).as(label).isEqualTo(expected.get("svg").getAsString());
+            // 代替イラストの描き方はデモと同じ（同じ種なら同じ絵）。カードには作成時刻を混ぜた種の絵が付く。
+            long seed = MonsterCardGenerator.seedFromSha(label);
+            assertThat(MonsterSvgRenderer.fallbackSvg(card.element(), card.rarity(), seed)).as(label)
+                    .isEqualTo(expected.get("svg").getAsString());
+            assertThat(card.svg()).as(label).isEqualTo(MonsterSvgRenderer.fallbackSvg(card.element(), card.rarity(),
+                    MonsterCardGenerator.illustrationSeed(seed, CREATED_AT)));
             assertThat(MonsterSvgValidator.isSafe(card.svg())).as(label).isTrue();
         }
     }
@@ -57,6 +63,30 @@ class MonsterEngineParityTest {
     void sameReceiptAlwaysMakesTheSameCard() {
         JsonObject c = fixture.getAsJsonArray("cases").get(0).getAsJsonObject();
         assertThat(generate(c)).isEqualTo(generate(c));
+    }
+
+    @Test
+    void creationTimeChangesOnlyTheIllustration() {
+        JsonObject c = fixture.getAsJsonArray("cases").get(0).getAsJsonObject();
+        MonsterCard first = generate(c, CREATED_AT);
+        MonsterCard oneSecondLater = generate(c, CREATED_AT.plusSeconds(1));
+        assertThat(oneSecondLater.svg()).isNotEqualTo(first.svg());
+        assertThat(oneSecondLater.withSvg(null)).isEqualTo(first.withSvg(null));
+        assertThat(MonsterSvgValidator.isSafe(oneSecondLater.svg())).isTrue();
+    }
+
+    @Test
+    void illustrationSeedUsesTheFourteenDigitTimestamp() {
+        long seed = 0x1234ABCDL;
+        long expected = 20261010001530L * 0x9E3779B97F4A7C15L;
+        assertThat(MonsterCardGenerator.illustrationSeed(seed, CREATED_AT))
+                .isEqualTo((seed ^ expected ^ (expected >>> 32)) & 0xFFFFFFFFL)
+                .isBetween(0L, 0xFFFFFFFFL);
+        // 秒・年が違えば種も変わる
+        assertThat(MonsterCardGenerator.illustrationSeed(seed, CREATED_AT.plusSeconds(1)))
+                .isNotEqualTo(MonsterCardGenerator.illustrationSeed(seed, CREATED_AT));
+        assertThat(MonsterCardGenerator.illustrationSeed(seed, CREATED_AT.plusYears(1)))
+                .isNotEqualTo(MonsterCardGenerator.illustrationSeed(seed, CREATED_AT));
     }
 
     @Test
@@ -98,6 +128,10 @@ class MonsterEngineParityTest {
     }
 
     private static MonsterCard generate(JsonObject c) {
+        return generate(c, CREATED_AT);
+    }
+
+    private static MonsterCard generate(JsonObject c, LocalDateTime createdAt) {
         JsonObject in = c.getAsJsonObject("input");
         List<ReceiptItemData> items = new ArrayList<>();
         for (JsonElement e : in.getAsJsonArray("items")) {
@@ -111,7 +145,8 @@ class MonsterEngineParityTest {
                 in.get("totalAmount").isJsonNull() ? null : in.get("totalAmount").getAsLong(),
                 str(in, "paymentMethod"), str(in, "receiptNumber"), items);
         ReceiptStructuredData sanitized = PersonalInfoSanitizer.sanitize(data, null).data();
-        return MonsterCardGenerator.generate(sanitized, c.get("sha").getAsString(), c.get("charCount").getAsInt(), "ANALYZE");
+        return MonsterCardGenerator.generate(sanitized, c.get("sha").getAsString(), c.get("charCount").getAsInt(), "ANALYZE",
+                createdAt);
     }
 
     private static String str(JsonObject o, String key) {
