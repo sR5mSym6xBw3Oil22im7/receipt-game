@@ -19,7 +19,6 @@ import com.example.receipt.monster.MonsterViews.RoomView;
 import com.example.receipt.monster.MonsterViews.SeatResponse;
 import com.example.receipt.monster.engine.MonsterBattleEngine;
 import com.example.receipt.monster.engine.MonsterCard;
-import com.example.receipt.monster.engine.MonsterCardGenerator;
 import com.example.receipt.monster.engine.PersonalInfoSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -243,9 +242,8 @@ public class MonsterRoomService {
                 card = existing.get().card();
                 reused = true;
             } else {
-                MonsterCard generated = MonsterCardGenerator.generate(clean.data(), sha,
-                        MonsterCardGenerator.charCount(clean.lines()), keyName);
-                card = cards.insertDraft(cardService.illustrate(generated, keyName, apiKey)).card();
+                card = cards.insertDraft(cardService.generateWithAi(clean.data(), sha, clean.lines(), keyName, keyName, apiKey))
+                        .card();
                 reused = false;
             }
         }

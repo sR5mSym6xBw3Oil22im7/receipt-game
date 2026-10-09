@@ -5,11 +5,12 @@ import com.example.receipt.dto.ReceiptStructuredData;
 import com.example.receipt.dto.ReceiptUploadResponse;
 import com.example.receipt.exception.ReceiptException;
 import com.example.receipt.monster.MonsterCardService;
+import com.example.receipt.monster.engine.MonsterCard;
 import com.example.receipt.monster.engine.PersonalInfoSanitizer;
 import com.example.receipt.repository.ReceiptTableRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -22,16 +23,19 @@ public class ReceiptService {
     private final ReceiptUploadValidator validator;
     private final ReceiptTableRepository repository;
     private final MonsterCardService monsterCardService;
+    private final TransactionTemplate tx;
 
     public ReceiptService(
             ReceiptAnalyzer receiptAnalyzer,
             ReceiptUploadValidator validator,
             ReceiptTableRepository repository,
-            MonsterCardService monsterCardService) {
+            MonsterCardService monsterCardService,
+            TransactionTemplate tx) {
         this.receiptAnalyzer = receiptAnalyzer;
         this.validator = validator;
         this.repository = repository;
         this.monsterCardService = monsterCardService;
+        this.tx = tx;
     }
 
     public ReceiptText analyze(MultipartFile file) throws IOException {
@@ -48,7 +52,6 @@ public class ReceiptService {
         return new ReceiptText(analyzed.lines(), sha256, analyzed.structuredData());
     }
 
-    @Transactional
     public ReceiptUploadResponse store(java.util.List<String> lines, String sha256, ReceiptStructuredData structuredData) {
         java.util.List<String> originalLines = lines == null
                 ? java.util.List.of()
@@ -60,10 +63,14 @@ public class ReceiptService {
         // 保存前に個人情報を検出して取り除く。取り除けなければ保存しない（カードも作らない）。
         PersonalInfoSanitizer.Result clean = monsterCardService.sanitizeForSave(structuredData, originalLines);
         java.util.List<String> savedLines = clean.lines();
-        String tableName = repository.createReceiptTableAndInsert(savedLines, normalizedSha256);
-        repository.saveStructuredData(tableName, normalizedSha256, clean.data());
-        monsterCardService.activateForSavedReceipt(tableName, normalizedSha256, clean.data(), savedLines);
-        return new ReceiptUploadResponse(tableName, savedLines.size(), savedLines, normalizedSha256);
+        // モンスターカードはDBへの登録と同時に作る。Geminiの呼び出しは時間がかかるのでトランザクションの外で行う
+        MonsterCard card = monsterCardService.prepareCardForSave(normalizedSha256, clean.data(), savedLines);
+        return tx.execute(status -> {
+            String tableName = repository.createReceiptTableAndInsert(savedLines, normalizedSha256);
+            repository.saveStructuredData(tableName, normalizedSha256, clean.data());
+            monsterCardService.activateForSavedReceipt(tableName, card);
+            return new ReceiptUploadResponse(tableName, savedLines.size(), savedLines, normalizedSha256);
+        });
     }
 
     static String sha256(byte[] bytes) {

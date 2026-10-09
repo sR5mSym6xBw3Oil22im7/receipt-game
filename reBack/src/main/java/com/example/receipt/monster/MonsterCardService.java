@@ -50,7 +50,10 @@ public class MonsterCardService {
         cards.ensureSchema();
     }
 
-    /** 解析の応答を返した後、別スレッドで下書きのカードを作る。同じ画像のカードがあれば作り直さない。 */
+    /**
+     * 解析の応答を返した後、別スレッドで下書きのカードを作る。同じ画像のカードがあれば作り直さない。
+     * 保存時に GEMINI_API_MONSTER で作り直して上書きするので、ここでは生成AIを使わない（利用回数を二重に使わないため）。
+     */
     public void prepareDraftAsync(String sha256, List<String> lines, ReceiptStructuredData data) {
         tasks.run("draft", () -> {
             if (cards.findBySha(sha256).isPresent()) return;
@@ -64,7 +67,7 @@ public class MonsterCardService {
             logMasked(clean.maskedCount());
             MonsterCard card = MonsterCardGenerator.generate(clean.data(), sha256,
                     MonsterCardGenerator.charCount(clean.lines()), "ANALYZE");
-            cards.insertDraft(illustrate(card, "MONSTER", keys.monster()));
+            cards.insertDraft(card);
         });
     }
 
@@ -78,6 +81,36 @@ public class MonsterCardService {
             LOGGER.warn("Receipt save rejected: personal information could not be removed.");
             throw new ReceiptException(HttpStatus.UNPROCESSABLE_CONTENT, "PERSONAL_INFO_CHECK_FAILED", PII_FAILED_MESSAGE);
         }
+    }
+
+    /**
+     * 保存するレシートのカードを作る（DBへの登録と同じタイミングで、トランザクションの外で呼ぶ）。
+     * パラメータとイラストは GEMINI_API_MONSTER で作る。解析時の下書きは、このカードで上書きする。
+     */
+    public MonsterCard prepareCardForSave(String sha256, ReceiptStructuredData cleanData, List<String> cleanLines) {
+        return generateWithAi(cleanData, sha256, cleanLines, "ANALYZE", "MONSTER", keys.monster());
+    }
+
+    /**
+     * カードを作る。パラメータとイラストは生成AIで作り、使えなければ計算式のパラメータ・代替イラストのまま。
+     * 生成AIの呼び出しは1回ずつキーごとの1日の上限に数える。
+     */
+    MonsterCard generateWithAi(ReceiptStructuredData cleanData, String sha256, List<String> cleanLines, String source,
+                               String keyName, String apiKey) {
+        int charCount = MonsterCardGenerator.charCount(cleanLines);
+        MonsterCard card = MonsterCardGenerator.generate(cleanData, sha256, charCount, source);
+        if (settings.aiIllustrationEnabled() && limiter.tryAcquireGemini(keyName)) {
+            MonsterCard base = card;
+            card = ai.generateParameters(cleanData, charCount, apiKey)
+                    .map(p -> MonsterCardGenerator.applyParameters(base, p))
+                    .orElse(base);
+        }
+        return illustrate(card, keyName, apiKey);
+    }
+
+    /** {@link #prepareCardForSave} で作ったカードを有効にする（保存と同じトランザクション内で呼ぶ）。 */
+    public void activateForSavedReceipt(String tableName, MonsterCard card) {
+        cards.activate(card, tableName);
     }
 
     /** 保存したレシートのカードを有効にする（保存と同じトランザクション内で呼ぶ）。 */

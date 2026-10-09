@@ -81,7 +81,7 @@ public class MonsterCardRepository {
         return findBySha(card.imageSha256()).orElseThrow();
     }
 
-    /** 保存されたレシートのカードを有効にする。下書きがあれば、そのイラストを引き継ぐ。 */
+    /** 保存されたレシートのカードを有効にする。下書きがあれば、このカードの内容（イラストを含む）で上書きする。 */
     public StoredCard activate(MonsterCard card, String receiptTableName) {
         Optional<StoredCard> existing = findBySha(card.imageSha256());
         if (existing.isEmpty()) {
@@ -89,11 +89,11 @@ public class MonsterCardRepository {
         } else {
             jdbc.update("UPDATE monster_card SET status = ?, receipt_table_name = ?, name = ?, element = ?, rarity = ?, "
                             + "hp = ?, atk = ?, defense = ?, spd = ?, luck = ?, power = ?, skill_name = ?, skill_power = ?, "
-                            + "lucky = ?, flavor = ?, store_category = ?, algorithm_version = ?, activated_at = CURRENT_TIMESTAMP "
+                            + "lucky = ?, flavor = ?, store_category = ?, svg = ?, algorithm_version = ?, activated_at = CURRENT_TIMESTAMP "
                             + "WHERE id = ?",
                     ACTIVE, receiptTableName, card.name(), card.element(), card.rarity(), card.hp(), card.atk(), card.def(),
                     card.spd(), card.luck(), card.power(), card.skillName(), card.skillPower(), card.lucky(), card.flavor(),
-                    card.storeCategory(), card.algorithmVersion(), existing.get().card().id());
+                    card.storeCategory(), card.svg(), card.algorithmVersion(), existing.get().card().id());
         }
         return findBySha(card.imageSha256()).orElseThrow();
     }

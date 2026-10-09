@@ -4,6 +4,8 @@ import com.example.receipt.dto.ReceiptItemData;
 import com.example.receipt.dto.ReceiptStructuredData;
 import com.example.receipt.dto.ReceiptText;
 import com.example.receipt.monster.engine.MonsterCard;
+import com.example.receipt.monster.engine.MonsterCardGenerator;
+import com.example.receipt.monster.engine.MonsterParameters;
 import com.example.receipt.repository.ReceiptTableRepository;
 import com.example.receipt.service.ReceiptService;
 import com.google.gson.JsonObject;
@@ -44,7 +46,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@SpringBootTest(properties = "app.monster.ai-illustration-enabled=true")
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 class MonsterRoomIntegrationTest {
@@ -95,6 +97,46 @@ class MonsterRoomIntegrationTest {
 
         receiptRepository.deleteReceipt(table);
         assertThat(cardRepository.countAll()).isZero();
+    }
+
+    @Test
+    void savingCreatesCardWithMonsterKeyParametersAndIllustration() {
+        ai.illustrationSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><circle cx=\"100\" cy=\"100\" r=\"50\"/></svg>";
+        // 範囲外の値・長すぎる技名は、サーバー側で範囲に収める／計算式の値を使う
+        ai.parameters = new MonsterParameters("コメドラ", "雷", 9999, 120, 1, 70, 20, "とても長すぎる必殺技の名前です", 3.0, "米から生まれた雷の魔物。");
+
+        String table = saveReceipt(0, "テスト店", List.of("米 10kg ¥12,400"));
+
+        assertThat(ai.parameterKeys).containsExactly("monster-key");
+        assertThat(ai.illustrateKeys).containsExactly("monster-key");
+        MonsterCard card = cardRepository.findById(cardRepository.activeCardIds().getFirst()).orElseThrow().card();
+        assertThat(card.name()).isEqualTo("コメドラ");
+        assertThat(card.element()).isEqualTo("雷");
+        assertThat(card.hp()).isEqualTo(770); // 上限700 ＋ スーパーのボーナス10%
+        assertThat(card.def()).isEqualTo(MonsterCardGenerator.DEF_MIN);
+        assertThat(card.skillPower()).isEqualTo(2.0);
+        assertThat(card.skillName()).isNotEqualTo("とても長すぎる必殺技の名前です");
+        assertThat(card.flavor()).isEqualTo("米から生まれた雷の魔物。");
+        assertThat(card.power()).isEqualTo((int) Math.floor(card.hp() / 5.0 + card.atk() + card.def() + card.spd() / 2.0 + card.luck() * 2));
+        assertThat(card.svg()).isEqualTo(ai.illustrationSvg);
+        assertThat(jdbc.queryForObject("SELECT receipt_table_name FROM monster_card WHERE id = ?", String.class, card.id()))
+                .isEqualTo(table);
+    }
+
+    @Test
+    void savingOverwritesDraftWithMonsterKeyCard() {
+        String sha = reserve();
+        ReceiptStructuredData data = new ReceiptStructuredData("テスト店", null, "スーパー", LocalDateTime.parse("2026-10-01T10:20:00"),
+                800L, null, null, List.of(new ReceiptItemData("米 10kg", "食料品", BigDecimal.ONE, 800L, 800L)));
+        cardRepository.insertDraft(MonsterCardGenerator.generate(data, sha, 10, "ANALYZE"));
+        ai.parameters = new MonsterParameters("コメドラ", "雷", 300, 60, 40, 50, 10, "稲妻米", 1.6, "米の魔物。");
+
+        receiptService.store(List.of("米 10kg ¥800"), sha, data);
+
+        MonsterCardRepository.StoredCard stored = cardRepository.findBySha(sha).orElseThrow();
+        assertThat(stored.status()).isEqualTo(MonsterCardRepository.ACTIVE);
+        assertThat(stored.card().name()).isEqualTo("コメドラ");
+        assertThat(ai.parameterKeys).containsExactly("monster-key");
     }
 
     @Test
@@ -452,12 +494,20 @@ class MonsterRoomIntegrationTest {
     static class StubMonsterAi implements MonsterAi {
         final List<String> readKeys = new ArrayList<>();
         final List<Integer> cpuHandSizes = new ArrayList<>();
+        final List<String> illustrateKeys = new ArrayList<>();
+        final List<String> parameterKeys = new ArrayList<>();
+        volatile String illustrationSvg;
+        volatile MonsterParameters parameters;
         volatile boolean cpuFails;
         volatile int lastCpuHandMaxPower;
 
         void reset() {
             readKeys.clear();
             cpuHandSizes.clear();
+            illustrateKeys.clear();
+            parameterKeys.clear();
+            illustrationSvg = null;
+            parameters = null;
             cpuFails = false;
         }
 
@@ -470,8 +520,15 @@ class MonsterRoomIntegrationTest {
         }
 
         @Override
+        public Optional<MonsterParameters> generateParameters(ReceiptStructuredData cleanData, int charCount, String apiKey) {
+            parameterKeys.add(apiKey);
+            return Optional.ofNullable(parameters);
+        }
+
+        @Override
         public Optional<String> illustrate(MonsterCard card, String apiKey) {
-            return Optional.empty();
+            illustrateKeys.add(apiKey);
+            return Optional.ofNullable(illustrationSvg);
         }
 
         @Override

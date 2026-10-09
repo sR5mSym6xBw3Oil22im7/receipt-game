@@ -22,6 +22,15 @@ public final class MonsterCardGenerator {
     static final int RARITY_R = 275;
     static final int RARITY_SR = 315;
     static final int RARITY_SSR = 345;
+    /** ボーナスを加える前の各ステータスの範囲（計算式で取りうる範囲と同じ）。 */
+    public static final int HP_MIN = 200, HP_MAX = 700;
+    public static final int ATK_MIN = 40, ATK_MAX = 140;
+    public static final int DEF_MIN = 30, DEF_MAX = 110;
+    public static final int SPD_MIN = 40, SPD_MAX = 100;
+    public static final int LUCK_MIN = 5, LUCK_MAX = 25;
+    public static final int MAX_NAME_LENGTH = 12;
+    public static final int MAX_FLAVOR_LENGTH = 80;
+    public static final List<String> ELEMENTS = List.of("炎", "土", "風", "雷", "無");
 
     private static final Map<String, String> ELEMENT_BY_CATEGORY = Map.of(
             "飲食", "炎", "食料品", "土", "日用品", "風", "交通・移動", "雷");
@@ -99,6 +108,41 @@ public final class MonsterCardGenerator {
         int spd = 40 + (int) Math.floor(60 * (0.35 * fT + 0.20 * fW + 0.15 * fC + 0.10 * fN + 0.20 * r(seed, 3)));
         int luck = 5 + (int) Math.floor(20 * (0.50 * r(seed, 4) + 0.25 * fW + 0.25 * fC));
 
+        boolean lucky = isLucky(total, purchasedAt);
+        double skillPower = Math.round((1.5 + 0.5 * (0.2 * fM + 0.4 * fC + 0.4 * r(seed, 5))) * 100) / 100.0;
+        String skillName = SKILLS.get(element).get((int) ((seed >>> 8) % 3));
+        String name = NAME_PREFIX.get(element).get((int) ((seed >>> 12) % 4)) + NAME_SUFFIX.get((int) ((seed >>> 16) % 6));
+        String flavor = storeCategory + "のレシートから生まれた" + element + "の魔物。" + items.size() + "品の力を宿している。";
+        return build(sha256, source, name, element, hp, atk, def, spd, luck, skillName, skillPower, lucky, flavor,
+                storeCategory, createdAt);
+    }
+
+    /**
+     * 生成AIが決めたパラメータをカードに反映する。数値は計算式と同じ範囲に収め、店の種類・ラッキーのボーナス、
+     * POWER・レア度はサーバーで計算する（AIの値でバランスが崩れないように）。不正な文字列の項目は base の値を使う。
+     */
+    public static MonsterCard applyParameters(MonsterCard base, MonsterParameters p) {
+        return applyParameters(base, p, LocalDateTime.now());
+    }
+
+    public static MonsterCard applyParameters(MonsterCard base, MonsterParameters p, LocalDateTime createdAt) {
+        String element = SKILLS.containsKey(p.element()) ? p.element() : base.element();
+        double skillPower = Double.isFinite(p.skillPower())
+                ? Math.round(Math.clamp(p.skillPower(), 1.5, 2.0) * 100) / 100.0
+                : base.skillPower();
+        return build(base.imageSha256(), base.source(),
+                text(p.name(), MAX_NAME_LENGTH, base.name()), element,
+                Math.clamp(p.hp(), HP_MIN, HP_MAX), Math.clamp(p.atk(), ATK_MIN, ATK_MAX),
+                Math.clamp(p.def(), DEF_MIN, DEF_MAX), Math.clamp(p.spd(), SPD_MIN, SPD_MAX),
+                Math.clamp(p.luck(), LUCK_MIN, LUCK_MAX),
+                text(p.skillName(), MAX_NAME_LENGTH, base.skillName()), skillPower, base.lucky(),
+                text(p.flavor(), MAX_FLAVOR_LENGTH, base.flavor()), base.storeCategory(), createdAt);
+    }
+
+    /** 店の種類・ラッキーのボーナスを加え、POWER・レア度・代替イラストを決めてカードにする。 */
+    private static MonsterCard build(String sha256, String source, String name, String element, int hp, int atk, int def,
+                                     int spd, int luck, String skillName, double skillPower, boolean lucky, String flavor,
+                                     String storeCategory, LocalDateTime createdAt) {
         switch (storeCategory) {
             case "スーパー" -> hp = up10(hp);
             case "コンビニ" -> spd = up10(spd);
@@ -106,22 +150,24 @@ public final class MonsterCardGenerator {
             case "飲食店" -> atk = up10(atk);
             default -> luck += 3;
         }
-        boolean lucky = isLucky(total, purchasedAt);
         if (lucky) {
             atk = up10(atk);
             def = up10(def);
             luck += 10;
         }
         int power = (int) Math.floor(hp / 5.0 + atk + def + spd / 2.0 + luck * 2);
-        double skillPower = Math.round((1.5 + 0.5 * (0.2 * fM + 0.4 * fC + 0.4 * r(seed, 5))) * 100) / 100.0;
-        String skillName = SKILLS.get(element).get((int) ((seed >>> 8) % 3));
-        String name = NAME_PREFIX.get(element).get((int) ((seed >>> 12) % 4)) + NAME_SUFFIX.get((int) ((seed >>> 16) % 6));
         String rarity = rarityOf(power);
-        String flavor = storeCategory + "のレシートから生まれた" + element + "の魔物。" + items.size() + "品の力を宿している。";
-
         MonsterCard card = new MonsterCard(null, sha256, source, name, element, rarity, hp, atk, def, spd, luck, power,
                 skillName, skillPower, lucky, flavor, storeCategory, null, ALGORITHM_VERSION);
-        return card.withSvg(MonsterSvgRenderer.fallbackSvg(element, rarity, illustrationSeed(seed, createdAt)));
+        return card.withSvg(MonsterSvgRenderer.fallbackSvg(element, rarity, illustrationSeed(seedFromSha(sha256), createdAt)));
+    }
+
+    /** 制御文字を除いて前後の空白を取り、1〜max文字なら使う。それ以外は fallback。 */
+    private static String text(String value, int max, String fallback) {
+        if (value == null) return fallback;
+        String cleaned = value.replaceAll("\\p{Cntrl}", "").trim();
+        int length = cleaned.codePointCount(0, cleaned.length());
+        return length == 0 || length > max ? fallback : cleaned;
     }
 
     /**

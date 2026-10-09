@@ -23,7 +23,7 @@ public class MonsterSettings {
             @Value("${app.monster.room-ttl-minutes:120}") long roomTtlMinutes,
             @Value("${app.monster.unresponsive-seconds:60}") long unresponsiveSeconds,
             @Value("${app.monster.draft-ttl-hours:24}") long draftTtlHours,
-            @Value("${app.monster.ai-illustration-enabled:false}") boolean aiIllustrationEnabled,
+            @Value("${app.monster.ai-illustration-enabled:true}") boolean aiIllustrationEnabled,
             @Value("${app.monster.trust-forwarded-for:false}") boolean trustForwardedFor,
             @Value("${app.monster.gemini-daily-limit-per-key:200}") int geminiDailyLimitPerKey,
             @Value("${app.monster.backfill-on-startup:true}") boolean backfillOnStartup,
