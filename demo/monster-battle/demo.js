@@ -12,7 +12,7 @@
   const state = {
     pool: [], nextId: 1, seat: "P1", roomCode: "", timers: [],
     myId: null, myConfirmed: false, oppId: null, oppConfirmed: false,
-    speedIndex: 0, replay: null, adminBusy: false, drafts: {}, mode: "HUMAN", cpuReason: "", myField: [], oppField: [], flipped: new Set(), hand: [], genIds: []
+    speedIndex: 0, replay: null, mode: "HUMAN", cpuReason: "", myField: [], oppField: [], flipped: new Set(), hand: [], genIds: []
   };
 
   // ---------- 共通 ----------
@@ -31,10 +31,8 @@
     [...$(id).children].forEach((li, i) => { li.classList.toggle("is-done", i < index); li.classList.toggle("is-active", i === index); });
   }
 
-  const VIEW_TAB = { lobby: "lobby", wait: "lobby", select: "lobby", battle: "lobby", result: "lobby", zukan: "zukan", admin: "admin" };
   function show(view) {
     document.querySelectorAll(".view").forEach((s) => s.classList.toggle("hidden", s.id !== "view-" + view));
-    document.querySelectorAll(".tab[data-view]").forEach((t) => t.classList.toggle("is-active", t.dataset.view === VIEW_TAB[view]));
     window.scrollTo({ top: 0 });
   }
 
@@ -447,82 +445,12 @@
     $("result-receipts").innerHTML = slotCards.map((c, i) => `<article class="receipt-tile"><h3>${i === 0 ? "あなた" : state.mode === "CPU" ? "コンピュータ" : "相手"}のカードの元レシート</h3>${receiptHtml(c)}</article>`).join("");
   }
 
-  // ---------- 管理者側：解析・保存・削除との連動（模擬）----------
-  const stateLabel = { none: ["未解析", "state-pending"], draft: ["下書き（未保存）", "state-run"], saved: ["有効（遊べる）", "state-done"] };
-
-  function renderAdmin() {
-    const count = (st) => M.RECEIPTS.filter((r) => r.state === st).length;
-    $("admin-summary").innerHTML = `<div><b>${count("saved")}</b><span>保存済みレシート＝有効なカード</span></div><div><b>${count("draft")}</b><span>下書きのカード（未保存）</span></div><div><b>${count("none")}</b><span>未解析のレシート</span></div>`;
-    $("admin-table").tBodies[0].innerHTML = M.RECEIPTS.map((r) => {
-      const [label, cls] = stateLabel[r.state];
-      const dis = state.adminBusy ? " disabled" : "";
-      const btn = (act, text, extra) => `<button type="button" class="${extra || "secondary-button"} small-button" data-act="${act}" data-id="${r.id}"${dis}>${text}</button>`;
-      const actions = r.state === "none" ? btn("analyze", "解析")
-        : r.state === "draft" ? btn("save", "PostgreSQLへ保存", "primary-button")
-        : btn("analyze", "再解析") + " " + btn("delete", "削除", "danger-button");
-      return `<tr><td>${r.id}</td><td>${esc(r.storeName)}</td><td>${esc(r.purchasedAt.replace("T", " ").slice(0, 16))}</td><td class="num">${yen(r.totalAmount)}</td><td><span class="state-chip ${cls}">${label}</span></td><td>${actions}</td></tr>`;
-    }).join("");
-  }
-
-  function logAdmin(text) {
-    const log = $("admin-log");
-    if (log.firstElementChild && log.firstElementChild.classList.contains("muted")) log.innerHTML = "";
-    const li = document.createElement("li");
-    li.textContent = text;
-    log.append(li);
-    log.scrollTop = log.scrollHeight;
-  }
-
-  async function adminAction(act, id) {
-    if (state.adminBusy) return;
-    const r = M.RECEIPTS.find((x) => x.id === id);
-    if (!r) return;
-    const pause = (ms) => new Promise((res) => setTimeout(res, ms));
-    state.adminBusy = true; renderAdmin();
-    if (act === "analyze") {
-      logAdmin(`${r.id}：レシート解析 → 成功（既存機能。応答はそのまま返ります）`);
-      if (r.state === "saved") {
-        logAdmin(`${r.id}：同じ画像のカードがあるため、作り直しません（既存カードを維持）`);
-      } else {
-        await pause(500);
-        logAdmin(`${r.id}：応答のあと、別スレッドでカード生成を開始（GEMINI_API_MONSTER）`);
-        await pause(900);
-        const card = E.generateCard(r, r.sha, "ANALYZE");
-        state.drafts[r.sha] = card;
-        r.state = "draft";
-        logAdmin(`${r.id}：下書き「${card.name}」（${card.element}・${card.rarity}）を作成。保存すると遊べます`);
-      }
-    } else if (act === "save") {
-      await pause(400);
-      const card = state.drafts[r.sha] || E.generateCard(r, r.sha, "ANALYZE");
-      delete state.drafts[r.sha];
-      addCard(card);
-      r.state = "saved";
-      logAdmin(`${r.id}：保存 → 「${card.name}」が有効になり、図鑑と対戦で使えます`);
-    } else if (act === "delete") {
-      if (!window.confirm(`${r.id}（${r.storeName}）を削除します。モンスターカードも同時に削除されます。よろしいですか？`)) { state.adminBusy = false; renderAdmin(); return; }
-      await pause(300);
-      const card = state.pool.find((c) => c.sha === r.sha);
-      state.pool = state.pool.filter((c) => c.sha !== r.sha);
-      r.state = "none";
-      logAdmin(`${r.id}：レシートを削除 → 同じタイミングで、カード${card ? "「" + card.name + "」" : ""}も削除されました（外部キーの連動）`);
-    }
-    state.adminBusy = false;
-    renderAdmin();
-  }
-
   // ---------- 初期化 ----------
   function init() {
     // デモ用の乱数の種はレシートごとに固定（同じレシート＝同じカード）
     M.RECEIPTS.forEach((r) => { r.sha = E.fakeSha(r.id + r.storeName + r.totalAmount); r.state = r.pending ? "none" : "saved"; });
     M.RECEIPTS.filter((r) => !r.pending).forEach((r) => addCard(E.generateCard(r, r.sha, "ANALYZE")));
     state.pool.reverse();   // 古い順に並べる
-
-    document.querySelectorAll(".tab[data-view]").forEach((t) => t.addEventListener("click", () => {
-      resetRoom();
-      if (t.dataset.view === "admin") renderAdmin();
-      show(t.dataset.view);
-    }));
 
     $("btn-create").addEventListener("click", () => enterWait("P1", newRoomCode()));
     $("btn-join").addEventListener("click", () => {
@@ -571,9 +499,6 @@
     $("btn-rematch").addEventListener("click", enterSelect);
     $("btn-lobby").addEventListener("click", resetRoom);
 
-    $("admin-table").addEventListener("click", (ev) => { const b = ev.target.closest("[data-act]"); if (b) adminAction(b.dataset.act, b.dataset.id); });
-
-    document.querySelector('.tab[data-view="lobby"]').classList.add("is-active");
     show("lobby");
   }
 

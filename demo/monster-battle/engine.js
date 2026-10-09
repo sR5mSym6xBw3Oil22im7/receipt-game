@@ -59,6 +59,36 @@
     return out.slice(0, 64);
   }
 
+  // ---- 個人情報の除外（要件定義書 16章 2層目：保存前の検出と除去）----
+  // 対象は自由記述の項目（店名・支店名・商品名・支払方法・行テキスト）。レシート番号は残す。
+  const MASK = "（非表示）";
+  const PII_RULES = [
+    /(?:会員|カード|ポイント|ID)\s*(?:番号|No\.?)?\s*[:：]?\s*\d{4,}/gi,
+    /(?:お名前|氏名)\s*[:：]?\s*[^\s　]+/g,
+    /[^\s　（）()]{1,10}(?:様|殿)/g,
+    /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/g,
+    /(?<![\d,])(?:\d[ -]?){13,19}(?![\d,])/g,
+    /(?<![\d-])0\d{9,10}(?!\d)|(?<![\d-])0\d{1,4}[-(\s]\d{1,4}[-)\s]\d{3,4}(?![\d-])/g,
+    /〒\s?\d{3}-\d{4}|(?<![\d-])\d{3}-\d{4}(?![\d-])/g,
+    /(?:東京都|北海道|(?:京都|大阪)府|[^\s　]{2,3}県)[^\s　]{1,20}?[市区町村郡][^\s　]*/g
+  ];
+  function maskPersonalInfo(text) {
+    let count = 0, out = String(text == null ? "" : text);
+    for (const re of PII_RULES) out = out.replace(re, () => { count++; return MASK; });
+    return { text: out, count };
+  }
+  const hasPersonalInfo = (text) => PII_RULES.some((re) => { re.lastIndex = 0; return re.test(text); });
+  // 取り除けなかった場合（処理失敗・置換後も該当文字列が残る）は例外にして、保存しない（安全側に倒す）
+  function sanitizeReceipt(receipt) {
+    const copy = JSON.parse(JSON.stringify(receipt));
+    let count = 0;
+    const fix = (obj, key) => { if (obj[key] == null) return; const r = maskPersonalInfo(obj[key]); obj[key] = r.text; count += r.count; if (hasPersonalInfo(r.text)) throw new Error("個人情報の確認ができませんでした"); };
+    ["storeName", "branchName", "paymentMethod"].forEach((k) => fix(copy, k));
+    (copy.items || []).forEach((it) => fix(it, "name"));
+    if (copy.lines) copy.lines = copy.lines.map((l) => { const r = maskPersonalInfo(l); count += r.count; if (hasPersonalInfo(r.text)) throw new Error("個人情報の確認ができませんでした"); return r.text; });
+    return { receipt: copy, count };
+  }
+
   // ---- カード生成（5章）----
   function determineElement(items) {
     const sums = new Map();
@@ -96,7 +126,9 @@
     return ((d - 1) / 30) * 0.7 + (weekday === 0 || weekday === 6 ? 0.3 : 0);
   }
 
-  function generateCard(receipt, sha, source) {
+  function generateCard(rawReceipt, sha, source) {
+    const san = sanitizeReceipt(rawReceipt);   // 失敗したら例外：カードを作らない
+    const receipt = san.receipt;
     const seed = seedFromSha(sha);
     const items = (receipt.items || []).filter((it) => it.name && it.name.trim());
     const itemSum = items.reduce((s, it) => s + (it.amount || 0), 0);
@@ -163,6 +195,7 @@
       illustrationSource: "FALLBACK",
       algorithmVersion: ALGORITHM_VERSION,
       receipt,
+      piiMasked: san.count,
       basis: { base, mods, factors: f, itemCount: items.length, seed }
     };
     card.svg = fallbackSvg(card, seed);
@@ -266,7 +299,7 @@
     return { battleSeed, first, log, winner, reason, finalHp: hp };
   }
 
-  const api = { ALGORITHM_VERSION, MAX_ROUNDS, SKILLS, PALETTE, mulberry32, seedFromSha, fakeSha, determineElement, isZoroMe, isLucky, generateCard, fallbackSvg, svgDataUri, elementMultiplier, battle };
+  const api = { ALGORITHM_VERSION, MAX_ROUNDS, SKILLS, PALETTE, mulberry32, seedFromSha, maskPersonalInfo, hasPersonalInfo, sanitizeReceipt, fakeSha, determineElement, isZoroMe, isLucky, generateCard, fallbackSvg, svgDataUri, elementMultiplier, battle };
   if (typeof module !== "undefined" && module.exports) module.exports = api;
   else root.MonsterEngine = api;
 })(typeof window !== "undefined" ? window : globalThis);

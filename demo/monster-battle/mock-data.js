@@ -26,7 +26,7 @@
       { name: "マグカップ", category: "日用品", amount: 1650 }, { name: "ブランケット", category: "日用品", amount: 1980 }, { name: "キャンドル", category: "日用品", amount: 680 }] },
     // 以下の2件はデモの開始時点で「カード未生成」。4:05バッチの模擬実行で生成される。
     { id: "R011", charCount: 170, storeName: "まるまるマート 本店", storeCategory: "スーパー", purchasedAt: "2026-10-08T18:05:00", totalAmount: 1111, pending: true, items: [
-      { name: "豆腐", category: "食料品", amount: 98 }, { name: "ねぎ", category: "食料品", amount: 128 }, { name: "鮭切身", category: "食料品", amount: 580 }, { name: "味噌", category: "食料品", amount: 305 }] },
+      { name: "豆腐", category: "食料品", amount: 98 }, { name: "ねぎ", category: "食料品", amount: 128 }, { name: "鮭切身", category: "食料品", amount: 580 }, { name: "味噌 会員番号 4000100123", category: "食料品", amount: 305 }] },
     { id: "R012", charCount: 200, storeName: "食堂ひなた", storeCategory: "飲食店", purchasedAt: "2026-10-08T07:41:00", totalAmount: 2400, pending: true, items: [
       { name: "朝定食", category: "飲食", amount: 1200 }, { name: "焼き魚", category: "飲食", amount: 700 }, { name: "味噌汁", category: "飲食", amount: 200 }, { name: "緑茶", category: "飲食", amount: 300 }] }
   ];

@@ -19,11 +19,6 @@
       <div class="flourish is-left"><svg aria-hidden="true" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#e2b443" stroke="#8a5f0b" stroke-width="2"/><circle cx="14" cy="14" r="6" fill="none" stroke="#8a5f0b" stroke-width="1.5"/></svg></div>
       <p class="lead">レシートからモンスターカードを作って、2人で対戦するゲームのデモです。</p>
       <p class="note is-warn" id="demo-note"><b>デモ表示：</b>DB・Gemini APIには接続しません。レシートは架空のデータで、相手プレイヤーは自動で操作されます。本番では、2人が別々のPCから、ログインなしで、サーバー経由で対戦します。</p>
-      <nav class="tabs" aria-label="画面切り替え">
-        <button type="button" class="tab" data-view="lobby">対戦</button>
-        <button type="button" class="tab" data-view="admin">レシート解析（管理者側）</button>
-        <a class="tab" href="./34_monster_receipt_battle_requirements.html">要件定義書</a>
-      </nav>
     </section>
 
     <!-- M01 ロビー -->
@@ -134,18 +129,6 @@
         <button type="button" class="primary-button" id="btn-rematch">同じルームで再戦</button>
         <button type="button" class="secondary-button" id="btn-lobby">ロビーへ</button>
       </div>
-    </section>
-
-    <!-- 管理者側：既存の解析・保存・削除との連動を模擬 -->
-    <section class="card view hidden" id="view-admin">
-      <h2>レシート解析との連動 <span class="badge is-accent is-lock">管理者の既存画面</span></h2>
-      <p class="lead">カードは、既存の「レシート解析」の実行時に作られ、「保存」で遊べるようになり、「レシート削除」と同時に消えます。管理者の既存画面は変わりません（ここは連動の様子を示す模擬です）。</p>
-      <div class="batch-summary" id="admin-summary"></div>
-      <div class="table-scroll"><table class="data-table" id="admin-table"><thead><tr><th>レシート</th><th>店舗</th><th>購入日時</th><th class="num">合計</th><th>カードの状態</th><th>操作（既存機能）</th></tr></thead><tbody></tbody></table></div>
-      <p class="help-text">この機能の追加前に保存したレシートは、リリース時に削除します（カードを持たないレシートを残さないため）。</p>
-      <p class="help-text">解析だけして保存しないと、カードは下書きのままです（24時間で破棄）。生成には GEMINI_API_MONSTER を使います（デモでは未使用）。</p>
-      <h3>動作ログ</h3>
-      <ol class="batch-log" id="admin-log"><li class="muted">操作するとここに表示されます。</li></ol>
     </section>
 
     <p class="footer-note">— Monster Receipt Battle · Demo —</p>
