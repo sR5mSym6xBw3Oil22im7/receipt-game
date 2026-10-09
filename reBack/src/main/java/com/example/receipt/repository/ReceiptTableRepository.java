@@ -83,6 +83,17 @@ public class ReceiptTableRepository {
         }
     }
 
+    /** 同じ画像のレシートが保存済みか（解析中に確保しただけのハッシュは含めない）。 */
+    public boolean isImageSaved(String sha256) {
+        ensureImageHashRegistry();
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM receipt_image_hash_registry WHERE image_sha256 = ? AND table_name IS NOT NULL",
+                Integer.class,
+                sha256
+        );
+        return count != null && count > 0;
+    }
+
     private ReceiptException duplicateReceiptImage() {
         return new ReceiptException(
                 HttpStatus.CONFLICT,

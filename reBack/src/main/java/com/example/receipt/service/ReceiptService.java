@@ -66,7 +66,7 @@ public class ReceiptService {
         return new ReceiptUploadResponse(tableName, savedLines.size(), savedLines, normalizedSha256);
     }
 
-    private static String sha256(byte[] bytes) {
+    static String sha256(byte[] bytes) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256").digest(bytes);
             StringBuilder result = new StringBuilder(64);
