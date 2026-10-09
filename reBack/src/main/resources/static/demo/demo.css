@@ -1,4 +1,4 @@
-/* モンスターレシート対戦 デモ — 既存の金貨テーマ（reFront/styles.css）の変数と部品を使い、ゲーム固有の部分だけ追加する */
+/* モンスターレシート対戦 デモ — 既存の金貨テーマ（admin/styles.css）の変数と部品を使い、ゲーム固有の部分だけ追加する */
 :root {
   --e-fire: #e4572e; --e-earth: #a7803f; --e-wind: #3fb596; --e-thunder: #e8b800; --e-none: #8b8fa3;
   --r-N: #9a8f7d; --r-R: #3f7fbf; --r-SR: #8a4fbf; --r-SSR: #d99a00;

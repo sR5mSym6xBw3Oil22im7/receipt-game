@@ -14,6 +14,7 @@ const publicBaseUrl = isLocalFrontend
 window.APP_CONFIG = {
   API_BASE_URL: backendBaseUrl,
   ADMIN_BASE_URL: `${backendBaseUrl}/admin`,
+  DEMO_URL: `${backendBaseUrl}/demo/index.html`,
   SELECT_URL: `${backendBaseUrl}/admin/select.html`,
   PUBLIC_BASE_URL: publicBaseUrl
 };
