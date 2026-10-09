@@ -37,6 +37,10 @@ public class GeminiApiKeys {
         }
     }
 
+    public String defaultKey() {
+        return defaultKey;
+    }
+
     public String player1() {
         return orDefault(player1);
     }

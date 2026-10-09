@@ -42,7 +42,8 @@ app:
     room-ttl-minutes: ${MONSTER_ROOM_TTL_MINUTES:120}
     unresponsive-seconds: 60
     draft-ttl-hours: 24
-    # Gemini（GEMINI_API_MONSTER）でカードのパラメータとイラスト（SVG）を作る。無効なら計算式のパラメータと代替イラストを使う
+    # Gemini（GEMINI_API_MONSTER → GEMINI_API_DEFAULT の順）でカードのパラメータとイラスト（SVG）を作る。
+    # 無効、またはどちらのキーでも作れなければ計算式のパラメータと代替イラストを使う
     ai-illustration-enabled: ${MONSTER_AI_ILLUSTRATION:true}
     # Renderなどのプロキシの背後では true（X-Forwarded-For の末尾をIPとして使う）
     trust-forwarded-for: ${MONSTER_TRUST_FORWARDED_FOR:false}

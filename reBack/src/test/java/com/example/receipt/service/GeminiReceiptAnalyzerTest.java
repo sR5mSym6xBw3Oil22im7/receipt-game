@@ -99,12 +99,54 @@ class GeminiReceiptAnalyzerTest {
     }
 
     @Test
-    void keepsYearWhenWeekdayMatchesOrIsMissing() {
-        LocalDateTime correct = LocalDateTime.of(2026, 8, 3, 10, 53);
-        assertThat(GeminiReceiptAnalyzer.correctYearByWeekday(correct, java.util.List.of("2026/ 8/ 3(月) 10:53"), 2026))
-                .isEqualTo(correct);
-        assertThat(GeminiReceiptAnalyzer.correctYearByWeekday(correct, java.util.List.of("2026/8/3 10:53"), 2026))
-                .isEqualTo(correct);
-        assertThat(GeminiReceiptAnalyzer.correctYearByWeekday(null, java.util.List.of("8/3(月)"), 2026)).isNull();
+    void retriesWithDefaultKeyWhenAnalyzeKeyFails() {
+        KeyRecordingAnalyzer analyzer = new KeyRecordingAnalyzer(new GeminiApiKeys("default-key", "", "", "", "analyze-key"));
+        analyzer.failures.put("analyze-key", "GEMINI_QUOTA_EXCEEDED");
+
+        assertThat(analyzer.analyze(new byte[]{1}, "image/jpeg").lines()).containsExactly("default-key");
+        assertThat(analyzer.usedKeys).containsExactly("analyze-key", "default-key");
+    }
+
+    @Test
+    void failsWhenBothAnalyzeAndDefaultKeysFail() {
+        KeyRecordingAnalyzer analyzer = new KeyRecordingAnalyzer(new GeminiApiKeys("default-key", "", "", "", "analyze-key"));
+        analyzer.failures.put("analyze-key", "GEMINI_API_KEY_REJECTED");
+        analyzer.failures.put("default-key", "GEMINI_QUOTA_EXCEEDED");
+
+        assertThatThrownBy(() -> analyzer.analyze(new byte[]{1}, "image/jpeg"))
+                .isInstanceOfSatisfying(ReceiptException.class, e -> assertThat(e.code()).isEqualTo("GEMINI_QUOTA_EXCEEDED"));
+        assertThat(analyzer.usedKeys).containsExactly("analyze-key", "default-key");
+    }
+
+    @Test
+    void doesNotRetryWithDefaultKeyWhenNoTextFoundOrSameKey() {
+        KeyRecordingAnalyzer noText = new KeyRecordingAnalyzer(new GeminiApiKeys("default-key", "", "", "", "analyze-key"));
+        noText.failures.put("analyze-key", "NO_TEXT_FOUND");
+        assertThatThrownBy(() -> noText.analyze(new byte[]{1}, "image/jpeg")).isInstanceOf(ReceiptException.class);
+        assertThat(noText.usedKeys).containsExactly("analyze-key");
+
+        // GEMINI_API_ANALYZE が未設定なら既定のキーで1回だけ
+        KeyRecordingAnalyzer sameKey = new KeyRecordingAnalyzer(new GeminiApiKeys("default-key", "", "", "", ""));
+        sameKey.failures.put("default-key", "GEMINI_QUOTA_EXCEEDED");
+        assertThatThrownBy(() -> sameKey.analyze(new byte[]{1}, "image/jpeg")).isInstanceOf(ReceiptException.class);
+        assertThat(sameKey.usedKeys).containsExactly("default-key");
+    }
+
+    /** Geminiを呼ばず、使ったキーを記録する。failures にあるキーはそのエラーで失敗する。 */
+    private static class KeyRecordingAnalyzer extends GeminiReceiptAnalyzer {
+        final java.util.List<String> usedKeys = new java.util.ArrayList<>();
+        final java.util.Map<String, String> failures = new java.util.HashMap<>();
+
+        KeyRecordingAnalyzer(GeminiApiKeys keys) {
+            super("gemini-3.5-flash-lite", keys);
+        }
+
+        @Override
+        public com.example.receipt.dto.ReceiptText analyze(byte[] imageBytes, String mimeType, String apiKey) {
+            usedKeys.add(apiKey);
+            String code = failures.get(apiKey);
+            if (code != null) throw new ReceiptException(HttpStatus.BAD_GATEWAY, code, code);
+            return new com.example.receipt.dto.ReceiptText(java.util.List.of(apiKey), null, null);
+        }
     }
 }

@@ -242,8 +242,9 @@ public class MonsterRoomService {
                 card = existing.get().card();
                 reused = true;
             } else {
-                card = cards.insertDraft(cardService.generateWithAi(clean.data(), sha, clean.lines(), keyName, keyName, apiKey))
-                        .card();
+                MonsterCard generated = cardService.generateWithAi(clean.data(), sha, clean.lines(), keyName,
+                        List.of(new MonsterCardService.AiKey(keyName, apiKey)));
+                card = cards.insertDraft(generated).card();
                 reused = false;
             }
         }

@@ -37,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -66,20 +67,38 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             出力は指定されたJSONスキーマだけにしてください。
             """;
 
+    /**
+     * GEMINI_API_ANALYZE で失敗したとき GEMINI_API_DEFAULT で読み直すエラー（キー・利用上限・APIの失敗、応答の形式不正）。
+     * 文字が読み取れない（NO_TEXT_FOUND）のは画像の問題なので、キーを替えても読み直さない。
+     */
+    static final Set<String> DEFAULT_KEY_FALLBACK_CODES = Set.of(
+            "GEMINI_API_KEY_MISSING", "INVALID_GEMINI_API_KEY", "GEMINI_API_KEY_REJECTED", "GEMINI_QUOTA_EXCEEDED",
+            "GEMINI_API_ERROR", "EMPTY_ANALYSIS_RESULT", "INVALID_ANALYSIS_RESULT");
+
     private final String model;
-    private final String apiKey;
+    private final String analyzeKey;
+    private final String defaultKey;
     private final Gson gson = new Gson();
 
     public GeminiReceiptAnalyzer(
             @Value("${gemini.receipt-model:gemini-3.5-flash-lite}") String model,
             GeminiApiKeys apiKeys) {
         this.model = model;
-        this.apiKey = apiKeys.analyze();
+        this.analyzeKey = apiKeys.analyze();
+        this.defaultKey = apiKeys.defaultKey();
     }
 
+    /** GEMINI_API_ANALYZE → GEMINI_API_DEFAULT の順に試して解析する。 */
     @Override
     public ReceiptText analyze(byte[] imageBytes, String mimeType) {
-        return analyze(imageBytes, mimeType, apiKey);
+        try {
+            return analyze(imageBytes, mimeType, analyzeKey);
+        } catch (ReceiptException e) {
+            // GEMINI_API_ANALYZE が未設定なら analyze() は既定のキーなので、同じキーで2回は呼ばない
+            if (defaultKey.equals(analyzeKey) || !DEFAULT_KEY_FALLBACK_CODES.contains(e.code())) throw e;
+            LOGGER.warn("Receipt analysis failed with GEMINI_API_ANALYZE: code={}; retrying with GEMINI_API_DEFAULT.", e.code());
+            return analyze(imageBytes, mimeType, defaultKey);
+        }
     }
 
     /** 用途別のキーで解析する（モンスターレシート対戦の画像カードは GEMINI_API_PLAYER1／PLAYER2 を使う）。 */

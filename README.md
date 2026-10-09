@@ -21,7 +21,7 @@
 - API：`/api/monster/rooms`（席トークン `X-Seat-Token` で操作。勝敗はサーバーで計算）。
 - 連動：解析で下書き、保存で有効、削除でカードも削除。保存前に個人情報（氏名・電話番号・会員番号・住所・メール・カード番号）を検出して「（非表示）」に置換し、取り除けなければ保存しません。
 - 起動時に、カードを持たない保存済みレシートを再点検してカードを作ります（`MONSTER_BACKFILL_ON_STARTUP`）。レシートを自動で削除はしません。
-- 主な環境変数：`MONSTER_WAIT_SECONDS`（待機秒数、既定90）、`MONSTER_AI_ILLUSTRATION`（レシートをDBに登録するとき、GEMINI_API_MONSTERでカードのパラメータとSVGイラストを作る。既定で有効）、`MONSTER_TRUST_FORWARDED_FOR`（Renderなどプロキシの背後で true）、`MONSTER_GEMINI_DAILY_LIMIT`（キーごとの1日の上限、既定200）。
+- 主な環境変数：`MONSTER_WAIT_SECONDS`（待機秒数、既定90）、`MONSTER_AI_ILLUSTRATION`（レシートをDBに登録するとき、カードのパラメータとSVGイラストを GEMINI_API_MONSTER → GEMINI_API_DEFAULT の順に試して作り、どちらでも作れなければ計算式の値と代替イラストを使う。既定で有効）、`MONSTER_TRUST_FORWARDED_FOR`（Renderなどプロキシの背後で true）、`MONSTER_GEMINI_DAILY_LIMIT`（キーごとの1日の上限、既定200）。
 - 対戦には有効なカードが2枚以上必要です。
 
 ## データの扱い

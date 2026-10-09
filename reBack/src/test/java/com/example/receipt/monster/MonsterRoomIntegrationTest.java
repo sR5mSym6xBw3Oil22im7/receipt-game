@@ -124,6 +124,41 @@ class MonsterRoomIntegrationTest {
     }
 
     @Test
+    void savingFallsBackToDefaultKeyWhenMonsterKeyFails() {
+        ai.illustrationSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><circle cx=\"100\" cy=\"100\" r=\"50\"/></svg>";
+        ai.parameters = new MonsterParameters("コメドラ", "雷", 300, 60, 40, 50, 10, "稲妻米", 1.6, "米の魔物。");
+        ai.failingKeys.add("monster-key");
+
+        saveReceipt(0, "テスト店", List.of("米 10kg ¥12,400"));
+
+        assertThat(ai.parameterKeys).containsExactly("monster-key", "default-key");
+        assertThat(ai.illustrateKeys).containsExactly("monster-key", "default-key");
+        MonsterCard card = cardRepository.findById(cardRepository.activeCardIds().getFirst()).orElseThrow().card();
+        assertThat(card.name()).isEqualTo("コメドラ");
+        assertThat(card.svg()).isEqualTo(ai.illustrationSvg);
+    }
+
+    @Test
+    void savingUsesCalculatedCardWhenBothKeysFail() {
+        ai.illustrationSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><circle cx=\"100\" cy=\"100\" r=\"50\"/></svg>";
+        ai.parameters = new MonsterParameters("コメドラ", "雷", 300, 60, 40, 50, 10, "稲妻米", 1.6, "米の魔物。");
+        ai.failingKeys.addAll(List.of("monster-key", "default-key"));
+        String sha = reserve();
+        ReceiptStructuredData data = new ReceiptStructuredData("テスト店", null, "スーパー", LocalDateTime.parse("2026-10-01T10:20:00"),
+                800L, null, null, List.of(new ReceiptItemData("米 10kg", "食料品", BigDecimal.ONE, 800L, 800L)));
+
+        receiptService.store(List.of("米 10kg ¥800"), sha, data);
+
+        assertThat(ai.parameterKeys).containsExactly("monster-key", "default-key");
+        assertThat(ai.illustrateKeys).containsExactly("monster-key", "default-key");
+        MonsterCard card = cardRepository.findBySha(sha).orElseThrow().card();
+        MonsterCard calculated = MonsterCardGenerator.generate(data, sha, MonsterCardGenerator.charCount(List.of("米 10kg ¥800")), "ANALYZE");
+        assertThat(card.name()).isEqualTo(calculated.name());
+        assertThat(card.power()).isEqualTo(calculated.power());
+        assertThat(card.svg()).startsWith("<svg").isNotEqualTo(ai.illustrationSvg);
+    }
+
+    @Test
     void savingOverwritesDraftWithMonsterKeyCard() {
         String sha = reserve();
         ReceiptStructuredData data = new ReceiptStructuredData("テスト店", null, "スーパー", LocalDateTime.parse("2026-10-01T10:20:00"),
@@ -496,6 +531,7 @@ class MonsterRoomIntegrationTest {
         final List<Integer> cpuHandSizes = new ArrayList<>();
         final List<String> illustrateKeys = new ArrayList<>();
         final List<String> parameterKeys = new ArrayList<>();
+        final List<String> failingKeys = new ArrayList<>();
         volatile String illustrationSvg;
         volatile MonsterParameters parameters;
         volatile boolean cpuFails;
@@ -506,6 +542,7 @@ class MonsterRoomIntegrationTest {
             cpuHandSizes.clear();
             illustrateKeys.clear();
             parameterKeys.clear();
+            failingKeys.clear();
             illustrationSvg = null;
             parameters = null;
             cpuFails = false;
@@ -522,13 +559,13 @@ class MonsterRoomIntegrationTest {
         @Override
         public Optional<MonsterParameters> generateParameters(ReceiptStructuredData cleanData, int charCount, String apiKey) {
             parameterKeys.add(apiKey);
-            return Optional.ofNullable(parameters);
+            return failingKeys.contains(apiKey) ? Optional.empty() : Optional.ofNullable(parameters);
         }
 
         @Override
         public Optional<String> illustrate(MonsterCard card, String apiKey) {
             illustrateKeys.add(apiKey);
-            return Optional.ofNullable(illustrationSvg);
+            return failingKeys.contains(apiKey) ? Optional.empty() : Optional.ofNullable(illustrationSvg);
         }
 
         @Override

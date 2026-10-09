@@ -16,8 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * レシート解析・保存・削除とカードの連動（要件定義書 9章・10章）。
@@ -85,27 +88,45 @@ public class MonsterCardService {
 
     /**
      * 保存するレシートのカードを作る（DBへの登録と同じタイミングで、トランザクションの外で呼ぶ）。
-     * パラメータとイラストは GEMINI_API_MONSTER で作る。解析時の下書きは、このカードで上書きする。
+     * パラメータとイラストは GEMINI_API_MONSTER → GEMINI_API_DEFAULT の順に試して作る。
+     * 解析時の下書きは、このカードで上書きする。
      */
     public MonsterCard prepareCardForSave(String sha256, ReceiptStructuredData cleanData, List<String> cleanLines) {
-        return generateWithAi(cleanData, sha256, cleanLines, "ANALYZE", "MONSTER", keys.monster());
+        List<AiKey> aiKeys = new ArrayList<>(List.of(new AiKey("MONSTER", keys.monster())));
+        // GEMINI_API_MONSTER が未設定なら monster() は既定のキーなので、同じキーで2回は呼ばない
+        if (!keys.defaultKey().equals(keys.monster())) aiKeys.add(new AiKey("DEFAULT", keys.defaultKey()));
+        return generateWithAi(cleanData, sha256, cleanLines, "ANALYZE", aiKeys);
+    }
+
+    /** 生成AIの呼び出しに使うキー。name はキーごとの1日の上限を数える名前。 */
+    record AiKey(String name, String apiKey) {
     }
 
     /**
-     * カードを作る。パラメータとイラストは生成AIで作り、使えなければ計算式のパラメータ・代替イラストのまま。
-     * 生成AIの呼び出しは1回ずつキーごとの1日の上限に数える。
+     * カードを作る。パラメータとイラストは、それぞれ aiKeys を前から順に試して生成AIで作る。
+     * どのキーでも作れなければ、計算式のパラメータ・代替イラストのまま。呼び出しは1回ずつキーごとの1日の上限に数える。
      */
     MonsterCard generateWithAi(ReceiptStructuredData cleanData, String sha256, List<String> cleanLines, String source,
-                               String keyName, String apiKey) {
+                               List<AiKey> aiKeys) {
         int charCount = MonsterCardGenerator.charCount(cleanLines);
-        MonsterCard card = MonsterCardGenerator.generate(cleanData, sha256, charCount, source);
-        if (settings.aiIllustrationEnabled() && limiter.tryAcquireGemini(keyName)) {
-            MonsterCard base = card;
-            card = ai.generateParameters(cleanData, charCount, apiKey)
-                    .map(p -> MonsterCardGenerator.applyParameters(base, p))
-                    .orElse(base);
+        MonsterCard base = MonsterCardGenerator.generate(cleanData, sha256, charCount, source);
+        if (!settings.aiIllustrationEnabled()) return base;
+        MonsterCard card = firstSuccess(aiKeys, "parameters", key -> ai.generateParameters(cleanData, charCount, key.apiKey()))
+                .map(p -> MonsterCardGenerator.applyParameters(base, p))
+                .orElse(base);
+        return firstSuccess(aiKeys, "illustration", key -> ai.illustrate(card, key.apiKey()))
+                .map(card::withSvg)
+                .orElse(card);
+    }
+
+    private <T> Optional<T> firstSuccess(List<AiKey> aiKeys, String label, Function<AiKey, Optional<T>> call) {
+        for (AiKey key : aiKeys) {
+            if (!limiter.tryAcquireGemini(key.name())) continue;
+            Optional<T> result = call.apply(key);
+            if (result.isPresent()) return result;
+            LOGGER.info("Monster card {} could not be generated with key={}.", label, key.name());
         }
-        return illustrate(card, keyName, apiKey);
+        return Optional.empty();
     }
 
     /** {@link #prepareCardForSave} で作ったカードを有効にする（保存と同じトランザクション内で呼ぶ）。 */
@@ -117,12 +138,6 @@ public class MonsterCardService {
     public void activateForSavedReceipt(String tableName, String sha256, ReceiptStructuredData cleanData, List<String> cleanLines) {
         MonsterCard card = MonsterCardGenerator.generate(cleanData, sha256, MonsterCardGenerator.charCount(cleanLines), "ANALYZE");
         cards.activate(card, tableName);
-    }
-
-    /** 生成AIのイラストに置き換える。使えなければ代替イラストのまま。 */
-    MonsterCard illustrate(MonsterCard card, String keyName, String apiKey) {
-        if (!settings.aiIllustrationEnabled() || !limiter.tryAcquireGemini(keyName)) return card;
-        return ai.illustrate(card, apiKey).map(card::withSvg).orElse(card);
     }
 
     /**
