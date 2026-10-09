@@ -145,7 +145,7 @@ h3 { margin-top: 16px; }
 }
 
 /* めくる前のレシート（個人情報は伏せ字）と手札 */
-.receipt-field { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; margin-bottom: 18px; }
+.receipt-field { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
 .receipt-tile { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 10px; text-align: left; font: inherit; color: var(--ink); background: #fffef8; border: 1px solid #e3cf9c; border-radius: 6px; box-shadow: 0 8px 16px -12px rgba(80, 50, 0, 0.7); cursor: pointer; transition: transform 0.15s ease; letter-spacing: 0; background-image: linear-gradient(transparent 94%, #f0e4bd 94%); background-size: 100% 22px; }
 .receipt-tile::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 8px; background: radial-gradient(circle at 6px -1px, transparent 6px, #fffef8 7px) 0 0 / 12px 8px repeat-x; filter: drop-shadow(0 2px 1px rgba(80, 50, 0, 0.15)); }
 .receipt-tile:hover:not(:disabled) { transform: translateY(-4px) rotate(-1deg); border-color: var(--gold); }
@@ -172,7 +172,7 @@ h3 { margin-top: 16px; }
 .receipt-tile { cursor: default; }
 .receipt-tile:hover { transform: none; }
 .receipt-tile h3 { font-size: 0.95rem; margin: 0; }
-.receipt-tile > .small-button { margin-top: 6px; align-self: stretch; }
-.rt-lines-title { margin-top: 6px; font-size: 0.74rem; font-weight: 700; color: var(--gold-deep); }
-.rt-lines { margin: 0; padding: 8px; max-height: 190px; overflow: auto; background: #faf3d9; border: 1px dashed #d8c58f; border-radius: 4px; font-family: Consolas, Monaco, monospace; font-size: 0.72rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.receipt-tile > .small-button { margin-top: auto; align-self: stretch; }
 #result-receipts { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.drop-zone.is-disabled { opacity: 0.5; pointer-events: none; }
+.subtab:disabled { opacity: 0.5; cursor: not-allowed; }

@@ -6,14 +6,13 @@
   const E = window.MonsterEngine;
   const M = window.MonsterMock;
   const $ = (id) => document.getElementById(id);
-  const GEN_LIMIT = 3;
-  const CPU_WAIT_SECONDS = 12;   // 本番の既定は90秒（設定で変更可）。デモでは短くしている
+    const CPU_WAIT_SECONDS = 12;   // 本番の既定は90秒（設定で変更可）。デモでは短くしている
   const SPEEDS = [["ふつう", 1100], ["はやい", 450], ["ゆっくり", 1900]];
 
   const state = {
     pool: [], nextId: 1, seat: "P1", roomCode: "", timers: [],
     myId: null, myConfirmed: false, oppId: null, oppConfirmed: false,
-    genCount: 0, speedIndex: 0, replay: null, adminBusy: false, drafts: {}, mode: "HUMAN", cpuReason: "", myField: [], oppField: [], flipped: new Set(), hand: [], genIds: []
+    speedIndex: 0, replay: null, adminBusy: false, drafts: {}, mode: "HUMAN", cpuReason: "", myField: [], oppField: [], flipped: new Set(), hand: [], genIds: []
   };
 
   // ---------- 共通 ----------
@@ -69,7 +68,7 @@
   function resetRoom() {
     clearTimers();
     state.pool = state.pool.filter((c) => !c.source.startsWith("PLAYER"));   // 画像から作ったカードはルームと一緒に消える
-    state.myId = null; state.myConfirmed = false; state.oppId = null; state.oppConfirmed = false; state.genCount = 0;
+    state.myId = null; state.myConfirmed = false; state.oppId = null; state.oppConfirmed = false; 
     state.mode = "HUMAN"; state.cpuReason = "";
     show("lobby");
   }
@@ -84,7 +83,7 @@
   function enterWait(seat, code) {
     clearTimers();
     state.seat = seat; state.roomCode = code; state.mode = "HUMAN"; state.cpuReason = "";
-    state.myId = null; state.myConfirmed = false; state.oppId = null; state.oppConfirmed = false; state.genCount = 0;
+    state.myId = null; state.myConfirmed = false; state.oppId = null; state.oppConfirmed = false; 
     $("room-code").textContent = code;
     show("wait");
     const opp = "相手プレイヤー（自動操作）";
@@ -126,10 +125,14 @@
   }
 
   // ---------- M03 / M04 レシート1枚から始めて、最大3枚から1枚を選ぶ ----------
-  const HAND_LIMIT = 12;    // 1プレイで持てる（選べる）カードの上限。画像から作るカードも含む
+  const HAND_LIMIT = 3;    // 1プレイで持てる（選べる）カードの上限。画像から作るカードも含む
   const dealable = () => state.pool.filter((c) => !c.source.startsWith("PLAYER"));
   const shuffled = (list) => { const a = [...list]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-  const totalReceipts = () => state.myField.length + state.genIds.length;
+  const totalReceipts = () => state.hand.length;
+  const FIELD_SIZE = 9;       // 画面に並べるレシートの枚数（3x3）
+  const SHUFFLE_MIN = 10;     // DBのレシートがこの数以上のときだけシャッフルボタンを出す
+  // 表示用の9枚（DBからランダム）。相手の配布分と、すでに手札に入れたカードは除く
+  const pickField = () => shuffled(dealable().filter((c) => !state.oppField.includes(c) && !state.hand.includes(c.id))).slice(0, FIELD_SIZE);
   // まだ誰にも配られていない有効カード（2人の配布は重ならない）
   const undealt = () => dealable().filter((c) => !state.myField.includes(c) && !state.oppField.includes(c));
 
@@ -150,11 +153,11 @@
     clearTimers();
     const cards = shuffled(dealable());
     if (cards.length < 2) { window.alert("対戦できるカードが足りません（有効なカードが2枚以上必要です）。ロビーへ戻ります。"); resetRoom(); return; }
-    state.myField = [cards[0]];                       // 自分に配るレシート（最初は1枚）
-    state.oppField = [cards[1]];                      // 相手に配るレシート（重ならない）
+    state.oppField = [cards[0]];                      // 相手に配るレシート
     state.flipped = new Set();                        // 選んだ（めくった）レシートの番号
     state.genIds = [];                                // 画像から作ったカードのID
-    state.hand = [];                                  // 手札（めくった・作ったカードのID。最大3枚）
+    state.hand = [];                                  // 手札（めくった・作ったカードのID）
+    state.myField = pickField();                      // 自分に見せるレシート（最大9枚）
     state.myId = null; state.myConfirmed = false; state.oppId = null; state.oppConfirmed = false; state.cpuReason = "";
     show("select");
     setSteps("steps", 1);
@@ -166,7 +169,6 @@
     $("btn-confirm").textContent = "このカードで決定";
     renderSelect();
     updateChosen();
-    updateGenCount();
     if (state.mode === "CPU") {
       $("opponent-state").textContent = "コンピュータ（P2）：あなたの決定を待っています（DB上のカードから選びます）";
       return;
@@ -194,43 +196,46 @@
       <span class="rt-meta">${esc(r.purchasedAt.replace("T", " ").slice(0, 16))}　レシート番号 ${esc(r.receiptNumber)}</span>
       <table class="rt-items"><thead><tr><th>商品</th><th class="q">数</th><th class="n">単価</th><th class="n">金額</th></tr></thead><tbody>${items}</tbody></table>
       <span class="rt-total"><span>合計</span><b>${yen(card.totalAmount)}</b></span>
-      <span class="rt-meta">お支払い：${esc(r.paymentMethod)}</span>
-      <span class="rt-lines-title">読み取った行テキスト</span>
-      <pre class="rt-lines">${(r.lines || []).map((l, i) => String(i + 1).padStart(2, "0") + "  " + esc(l)).join("\n")}</pre>`;
+      <span class="rt-meta">お支払い：${esc(r.paymentMethod)}</span>`;
   }
 
   // 配られたレシート。内容はすべて表示する（見られるのは、そのルームのプレイヤーだけ。対戦前は配られた本人だけ）
+  const handFull = () => state.hand.length >= HAND_LIMIT;
+
   function receiptTileHtml(card, index) {
     const flipped = state.flipped.has(index);
     return `<article class="receipt-tile ${flipped ? "is-flipped" : ""}" aria-label="レシート ${index + 1}">
       ${receiptHtml(card, { title: "レシート No." + (index + 1) })}
-      <button type="button" class="${flipped ? "secondary-button" : "primary-button"} small-button" data-flip="${index}" ${flipped || state.myConfirmed ? "disabled" : ""}>${flipped ? "モンスターを呼び出しました" : "▶ このレシートを選ぶ"}</button>
+      <button type="button" class="${flipped ? "secondary-button" : "primary-button"} small-button" data-flip="${index}" ${flipped || state.myConfirmed || handFull() ? "disabled" : ""}>${flipped ? "モンスターを呼び出しました" : "▶ このレシートを選ぶ"}</button>
     </article>`;
   }
 
   function renderSelect() {
-    $("flip-info").textContent = `最初のレシートは1枚です。レシートを選ぶと、モンスターカードが現れます。必要なら追加で引いて、合計${HAND_LIMIT}枚まで増やせます。手札の中から1枚を決めて対戦します。`;
+    $("flip-info").textContent = `最初のレシートは1枚です。レシートを選ぶと、モンスターカードが現れます。手札は最大${HAND_LIMIT}枚です。手札の中から1枚を決めて対戦します。`;
     $("receipt-field").innerHTML = state.myField.map((c, i) => receiptTileHtml(c, i)).join("");
-    const left = HAND_LIMIT - totalReceipts();
-    $("btn-draw").disabled = state.myConfirmed || left <= 0 || !undealt().length;
-    $("draw-info").textContent = left > 0 && !undealt().length ? "引けるレシートが残っていません。" : left > 0 ? `あと ${left} 枚まで増やせます（画像から作るカードも1枚に数えます）。` : `${HAND_LIMIT}枚そろいました。手札から1枚を選んでください。`;
+    const canShuffle = dealable().length >= SHUFFLE_MIN;
+    $("btn-shuffle").classList.toggle("hidden", !canShuffle);
+    $("btn-shuffle").disabled = state.myConfirmed || state.hand.length > 0;   // 1枚でも選んだらシャッフル不可
+    const imageLocked = state.myConfirmed || handFull();                      // 手札が満杯なら画像からも作れない
+    $("image-input").disabled = imageLocked;
+    $("drop-zone").classList.toggle("is-disabled", imageLocked);
+    document.querySelectorAll(".subtab").forEach((b) => { b.disabled = imageLocked; });
+    $("draw-info").textContent = `DB上のレシートからランダムに${state.myField.length}枚を表示しています。`;
     $("hand-title").textContent = `手札（${state.hand.length} / ${HAND_LIMIT}枚）— この中から1枚を選びます`;
     $("hand-grid").innerHTML = state.hand.length
       ? state.hand.map((id) => { const c = cardById(id); return cardHtml(c, { clickable: !state.myConfirmed, selected: c.id === state.myId }); }).join("")
       : '<div class="hand-slot">まだモンスターは現れていません<br><small>レシートを選ぶと、ここに現れます</small></div>';
   }
 
-  function drawReceipt() {
-    if (state.myConfirmed || totalReceipts() >= HAND_LIMIT) return;
-    const rest = undealt();
-    if (!rest.length) { setGenStatus("引けるレシートがありません。", true); return; }
-    state.myField.push(shuffled(rest)[0]);
-    setGenStatus("", false);
+  function shuffleReceipts() {
+    if (state.myConfirmed) return;
+    state.myField = pickField();
+    state.flipped = new Set();
     renderSelect();
   }
 
   function flipReceipt(index) {
-    if (state.myConfirmed || state.flipped.has(index)) return;
+    if (state.myConfirmed || state.flipped.has(index) || state.hand.length >= HAND_LIMIT) return;
     state.flipped.add(index);
     const card = state.myField[index];
     state.hand.push(card.id);
@@ -252,11 +257,6 @@
     $("gen-status").classList.toggle("is-error", !!isError);
   }
 
-  function updateGenCount() {
-    const key = state.seat === "P1" ? "GEMINI_API_PLAYER1" : "GEMINI_API_PLAYER2";
-    $("gen-count").textContent = `この画像生成は ${key} を使います（デモでは未使用）。作ったカードも合計3枚の1枚に数えます（現在 ${totalReceipts()} / ${HAND_LIMIT}）。残り ${GEN_LIMIT - state.genCount} 回／1ルームあたり ${GEN_LIMIT} 回まで。`;
-  }
-
   function switchSub(name) {
     document.querySelectorAll(".subtab").forEach((b) => b.classList.toggle("is-active", b.dataset.sub === name));
     $("sub-pool").classList.toggle("hidden", name !== "pool");
@@ -265,7 +265,7 @@
 
   function confirmCard() {
     const c = cardById(state.myId);
-    if (!c || state.myConfirmed || !state.hand.includes(c.id)) return;
+    if (!c || state.myConfirmed || !state.hand.includes(c.id) && !state.genIds.includes(c.id)) return;
     state.myConfirmed = true;
     $("btn-confirm").disabled = true;
     $("btn-confirm").textContent = "決定済み";
@@ -319,8 +319,6 @@
     if (!/^image\/(jpeg|png)$/.test(file.type)) { setGenStatus("JPEGまたはPNGの画像を選んでください。", true); return; }
     if (file.size > 5 * 1024 * 1024) { setGenStatus("画像は5 MiB以下にしてください。", true); return; }
     if (state.myConfirmed) { setGenStatus("カードは決定済みです。", true); return; }
-    if (totalReceipts() >= HAND_LIMIT) { setGenStatus("レシートは合計3枚までです。これ以上、カードを増やせません。", true); return; }
-    if (state.genCount >= GEN_LIMIT) { setGenStatus("このルームで画像から作れるカードは3枚までです。", true); return; }
     setGenStatus("レシートを解析して、カードを作っています…（模擬）", false);
     $("gen-preview").innerHTML = "";
     const sha = await sha256Hex(file);
@@ -330,16 +328,13 @@
     if (existing) {
       if (state.oppField.some((c) => c.id === existing.id) || state.myField.some((c) => c.id === existing.id) || state.hand.includes(existing.id)) { setGenStatus("このレシートのカードは、すでに使われています。別の画像を選んでください。", true); return; }
       card = existing;
-      setGenStatus("この画像のカードは作成済みです。新しく作らず、既存のカードを手札に入れました。", false);
+      setGenStatus("この画像のカードは作成済みです。新しく作らず、既存のカードを使います。", false);
     } else {
       card = addCard(E.generateCard(pseudoReceipt(sha), sha, state.seat === "P1" ? "PLAYER1" : "PLAYER2"));
-      state.genCount++;
-      setGenStatus("カードができました！手札に入れました。", false);
+      setGenStatus("カードができました！このカードで対戦できます。", false);
     }
-    state.hand.push(card.id);
-    state.genIds.push(card.id);
+    state.genIds = [card.id];   // 画像から作るカードは1体のみ表示（手札の3枚には数えない）
     state.myId = card.id;
-    updateGenCount();
     $("gen-preview").innerHTML = `<div class="card-grid">${cardHtml(card, { selected: true })}</div>`;
     updateChosen();
     renderSelect();
@@ -545,7 +540,7 @@
     $("btn-demo-join").addEventListener("click", humanJoined);
 
     document.querySelectorAll(".subtab").forEach((b) => b.addEventListener("click", () => switchSub(b.dataset.sub)));
-    $("btn-draw").addEventListener("click", drawReceipt);
+    $("btn-shuffle").addEventListener("click", shuffleReceipts);
     $("receipt-field").addEventListener("click", (ev) => {
       const b = ev.target.closest("[data-flip]");
       if (b) flipReceipt(Number(b.dataset.flip));

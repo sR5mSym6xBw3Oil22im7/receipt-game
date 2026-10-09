@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="モンスターレシート対戦ゲーム 要件定義書">
+<title>モンスターレシート対戦ゲーム 要件定義書</title>
+<style>
+:root{--ink:#2b2114;--muted:#6f6350;--accent:#a8741a;--bg:#fbf6e8;--panel:#fff;--line:#e3d3a8;--soft:#f7f0e0;--warn:#fff4d6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.8 "Zen Kaku Gothic New","Hiragino Sans","Noto Sans JP",sans-serif}
+header{background:#3b2a0e;color:#fff;padding:20px 24px}
+header h1{margin:4px 0 0;font-size:22px}
+header .brand{font-size:12px;letter-spacing:.12em;opacity:.8}
+header .meta{margin-top:8px;font-size:12px;opacity:.85}
+.layout{display:flex;gap:24px;max-width:1200px;margin:0 auto;padding:20px 16px}
+nav{flex:0 0 220px;position:sticky;top:12px;align-self:flex-start;font-size:13px}
+nav a{display:block;padding:4px 8px;color:var(--accent);text-decoration:none;border-left:3px solid transparent}
+nav a:hover{border-left-color:var(--accent);background:var(--soft)}
+main{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 28px 28px}
+h2{margin:32px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--line);font-size:19px}
+h3{margin:22px 0 6px;font-size:16px;color:var(--accent)}
+table{width:100%;border-collapse:collapse;margin:8px 0 14px;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--soft);white-space:nowrap}
+td:first-child{white-space:nowrap}
+code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:13px}
+.note{background:var(--warn);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:12px 0}
+.demo-link{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;padding:8px 16px;border-radius:8px;font-weight:bold}
+ol.flow{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;counter-reset:s}
+ol.flow li{counter-increment:s;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px}
+ol.flow li::before{content:counter(s) ". ";font-weight:bold;color:var(--accent)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:16px}
+@media (max-width:820px){.layout{flex-direction:column}nav{position:static;flex:none}main{padding:8px 16px 20px}td:first-child{white-space:normal}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">RECEIPT ANALYSIS / MONSTER RECEIPT BATTLE</div>
+  <h1>モンスターレシート対戦ゲーム 要件定義書</h1>
+  <div class="meta">版数：2.0（ゼロベース再作成）／ 作成日：2026-10-09 ／ 対応デモ：<a style="color:#ffd98a" href="./index.html">demo/monster-battle/index.html</a></div>
+</header>
+<div class="layout">
+<nav>
+  <a href="#s1">1. 目的と概要</a><a href="#s2">2. 前提・用語</a><a href="#s3">3. 全体の流れ</a><a href="#s4">4. 機能要件一覧</a>
+  <a href="#s5">5. カード生成</a><a href="#s6">6. 対戦・勝敗判定</a><a href="#s7">7. カード選択</a><a href="#s8">8. コンピュータ対戦</a>
+  <a href="#s9">9. 解析・保存・削除との連動</a><a href="#s10">10. 画面要件</a><a href="#s11">11. データ・API案</a><a href="#s12">12. セキュリティ</a>
+  <a href="#s13">13. 非機能要件</a><a href="#s14">14. 受入基準</a><a href="#s15">15. デモとの差異・未決事項</a>
+</nav>
+<main>
+
+<section id="s1"><h2>1. 目的と概要</h2>
+<p>DBに保存済みのレシートデータから「モンスターカード」を自動生成し、2人のプレイヤーがそれぞれ1枚のカードを選んで対戦するゲームを、既存のレシート解析システムに追加する。着想は「バーコードバトラー」で、レシートの店舗・商品・金額・購入日時などでモンスターの強さと姿が決まる。</p>
+<p><a class="demo-link" href="./index.html">デモ画面を開く</a></p>
+<ul>
+<li>2人対戦（別々のPC）。相手が一定時間参加しなければコンピュータ（P2）と対戦する。</li>
+<li>プレイヤーは管理者ログイン不要。席は「ルームを作った人＝P1、コードで参加した人＝P2」。</li>
+<li>カードとイラストはSVGで生成する。勝敗はサーバーで計算する（不正防止）。</li>
+<li>既存のレシート解析・保存・削除の機能は変更しない。</li>
+</ul></section>
+
+<section id="s2"><h2>2. 前提・用語</h2>
+<table>
+<tr><th>用語</th><th>意味</th></tr>
+<tr><td>有効なカード</td><td>保存済みレシートから作られ、対戦で使えるカード（状態 <code>ACTIVE</code>）。下書き・未解析は含まない。</td></tr>
+<tr><td>表示レシート</td><td>カード選択画面に並ぶレシート。有効なカードの元レシートから選ぶ。カードは「選ぶ」まで伏せる。</td></tr>
+<tr><td>手札</td><td>プレイヤーが「このレシートを選ぶ」で呼び出したカード。<b>最大3枚</b>。</td></tr>
+<tr><td>画像カード</td><td>「レシート画像から作る」で作ったカード。<b>1体のみ</b>。手札の3枚には数えない。</td></tr>
+<tr><td>席／ルーム</td><td>ルームは6桁コードで識別。席トークンを持つ2人（P1・P2）だけが操作できる。</td></tr>
+</table>
+<div class="note"><b>前提：</b>レシートの<b>解析の行テキストは画面に表示しない</b>。表示するのは構造化データ（店名・日時・商品・金額など）だけ。画像、テーブル名、画像ハッシュも出さない。</div>
+</section>
+
+<section id="s3"><h2>3. 全体の流れ</h2>
+<ol class="flow"><li>ロビー（作成／参加）</li><li>待機（コード共有・90秒）</li><li>カード選択</li><li>対戦（自動再生）</li><li>結果（元レシート公開）</li></ol>
+<ol>
+<li>P1がルームを作り、6桁コードをP2に伝える。P2はコードで参加する。</li>
+<li>待機から既定90秒（設定で変更可）でP2が参加しなければ、コンピュータがP2になる。</li>
+<li>両者がカードを1枚決定すると、サーバーが勝敗を計算し、ログを再生する。</li>
+<li>結果画面で、選ばれた2枚の元レシートを両プレイヤーに公開する。「同じルームで再戦」で3へ戻る。</li>
+</ol></section>
+
+<section id="s4"><h2>4. 機能要件一覧</h2>
+<table>
+<tr><th>ID</th><th>機能</th><th>要件</th><th>優先度</th></tr>
+<tr><td>MR-01</td><td>ルーム作成</td><td>6桁の英数字コード（紛らわしい文字を除く32種）を発行する。作成者はP1。</td><td>必須</td></tr>
+<tr><td>MR-02</td><td>ルーム参加</td><td>コードを入力して参加する。参加者はP2。形式が不正なら入力欄にエラーを出す。</td><td>必須</td></tr>
+<tr><td>MR-03</td><td>待機とコンピュータ対戦</td><td>待機中は残り秒数を表示する。時間切れでコンピュータ（P2）を割り当てる。</td><td>必須</td></tr>
+<tr><td>MR-04</td><td>カード生成</td><td>5章のアルゴリズムで、レシートからカードを作る。同じレシートは常に同じカード。</td><td>必須</td></tr>
+<tr><td>MR-05</td><td>レシートの表示（9枚）</td><td>カード選択の開始時に、有効なカードの元レシートから<b>ランダムに9枚</b>を<b>3×3</b>で並べる。有効なカードが8枚以下なら全件を表示する。相手に配った分は除く（2人で重ならない）。</td><td>必須</td></tr>
+<tr><td>MR-06</td><td>シャッフル</td><td>有効なカードが<b>10件以上</b>あるときだけ「シャッフル」を表示する。押すと表示の9枚を選び直す（手札のカードと相手の分は除く）。</td><td>必須</td></tr>
+<tr><td>MR-07</td><td>レシートを選ぶ</td><td>「このレシートを選ぶ」で、そのカードが手札に入る。戻せない。</td><td>必須</td></tr>
+<tr><td>MR-08</td><td>手札の上限（3枚）</td><td>手札は最大3枚。3枚になったら、<b>シャッフル／各レシートの選択／「レシートを選ぶ」「レシート画像から作る」タブ</b>を無効にする。</td><td>必須</td></tr>
+<tr><td>MR-09</td><td>シャッフルの無効化</td><td>レシートを1枚でも選んだら、シャッフルを無効にする。決定後も無効。</td><td>必須</td></tr>
+<tr><td>MR-10</td><td>画像からカード生成</td><td>JPEG/PNG（5 MiBまで）から画像カードを作る。<b>1体のみ表示</b>し、作り直すと置き換わる。手札3枚には数えず、1ルームの生成回数の上限も設けない（IPごとの1日の上限は12章）。使用キーはP1が <code>GEMINI_API_PLAYER1</code>、P2が <code>GEMINI_API_PLAYER2</code>。コンピュータ席は使えない。</td><td>必須</td></tr>
+<tr><td>MR-11</td><td>画像カードの重複</td><td>画像が既存の有効なカードと同じなら、新規作成せず既存カードを使う。相手に配られているカード・自分の手札のカードは使えない。</td><td>必須</td></tr>
+<tr><td>MR-12</td><td>カードの決定</td><td>手札、または画像カードから1枚を「決定」する。手札が1枚でも決定できる。決定後は変更不可。手札・画像カード以外はサーバーが拒否する。</td><td>必須</td></tr>
+<tr><td>MR-13</td><td>相手の状態表示</td><td>相手のカード・レシートは対戦開始まで見せない。「選択中」「確定済み」の状態だけ表示する。</td><td>必須</td></tr>
+<tr><td>MR-14</td><td>対戦</td><td>6章のアルゴリズムでサーバーが計算し、行動ログを1行ずつ再生する。速度切替（ふつう／はやい／ゆっくり）とスキップを備える。</td><td>必須</td></tr>
+<tr><td>MR-15</td><td>結果</td><td>勝敗・決着理由・使用した <code>battleSeed</code> を表示する。選ばれた2枚の元レシートを両プレイヤーに公開する。再戦・ロビーへ戻る操作を備える。</td><td>必須</td></tr>
+<tr><td>MR-16</td><td>コンピュータの選択</td><td>8章のとおり、DB上の有効なカードから手札を作り、1枚を選ぶ。新しいカードは生成しない。理由を1文で表示する。</td><td>必須</td></tr>
+<tr><td>MR-17</td><td>レシート解析との連動</td><td>9章のとおり、解析で下書き、保存で有効、削除でカードも削除。</td><td>必須</td></tr>
+<tr><td>MR-18</td><td>レシート表示項目</td><td>店舗カテゴリ・店名（支店名）・購入日時・レシート番号・商品（名前／数量／単価／金額）・合計・支払方法。<b>行テキストは表示しない。</b></td><td>必須</td></tr>
+<tr><td>MR-19</td><td>切断時の扱い</td><td>相手が60秒以上応答しなければルームを終了できる。確定済みのカードは消費されない。</td><td>推奨</td></tr>
+</table></section>
+
+<section id="s5"><h2>5. カード生成アルゴリズム</h2>
+<p>入力はレシートの構造化データと画像のSHA-256（デモは疑似ハッシュ）。画像ハッシュの先頭32ビットを乱数の種にし、同じ入力から同じカードを作る（アルゴリズム版数 2）。</p>
+<h3>5.1 属性</h3>
+<p>商品カテゴリ別に金額を合計し、最大のカテゴリで決める。飲食＝炎、食料品＝土、日用品＝風、交通・移動＝雷、それ以外／商品なし＝無。</p>
+<h3>5.2 要素（すべて0〜1）</h3>
+<table>
+<tr><th>記号</th><th>内容</th><th>計算</th></tr>
+<tr><td>A</td><td>合計金額</td><td>min(合計, 30000) / 30000</td></tr>
+<tr><td>M</td><td>最高額の商品</td><td>min(最高額, 10000) / 10000</td></tr>
+<tr><td>C</td><td>文字数</td><td>min(文字数, 600) / 600</td></tr>
+<tr><td>N</td><td>商品数</td><td>min(商品数, 20) / 20</td></tr>
+<tr><td>T</td><td>時刻帯（未設定は12時）</td><td>min(12, |時 − 12|) / 12</td></tr>
+<tr><td>W</td><td>日付</td><td>(日−1)/30 × 0.7 ＋ 週末なら0.3</td></tr>
+<tr><td>r(k)</td><td>ゆらぎ</td><td>種を5ビットずつずらして8ビット取り出した値 / 255</td></tr>
+</table>
+<h3>5.3 ステータス</h3>
+<table>
+<tr><th>項目</th><th>式</th></tr>
+<tr><td>HP</td><td>200 + floor(500 × (0.25A + 0.30C + 0.15N + 0.15W + 0.15r0))</td></tr>
+<tr><td>ATK</td><td>40 + floor(100 × (0.25M + 0.25C + 0.15T + 0.15W + 0.20r1))</td></tr>
+<tr><td>DEF</td><td>30 + floor(80 × (0.15A + 0.30N + 0.20C + 0.15W + 0.20r2))</td></tr>
+<tr><td>SPD</td><td>40 + floor(60 × (0.35T + 0.20W + 0.15C + 0.10N + 0.20r3))</td></tr>
+<tr><td>LUCK</td><td>5 + floor(20 × (0.50r4 + 0.25W + 0.25C))</td></tr>
+<tr><td>必殺技倍率</td><td>round((1.5 + 0.5 × (0.2M + 0.4C + 0.4r5)) × 100) / 100</td></tr>
+</table>
+<p>金額（A・M）が各ステータスに与える影響は25%以下に抑え、カードの数値から金額帯を言い当てにくくする。</p>
+<h3>5.4 補正</h3>
+<table>
+<tr><th>条件</th><th>補正</th></tr>
+<tr><td>スーパー</td><td>HP×1.10</td></tr><tr><td>コンビニ</td><td>SPD×1.10</td></tr><tr><td>ドラッグストア</td><td>DEF×1.10</td></tr><tr><td>飲食店</td><td>ATK×1.10</td></tr><tr><td>その他</td><td>LUCK+3</td></tr>
+<tr><td>ラッキー</td><td>次のいずれか：①合計がゾロ目（111以上）または末尾777 ②購入時刻の時と分が同じ（11:11など）③日付が7のつく日。成立するとATK・DEF×1.10、LUCK+10</td></tr>
+</table>
+<p>×1.10 は <code>floor(値 × 11 / 10)</code>。</p>
+<h3>5.5 総合力・レア度・名前・イラスト</h3>
+<ul>
+<li>POWER ＝ floor(HP/5 + ATK + DEF + SPD/2 + LUCK×2)。</li>
+<li>レア度：POWER 345以上＝SSR、315以上＝SR、275以上＝R、未満＝N（目安はN25%・R40%・SR25%・SSR10%）。</li>
+<li>必殺技名は属性ごとの3種から、名前は属性ごとの接頭辞4種と接尾辞6種から、種で決める。</li>
+<li>イラストは属性別の体形に、目・角・牙・ほほ紅などを種で変えたSVG。生成AIのSVGが検証を通らない場合の代替表示として使う。SVGは <code>&lt;img&gt;</code> のデータURIで表示し、スクリプトを実行させない。</li>
+</ul></section>
+
+<section id="s6"><h2>6. 対戦・勝敗判定アルゴリズム</h2>
+<ul>
+<li>1〜20ラウンド。各ラウンドで、先攻→後攻の順に1回ずつ行動する。</li>
+<li>先攻はSPDが高い側。同値は <code>battleSeed</code> の偶奇で決める。</li>
+<li>行動3回目ごとに必殺技（倍率＝必殺技倍率）、それ以外は通常攻撃（倍率1）。</li>
+<li>ダメージ ＝ max(1, round(max(1, ATK×倍率 − DEF×0.5) × (0.9〜1.1の乱数) × 属性倍率 × 会心倍率))。</li>
+<li>属性相性：炎→風→土→雷→炎 の順に有利（1.25倍）、逆は不利（0.8倍）、それ以外・無属性は1倍。</li>
+<li>会心：確率 LUCK%、1.5倍。</li>
+<li>HPが0になった側が負け（KO）。20ラウンドで決着しなければ、残りHP割合 → POWER の順で判定し、同じなら引き分け。</li>
+<li>乱数は <code>battleSeed</code>（サーバーが生成）から作る。同じ <code>battleSeed</code> と同じ2枚のカードなら、必ず同じ結果になる。</li>
+</ul></section>
+
+<section id="s7"><h2>7. カード選択の仕様</h2>
+<h3>7.1 画面の構成</h3>
+<ol>
+<li>タブ「レシートを選ぶ」「レシート画像から作る」。</li>
+<li>「レシートを選ぶ」：表示レシート（最大9枚・3×3）、「シャッフル」（10件以上のときのみ）、手札（0〜3枚）、選択中カードと「このカードで決定」。</li>
+<li>「レシート画像から作る」：ファイル選択／ドロップ欄、状態メッセージ、作ったカード1体のプレビュー。生成回数や3枚の制限の表示は出さない。</li>
+</ol>
+<h3>7.2 状態と無効化</h3>
+<table>
+<tr><th>状態</th><th>シャッフル</th><th>各レシートの選択</th><th>タブ・画像生成</th></tr>
+<tr><td>手札0枚</td><td>有効（10件以上のとき表示）</td><td>有効</td><td>有効</td></tr>
+<tr><td>手札1〜2枚</td><td>無効</td><td>有効</td><td>有効</td></tr>
+<tr><td>手札3枚</td><td>無効</td><td>無効（選択済み以外も）</td><td>無効</td></tr>
+<tr><td>決定後</td><td>無効</td><td>無効</td><td>無効</td></tr>
+</table>
+<p>画像カードは手札に数えないため、手札が0〜2枚の間は、何度でも作り直せる。</p>
+<h3>7.3 表示レシートの内容</h3>
+<p>レシートの形をした面に、MR-18の項目をすべて表示する。見せる相手は、そのレシートを配られた本人だけ（対戦開始前）。カードは「選ぶ」まで見せない。</p>
+<h3>7.4 選び方の規則</h3>
+<ul>
+<li>9枚は、有効なカードから、相手に配った分と手札のカードを除いてランダムに選ぶ。</li>
+<li>相手に1枚、自分に最大9枚。有効なカードが2枚未満のときは対戦できない（ロビーへ戻す）。</li>
+<li>再戦のたびに配り直し、手札・画像カード・選択をリセットする。</li>
+</ul></section>
+
+<section id="s8"><h2>8. コンピュータ対戦</h2>
+<ul>
+<li>P1が決定すると、コンピュータは自分に配られたレシートから、乱数で決めた枚数（1〜3枚、残りがなければそこまで）のカードを手札にする。</li>
+<li>手札から1枚を選ぶ。本番は <code>GEMINI_API_PLAYER2</code> のキーでGeminiに選ばせ、デモではPOWER最大のカードで代用する。</li>
+<li>Geminiには、手札の各カードのID・属性・レア度・HP・ATK・DEF・SPD・LUCK・必殺技倍率だけを渡す。名前・説明文などの文字列は渡さない。P1のカード情報も渡さない。</li>
+<li>返答は <code>{ "cardId": 数値, "reason": "理由（40文字以内）" }</code>。手札に含まれないIDや形式不正、タイムアウト（20秒）のときは、POWER最大のカードを選び、理由は「自動で選びました」とする。</li>
+<li>どの場合も新しいカードは生成しない。対戦の前後でカード件数は変わらない。勝敗の計算に補正は入れない。</li>
+<li>対戦画面に、コンピュータの選んだ理由を表示する。</li>
+</ul></section>
+
+<section id="s9"><h2>9. レシート解析・保存・削除との連動</h2>
+<table>
+<tr><th>管理者の操作（既存）</th><th>カードへの影響</th></tr>
+<tr><td>解析</td><td>応答を返した後、別スレッドでカードを生成して下書きにする。同じ画像のカードがあれば作り直さない。</td></tr>
+<tr><td>保存（PostgreSQLへ）</td><td>下書きが有効になり、対戦で使えるようになる。</td></tr>
+<tr><td>削除</td><td>同じタイミングでカードも削除する（外部キーの連動）。</td></tr>
+</table>
+<ul>
+<li>解析だけして保存しない下書きは、24時間で破棄する。</li>
+<li>生成には <code>GEMINI_API_MONSTER</code> を使う。</li>
+<li>機能追加前に保存済みのレシートは、リリース時に削除する（カードを持たないレシートを残さない）。</li>
+<li>既存の解析・保存・削除の画面と応答は変更しない。</li>
+</ul></section>
+
+<section id="s10"><h2>10. 画面要件</h2>
+<table>
+<tr><th>ID</th><th>画面</th><th>主な要素</th></tr>
+<tr><td>M01</td><td>ロビー</td><td>ルームを作る（P1）、コードで参加する（P2）。</td></tr>
+<tr><td>M02</td><td>待機ルーム</td><td>ルームコードとコピー、席の状態、残り秒数、ロビーへ戻る。</td></tr>
+<tr><td>M03</td><td>カード選択（レシートを選ぶ）</td><td>表示レシート（3×3）、シャッフル、手札（0〜3枚）、選択中カード、決定ボタン、相手の状態。</td></tr>
+<tr><td>M04</td><td>カード選択（画像から作る）</td><td>画像選択、状態メッセージ、画像カード1体のプレビュー。</td></tr>
+<tr><td>M05</td><td>対戦</td><td>両者のカードとHPバー、行動ログ、速度切替、スキップ、<code>battleSeed</code>、コンピュータの理由。</td></tr>
+<tr><td>M06</td><td>結果</td><td>勝敗バナー、決着理由、両カード、選ばれた2枚の元レシート、再戦・ロビー。</td></tr>
+<tr><td>A01</td><td>解析連動（管理者側の模擬）</td><td>レシート一覧、カードの状態（未解析／下書き／有効）、解析・保存・削除ボタン、動作ログ。</td></tr>
+</table>
+<ul>
+<li>進行状況（ルーム → カード選択 → 対戦 → 結果）を各画面の上部に表示する。</li>
+<li>デザインは既存画面の金貨テーマに合わせる。既存のスタイルシートは読み込むだけで変更しない。</li>
+<li>ボタンの「選ぶ」は、同じ行のレシート同士で位置をそろえ、レシートの下端に置く。</li>
+<li>スマートフォンの幅でも使えるようにする（デモの3列表示は、本番では幅に応じて列数を減らしてよい）。</li>
+</ul></section>
+
+<section id="s11"><h2>11. データ・API案</h2>
+<h3>11.1 テーブル</h3>
+<table>
+<tr><th>テーブル</th><th>主な列</th></tr>
+<tr><td><code>monster_card</code></td><td>id、レシートへの外部キー（削除で連動）、画像ハッシュ、状態（DRAFT／ACTIVE）、source（ANALYZE／PLAYER1／PLAYER2）、名前、属性、レア度、HP〜LUCK、POWER、必殺技名・倍率、ラッキー、フレーバー、SVG、アルゴリズム版数</td></tr>
+<tr><td><code>monster_room</code></td><td>id、ルームコード、状態、モード（HUMAN／CPU）、有効期限</td></tr>
+<tr><td><code>monster_play</code></td><td>id、room_id、座席（P1／P2）、配布カードID（表示レシート）、手札、画像カードID、選んだカードID、確定済みか。レシートの表示内容のコピーはプレイ終了またはルームの期限切れで削除する</td></tr>
+<tr><td><code>monster_battle</code></td><td>id、room_id、両カードのスナップショット、<code>battleSeed</code>、行動ログ、勝者、決着理由</td></tr>
+</table>
+<p><code>monster_card</code> には、行テキスト・レシートの表示内容を保存しない（配布時に既存テーブルから読み、プレイ用に一時コピーするだけ）。</p>
+<h3>11.2 API</h3>
+<table>
+<tr><th>メソッドとパス</th><th>内容</th><th>認証</th></tr>
+<tr><td>POST /api/monster/rooms</td><td>ルーム作成</td><td>なし</td></tr>
+<tr><td>POST /api/monster/rooms/{code}/join</td><td>参加</td><td>なし</td></tr>
+<tr><td>GET /api/monster/rooms/{code}</td><td>ルームの状態（席・モード）</td><td>席トークン</td></tr>
+<tr><td>GET /api/monster/rooms/{code}/field</td><td>自分の表示レシート（最大9枚。構造化データの全項目。モンスターカードの中身と行テキストは含まない）</td><td>席トークン</td></tr>
+<tr><td>POST /api/monster/rooms/{code}/shuffle</td><td>表示を選び直す。有効なカードが10件未満、手札が1枚以上、決定済みなら409</td><td>席トークン</td></tr>
+<tr><td>POST /api/monster/rooms/{code}/flip</td><td>レシートを選ぶ（番号指定）。カードの詳細を返し、手札に入れる。4枚目は409</td><td>席トークン</td></tr>
+<tr><td>POST /api/monster/rooms/{code}/image-card</td><td>画像から画像カードを作る（1体。作り直すと置換）。手札が3枚以上なら409</td><td>席トークン</td></tr>
+<tr><td>POST /api/monster/rooms/{code}/select</td><td>手札または画像カードから1枚を確定。それ以外は400</td><td>席トークン</td></tr>
+<tr><td>GET /api/monster/rooms/{code}/battle</td><td>対戦結果（両者決定後）。結果画面用に元レシートを返す</td><td>席トークン</td></tr>
+<tr><td>POST /api/monster/rooms/{code}/rematch</td><td>再戦（配り直し）</td><td>席トークン</td></tr>
+</table></section>
+
+<section id="s12"><h2>12. セキュリティ</h2>
+<ul>
+<li><b>席トークン：</b>128ビット以上の乱数。DBにはハッシュだけ保存する。他席の操作は拒否する。</li>
+<li><b>非公開の徹底：</b>対戦が始まるまで、相手のカード・レシート・手札・選択を、画面にもAPIの応答にも出さない。レシートのAPIはモンスターカードの中身（名前・数値・SVG）を返さない。カードは「選ぶ」APIの応答でだけ、選んだ本人に返す。</li>
+<li><b>サーバーでの強制：</b>手札3枚、シャッフルの条件、決定できるカードの範囲を、サーバーが検証する。画面の見た目だけに頼らない。</li>
+<li><b>公開範囲：</b>レシートの内容は、そのルームの席トークンを持つ2人にだけ見せる。一覧・検索・順次取得のAPIは作らない。画像・テーブル名・画像ハッシュ・行テキストは出さない。</li>
+<li><b>回数制限：</b>IPごとに、ルーム作成は10分に5回、参加の試行は1分に10回、画像生成は1日に10回まで。Gemini呼び出しの全体上限（1日あたり、キーごと）を設け、超えたら画像からの生成を止める（既存カードでの対戦は続けられる）。IPはハッシュだけ記録する。1ルームあたりの画像生成回数と、レシートの配布枚数の1日制限は設けない。</li>
+<li><b>画像：</b>JPEG/PNGのみ、5 MiBまで。種類は拡張子ではなく中身で判定する。</li>
+<li><b>SVGとGeminiの出力：</b>SVGは許可リスト方式で検証し、スクリプト・外部参照・イベント属性を拒否する。画面の文字列は <code>textContent</code> で表示し、HTMLとして解釈しない。</li>
+<li><b>キャッシュ：</b>ゲームのAPIの応答は <code>Cache-Control: no-store</code>。</li>
+<li><b>キーの分離：</b>P1の画像生成は <code>GEMINI_API_PLAYER1</code>、P2は <code>GEMINI_API_PLAYER2</code>、解析時の生成は <code>GEMINI_API_MONSTER</code> を使い、混在させない。</li>
+</ul></section>
+
+<section id="s13"><h2>13. 非機能要件</h2>
+<table>
+<tr><th>項目</th><th>要件</th></tr>
+<tr><td>再現性</td><td>同じレシート（画像ハッシュ）は常に同じカード。同じ <code>battleSeed</code> と同じ2枚は同じ結果。</td></tr>
+<tr><td>応答</td><td>カード選択画面の表示、シャッフル、選択は1秒以内。画像カードの生成は、Geminiの応答時間に依存する（目安20秒以内）。</td></tr>
+<tr><td>可用性</td><td>Gemini障害時も、既存カードでの対戦は続けられる。</td></tr>
+<tr><td>データ保持</td><td>プレイ用のレシートのコピーは、プレイ終了またはルーム期限切れで削除する。</td></tr>
+<tr><td>既存機能への影響</td><td>既存の解析・保存・削除の画面・API・自動テストは変更しない。</td></tr>
+<tr><td>アクセシビリティ</td><td>ボタンは <code>disabled</code> で無効を表し、キーボード操作に対応する。進行状況は読み上げに対応する。</td></tr>
+<tr><td>テスト</td><td>カード生成・対戦はDOM・DBに依存しない純粋な関数とし、自動テストで確認する。</td></tr>
+</table></section>
+
+<section id="s14"><h2>14. 受入基準</h2>
+<ol>
+<li>カード選択を開始すると、有効なカードが9枚以上あるとき、レシートが3×3で9枚並ぶ。8枚以下なら全件が並ぶ。</li>
+<li>有効なカードが10件以上のときだけ、「シャッフル」が表示され、押すと別の9枚に変わる。9件以下では表示されない。</li>
+<li>レシートの表示に、行テキストが含まれない。</li>
+<li>各レシートの「このレシートを選ぶ」ボタンが、同じ行で下端にそろって表示される。</li>
+<li>レシートを1枚選ぶと、シャッフルが無効になる。</li>
+<li>手札が3枚になると、シャッフル・各レシートの選択・2つのタブが無効になる。4枚目はサーバーが拒否する。</li>
+<li>「レシート画像から作る」で作ったカードは1体だけ表示され、作り直すと置き換わる。3枚の上限・生成回数の表示は出ない。そのカードで決定・対戦できる。</li>
+<li>手札・画像カード以外のカードの決定は拒否される。</li>
+<li>相手のカード・レシートは、対戦開始まで画面にもAPIの応答にも出ない。</li>
+<li>P2が参加しないまま待機が終わると、コンピュータ対戦になり、新しいカードは生成されない（件数が変わらない）。</li>
+<li>同じ <code>battleSeed</code> と同じ2枚で、結果が同じになる。</li>
+<li>管理者が解析・保存・削除すると、カードが下書き・有効・削除に連動して変わる。既存画面は変わらない。</li>
+<li>回数制限を超えると429が返り、既存カードでの対戦は続けられる。</li>
+</ol></section>
+
+<section id="s15"><h2>15. デモとの差異・未決事項</h2>
+<table>
+<tr><th>項目</th><th>デモ</th><th>本番</th></tr>
+<tr><td>データ</td><td>架空のレシート12件（解析前の2件を含む）をブラウザー内に持つ</td><td>DBの <code>receipt_structured_summary</code> ／ <code>receipt_structured_item</code> から読む</td></tr>
+<tr><td>相手</td><td>自動操作（人間役もコンピュータ役も同じ画面内）</td><td>別PCの人間。ルーム・勝敗はサーバーが管理</td></tr>
+<tr><td>待機時間</td><td>12秒</td><td>既定90秒（設定で変更可）</td></tr>
+<tr><td>画像カード</td><td>画像のハッシュから架空のレシートを作る</td><td>Geminiが画像を読み取り、構造化データを作る</td></tr>
+<tr><td>コンピュータの選択</td><td>POWER最大のカード</td><td>Geminiが手札から選ぶ</td></tr>
+<tr><td>表示の列数</td><td>3列固定</td><td>幅に応じて調整してよい</td></tr>
+</table>
+<h3>未決事項</h3>
+<ul>
+<li>「有効なカードが8枚以下」の扱い（全件表示とした）を、9枚ちょうどのときと合わせて確認する。</li>
+<li>手札3枚で画像タブが無効になる（画像カードを使えなくなる）のは意図どおりか。画像側を常に使えるようにする案もある。</li>
+<li>手札が3枚になったとき、画像タブを開いたままだと手札の一覧に戻れない。「レシートを選ぶ」タブだけ有効のままにするか。</li>
+<li>3枚選ぶのが最善になり、駆け引きが減る。「選ぶほど不利になる」ルールを別途検討するか。</li>
+<li>レシートに写る個人情報（氏名・電話番号など）が、構造化データの項目に含まれる場合の扱い。</li>
+</ul></section>
+
+</main>
+</div>
+<footer>モンスターレシート対戦ゲーム 要件定義書 Version 2.0</footer>
+</body>
+</html>
