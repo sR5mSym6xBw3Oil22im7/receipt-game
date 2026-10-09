@@ -36,9 +36,23 @@ app:
     cookie-secure: ${SESSION_COOKIE_SECURE:true}
     login-max-failures: ${LOGIN_MAX_FAILURES:5}
     login-lock-minutes: ${LOGIN_LOCK_MINUTES:15}
+  # モンスターレシート対戦（doc/34_monster_receipt_battle_requirements.html）
+  monster:
+    wait-seconds: ${MONSTER_WAIT_SECONDS:90}
+    room-ttl-minutes: ${MONSTER_ROOM_TTL_MINUTES:120}
+    unresponsive-seconds: 60
+    draft-ttl-hours: 24
+    # Geminiでカードのイラスト（SVG）を作る。無効なら代替イラストを使う
+    ai-illustration-enabled: ${MONSTER_AI_ILLUSTRATION:false}
+    # Renderなどのプロキシの背後では true（X-Forwarded-For の末尾をIPとして使う）
+    trust-forwarded-for: ${MONSTER_TRUST_FORWARDED_FOR:false}
+    gemini-daily-limit-per-key: ${MONSTER_GEMINI_DAILY_LIMIT:200}
+    # 機能追加前に保存されたレシートを再点検し、カードを作る
+    backfill-on-startup: ${MONSTER_BACKFILL_ON_STARTUP:true}
 
 gemini:
   receipt-model: gemini-3.5-flash-lite
+  monster-model: ${GEMINI_MONSTER_MODEL:gemini-3.5-flash-lite}
   default-api-key: ${GEMINI_API_DEFAULT:}
   player1-api-key: ${GEMINI_API_PLAYER1:}
   player2-api-key: ${GEMINI_API_PLAYER2:}

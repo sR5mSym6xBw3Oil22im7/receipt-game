@@ -13,6 +13,17 @@
 
 「解析」だけではDBに登録しません。結果を確認して「PostgreSQLへ保存」を押したときに保存します。
 
+## モンスターレシート対戦
+
+保存済みレシートからモンスターカードを作り、2人（または相手が来なければコンピュータ）と対戦するゲームです。要件は [doc/34_monster_receipt_battle_requirements.html](doc/34_monster_receipt_battle_requirements.html)。
+
+- 画面：バックエンドの `/game/index.html`（ログイン不要）。デモ画面は `/demo/index.html`。
+- API：`/api/monster/rooms`（席トークン `X-Seat-Token` で操作。勝敗はサーバーで計算）。
+- 連動：解析で下書き、保存で有効、削除でカードも削除。保存前に個人情報（氏名・電話番号・会員番号・住所・メール・カード番号）を検出して「（非表示）」に置換し、取り除けなければ保存しません。
+- 起動時に、カードを持たない保存済みレシートを再点検してカードを作ります（`MONSTER_BACKFILL_ON_STARTUP`）。レシートを自動で削除はしません。
+- 主な環境変数：`MONSTER_WAIT_SECONDS`（待機秒数、既定90）、`MONSTER_AI_ILLUSTRATION`（GeminiでSVGイラストを作る。localプロファイルは既定で有効）、`MONSTER_TRUST_FORWARDED_FOR`（Renderなどプロキシの背後で true）、`MONSTER_GEMINI_DAILY_LIMIT`（キーごとの1日の上限、既定200）。
+- 対戦には有効なカードが2枚以上必要です。
+
 ## データの扱い
 
 - 画像ファイルそのものは保存しません。重複判定に使うSHA-256、読み取った文字列、構造化データを保存します。

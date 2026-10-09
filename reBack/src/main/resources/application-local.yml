@@ -14,4 +14,6 @@ server:
 app:
   auth:
     cookie-secure: false
+  monster:
+    ai-illustration-enabled: ${MONSTER_AI_ILLUSTRATION:true}
 

@@ -12,3 +12,8 @@ const demoLink = document.getElementById("demo-link");
 if (demoLink && window.APP_CONFIG?.DEMO_URL) {
   demoLink.href = window.APP_CONFIG.DEMO_URL;
 }
+
+const gameLink = document.getElementById("game-link");
+if (gameLink && window.APP_CONFIG?.GAME_URL) {
+  gameLink.href = window.APP_CONFIG.GAME_URL;
+}

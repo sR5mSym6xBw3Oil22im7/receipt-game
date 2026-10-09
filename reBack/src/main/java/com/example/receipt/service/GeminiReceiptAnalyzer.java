@@ -40,6 +40,9 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             読み取れない値は null とし、印字されていない値を作らないでください。
             商品には購入した商品・サービスだけを含め、税・小計・合計・預り金・釣銭を含めないでください。
             推測で存在しない文字を追加しないでください。
+            お客様の氏名、電話番号、会員番号・ポイントカード番号、住所、メールアドレス、クレジットカード番号は
+            structuredData に出力しないでください。該当する箇所は空にしてください。
+            店舗の電話番号・住所も structuredData には含めないでください。
             バーコード画像そのものは文字列化しなくて構いません。
             出力は指定されたJSONスキーマだけにしてください。
             """;
@@ -57,6 +60,11 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
 
     @Override
     public ReceiptText analyze(byte[] imageBytes, String mimeType) {
+        return analyze(imageBytes, mimeType, apiKey);
+    }
+
+    /** 用途別のキーで解析する（モンスターレシート対戦の画像カードは GEMINI_API_PLAYER1／PLAYER2 を使う）。 */
+    public ReceiptText analyze(byte[] imageBytes, String mimeType, String apiKey) {
         final String activeApiKey;
         try {
             activeApiKey = GeminiApiKeyPolicy.requireValid(apiKey);

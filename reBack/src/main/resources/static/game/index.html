@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
+  <title>モンスターレシート対戦</title>
+  <!-- 既存画面と同じ金貨テーマ。既存の styles.css は読み込むだけで変更しない。 -->
+  <link rel="stylesheet" href="../admin/styles.css">
+  <link rel="stylesheet" href="./game.css">
+</head>
+<body>
+  <main class="container is-wide">
+    <section class="card hero-mini">
+      <p class="eyebrow">Monster Receipt Battle</p>
+      <h1>モンスターレシート対戦</h1>
+      <div class="flourish is-left"><svg aria-hidden="true" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#e2b443" stroke="#8a5f0b" stroke-width="2"/><circle cx="14" cy="14" r="6" fill="none" stroke="#8a5f0b" stroke-width="1.5"/></svg></div>
+      <p class="lead">保存されたレシートからモンスターカードを呼び出して、2人で対戦します。</p>
+    </section>
+
+    <!-- M01 ロビー -->
+    <section class="card view" id="view-lobby">
+      <h2>ロビー</h2>
+      <p class="lead">ログインは不要です。プレイヤーの席は「ルームを作った人がP1、コードで参加した人がP2」で決まります。</p>
+      <p class="status is-error hidden" id="lobby-notice" role="alert"></p>
+      <div class="menu">
+        <button type="button" class="menu-link" id="btn-create">
+          <span class="seat-mark">P1</span>
+          <span><span class="menu-title">ルームを作る</span><span class="menu-desc">ルームコードを発行して相手を待ちます（あなたはP1）。</span></span>
+          <span class="menu-arrow" aria-hidden="true">→</span>
+        </button>
+        <div class="menu-link join-box">
+          <span class="seat-mark">P2</span>
+          <span>
+            <span class="menu-title">ルームに参加する</span>
+            <span class="menu-desc">相手から教わった6桁のコードを入力します（あなたはP2）。</span>
+            <span class="join-row"><input class="text-input" id="join-code" maxlength="6" placeholder="例：K7QX2M" autocomplete="off" aria-label="ルームコード" aria-describedby="join-error"><button type="button" class="secondary-button small-button" id="btn-join">参加</button></span>
+            <span class="field-error" id="join-error" role="alert"></span>
+          </span>
+          <span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- M02 待機 -->
+    <section class="card view hidden" id="view-wait">
+      <ol class="steps" aria-label="進行状況"><li>ルーム</li><li>カード選択</li><li>対戦</li><li>結果</li></ol>
+      <h2>待機ルーム</h2>
+      <div class="room-code-box">
+        <span class="room-label">ルームコード</span>
+        <strong id="room-code" class="room-code">------</strong>
+        <button type="button" class="secondary-button small-button" id="btn-copy">コピー</button>
+      </div>
+      <ul class="seat-list">
+        <li id="seat-p1"><span class="seat-mark">P1</span><span class="seat-name"></span><span class="badge"></span></li>
+        <li id="seat-p2"><span class="seat-mark">P2</span><span class="seat-name"></span><span class="badge"></span></li>
+      </ul>
+      <p class="status" id="wait-status" role="status"></p>
+      <div class="button-row"><button type="button" class="secondary-button" id="btn-leave-wait">ロビーへ戻る</button></div>
+    </section>
+
+    <!-- M03 / M04 カード選択 -->
+    <section class="card view hidden" id="view-select">
+      <ol class="steps" aria-label="進行状況"><li>ルーム</li><li>カード選択</li><li>対戦</li><li>結果</li></ol>
+      <div class="select-head">
+        <h2>レシートを選んでカードを呼び出す <span class="badge is-accent" id="seat-badge"></span></h2>
+        <p class="opponent-state" id="opponent-state" role="status"></p>
+      </div>
+      <div class="note is-warn game-notice hidden" id="unresponsive-note" role="alert">
+        相手から60秒以上応答がありません。
+        <div class="button-row"><button type="button" class="secondary-button small-button" data-leave>ルームを終了してロビーへ</button></div>
+      </div>
+      <div class="subtabs" role="tablist">
+        <button type="button" class="subtab is-active" data-sub="pool" role="tab" aria-selected="true">レシートを選ぶ</button>
+        <button type="button" class="subtab" data-sub="image" role="tab" aria-selected="false">レシート画像から作る</button>
+      </div>
+
+      <div id="sub-pool">
+        <p class="help-text" id="flip-info">レシートを選ぶと、モンスターカードが現れます。手札は最大3枚です。手札の中から1枚を決めて対戦します。</p>
+        <div class="button-row draw-row"><button type="button" class="secondary-button small-button hidden" id="btn-shuffle">シャッフル</button><span class="help-text" id="draw-info"></span></div>
+        <p class="status" id="pool-status" role="status"></p>
+        <div class="receipt-field" id="receipt-field"></div>
+        <h3 id="hand-title">手札</h3>
+        <div class="card-grid hand-grid" id="hand-grid"></div>
+      </div>
+
+      <div id="sub-image" class="hidden">
+        <label class="drop-zone" id="drop-zone">
+          <svg class="drop-icon" viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="6" width="32" height="44" rx="3" fill="#fffcf2" stroke="#c9971f" stroke-width="2"/><path d="M18 16h20M18 24h20M18 32h14" stroke="#c9971f" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="drop-title">レシート画像を選ぶ（JPEG / PNG・5 MiBまで）</span>
+          <span class="help-text">クリックして選ぶか、ここへドロップします。画像は保存しません。読み取った内容から個人情報を取り除いてカードを作ります。</span>
+          <input type="file" id="image-input" accept="image/jpeg,image/png">
+        </label>
+        <p class="status" id="gen-status" role="status"></p>
+        <div id="gen-preview"></div>
+      </div>
+
+      <div class="chosen-bar">
+        <div class="chosen-info" id="chosen-info" role="status">カードを選んでください。</div>
+        <button type="button" class="primary-button" id="btn-confirm" disabled>このカードで決定</button>
+      </div>
+      <div class="button-row"><button type="button" class="secondary-button small-button" data-leave>ロビーへ（ルームを閉じる）</button></div>
+    </section>
+
+    <!-- M05 対戦 -->
+    <section class="card view hidden" id="view-battle">
+      <ol class="steps" aria-label="進行状況"><li>ルーム</li><li>カード選択</li><li>対戦</li><li>結果</li></ol>
+      <div class="battle-head">
+        <h2>対戦</h2>
+        <span class="badge" id="battle-seed"></span>
+      </div>
+      <p class="note cpu-note hidden" id="cpu-note"></p>
+      <div class="arena">
+        <div class="fighter" id="fighter-0"></div>
+        <div class="vs" aria-hidden="true">VS</div>
+        <div class="fighter" id="fighter-1"></div>
+      </div>
+      <div class="battle-controls">
+        <button type="button" class="secondary-button small-button" id="btn-speed">速度：ふつう</button>
+        <button type="button" class="secondary-button small-button" id="btn-skip">結果までスキップ</button>
+      </div>
+      <ol class="battle-log" id="battle-log" aria-live="polite"></ol>
+    </section>
+
+    <!-- M06 結果 -->
+    <section class="card view hidden" id="view-result">
+      <ol class="steps" aria-label="進行状況"><li>ルーム</li><li>カード選択</li><li>対戦</li><li>結果</li></ol>
+      <div class="result-banner" id="result-banner"></div>
+      <p class="lead" id="result-detail"></p>
+      <p class="status" id="result-status" role="status"></p>
+      <div class="arena result-arena" id="result-arena"></div>
+      <h3>選ばれた2枚の元レシート</h3>
+      <div class="receipt-field" id="result-receipts"></div>
+      <div class="button-row">
+        <button type="button" class="primary-button" id="btn-rematch">同じルームで再戦</button>
+        <button type="button" class="secondary-button" data-leave>ロビーへ</button>
+      </div>
+    </section>
+
+    <p class="footer-note">— Monster Receipt Battle —</p>
+  </main>
+
+  <script src="./game.js"></script>
+</body>
+</html>

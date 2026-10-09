@@ -66,6 +66,8 @@ public class SecurityConfig {
                         .requireCsrfProtectionMatcher(request -> {
                             if (!CsrfFilter.DEFAULT_CSRF_MATCHER.matches(request)) return false;
                             String path = request.getRequestURI();
+                            // モンスターレシート対戦はCookieを使わず、席トークン（ヘッダー）で操作するためCSRFの対象外
+                            if (path.startsWith("/api/monster/")) return false;
                             if (path.equals("/api/receipts") || path.startsWith("/api/receipts/")) {
                                 Authentication current = SecurityContextHolder.getContext().getAuthentication();
                                 return current != null && current.isAuthenticated();
@@ -78,6 +80,8 @@ public class SecurityConfig {
                         // 解析・保存・一覧・詳細・削除はすべて管理者限定（メソッドを問わない）
                         .requestMatchers("/api/receipts", "/api/receipts/**").hasRole("ADMIN")
                         .requestMatchers("/api/auth/**").authenticated()
+                        // モンスターレシート対戦：ログイン不要（席トークンで認可する）
+                        .requestMatchers("/api/monster/**").permitAll()
                         // 上記以外の/api配下は既定で拒否し、新規APIが意図せず公開されないようにする
                         .requestMatchers("/api/**").denyAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")

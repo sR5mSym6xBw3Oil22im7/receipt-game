@@ -26,6 +26,10 @@ services:
         sync: false
       - key: SESSION_COOKIE_SECURE
         value: "true"
+      - key: MONSTER_AI_ILLUSTRATION
+        value: "true"
+      - key: MONSTER_TRUST_FORWARDED_FOR
+        value: "true"
       - key: DB_HOST
         fromDatabase:
           name: receipt-analysis-psl-service

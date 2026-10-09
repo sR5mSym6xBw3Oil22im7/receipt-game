@@ -4,6 +4,8 @@ import com.example.receipt.dto.ReceiptText;
 import com.example.receipt.dto.ReceiptStructuredData;
 import com.example.receipt.dto.ReceiptUploadResponse;
 import com.example.receipt.exception.ReceiptException;
+import com.example.receipt.monster.MonsterCardService;
+import com.example.receipt.monster.engine.PersonalInfoSanitizer;
 import com.example.receipt.repository.ReceiptTableRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -19,14 +21,17 @@ public class ReceiptService {
     private final ReceiptAnalyzer receiptAnalyzer;
     private final ReceiptUploadValidator validator;
     private final ReceiptTableRepository repository;
+    private final MonsterCardService monsterCardService;
 
     public ReceiptService(
             ReceiptAnalyzer receiptAnalyzer,
             ReceiptUploadValidator validator,
-            ReceiptTableRepository repository) {
+            ReceiptTableRepository repository,
+            MonsterCardService monsterCardService) {
         this.receiptAnalyzer = receiptAnalyzer;
         this.validator = validator;
         this.repository = repository;
+        this.monsterCardService = monsterCardService;
     }
 
     public ReceiptText analyze(MultipartFile file) throws IOException {
@@ -38,6 +43,8 @@ public class ReceiptService {
                 file.getContentType()
         );
         repository.reserveImageHash(sha256);
+        // モンスターカードの下書きは応答を返した後に別スレッドで作る（応答は変えない）
+        monsterCardService.prepareDraftAsync(sha256, analyzed.lines(), analyzed.structuredData());
         return new ReceiptText(analyzed.lines(), sha256, analyzed.structuredData());
     }
 
@@ -50,9 +57,13 @@ public class ReceiptService {
             throw new ReceiptException(HttpStatus.BAD_REQUEST, "EMPTY_RECEIPT", "レシートデータが空です。");
         }
         String normalizedSha256 = normalizeSha256(sha256);
-        String tableName = repository.createReceiptTableAndInsert(originalLines, normalizedSha256);
-        repository.saveStructuredData(tableName, normalizedSha256, structuredData);
-        return new ReceiptUploadResponse(tableName, originalLines.size(), originalLines, normalizedSha256);
+        // 保存前に個人情報を検出して取り除く。取り除けなければ保存しない（カードも作らない）。
+        PersonalInfoSanitizer.Result clean = monsterCardService.sanitizeForSave(structuredData, originalLines);
+        java.util.List<String> savedLines = clean.lines();
+        String tableName = repository.createReceiptTableAndInsert(savedLines, normalizedSha256);
+        repository.saveStructuredData(tableName, normalizedSha256, clean.data());
+        monsterCardService.activateForSavedReceipt(tableName, normalizedSha256, clean.data(), savedLines);
+        return new ReceiptUploadResponse(tableName, savedLines.size(), savedLines, normalizedSha256);
     }
 
     private static String sha256(byte[] bytes) {

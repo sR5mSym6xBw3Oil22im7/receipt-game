@@ -1,0 +1,161 @@
+/* モンスターレシート対戦 — 既存の金貨テーマ（admin/styles.css）の変数と部品を使い、ゲーム固有の部分だけ追加する（デモの demo.css をもとにしている） */
+:root {
+  --e-fire: #e4572e; --e-earth: #a7803f; --e-wind: #3fb596; --e-thunder: #e8b800; --e-none: #8b8fa3;
+  --r-N: #9a8f7d; --r-R: #3f7fbf; --r-SR: #8a4fbf; --r-SSR: #d99a00;
+}
+.hero-mini { padding: 28px 32px; }
+.hidden { display: none !important; }
+
+/* タブ */
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.tab { padding: 8px 18px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 700; font-size: 0.9rem; text-decoration: none; cursor: pointer; letter-spacing: 0.06em; }
+.tab:hover { border-color: var(--gold); color: var(--gold-deep); }
+.tab.is-active { background: var(--gold-grad); color: var(--gold-ink); border-color: rgba(255, 246, 214, 0.8); }
+.subtabs { display: flex; gap: 8px; margin: 4px 0 14px; }
+.subtab { padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 700; font-size: 0.88rem; cursor: pointer; }
+.subtab.is-active { border-color: var(--gold); background: var(--gold-mist); color: var(--gold-deep); }
+
+/* ロビー */
+.menu-link { text-align: left; width: 100%; font: inherit; color: inherit; background: var(--surface); }
+.seat-mark { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--gold-grad); color: var(--gold-ink); font-family: var(--font-latin); font-weight: 700; font-size: 1.2rem; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6); flex: none; }
+.join-box { cursor: default; }
+.join-row { display: flex; gap: 8px; margin-top: 8px; }
+.join-row .text-input { max-width: 180px; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 700; }
+
+/* 待機 */
+.room-code-box { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 16px 20px; border: 1px dashed var(--gold); border-radius: var(--radius-sm); background: var(--gold-mist); margin-bottom: 16px; }
+.room-label { color: var(--ink-soft); font-size: 0.85rem; }
+.room-code { font-family: var(--font-latin); font-size: 2.2rem; letter-spacing: 0.3em; color: var(--gold-deep); }
+.seat-list { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 10px; }
+.seat-list li { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface); }
+.seat-list .seat-mark { width: 38px; height: 38px; font-size: 1rem; }
+.seat-list .seat-name { flex: 1; font-weight: 700; }
+.seat-list li.is-empty { opacity: 0.6; }
+
+/* 選択画面 */
+.select-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+.opponent-state { margin: 0; font-weight: 700; color: var(--gold-deep); }
+.filters { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 14px; align-items: center; }
+.filter-group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.filter-group > span { font-size: 0.8rem; color: var(--ink-soft); margin-right: 2px; }
+.chip { padding: 3px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: 0.82rem; cursor: pointer; }
+.chip.is-on { border-color: var(--gold); background: var(--gold-mist); color: var(--gold-deep); font-weight: 700; }
+.chosen-bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--gold-line); }
+.chosen-info { font-weight: 700; }
+
+/* カード */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.mcard { --accent: var(--e-none); --rar: var(--r-N); position: relative; display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 12px; border-radius: 14px; border: 3px solid var(--accent); background: linear-gradient(180deg, #fffdf5, #f7ecc8); box-shadow: 0 10px 20px -12px rgba(80, 50, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.8); text-align: left; font: inherit; color: var(--ink); cursor: default; }
+button.mcard, .mcard.is-clickable { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease; }
+button.mcard:hover { transform: translateY(-3px); }
+.mcard.is-selected { box-shadow: 0 0 0 4px rgba(201, 151, 31, 0.55), 0 14px 24px -12px rgba(80, 50, 0, 0.7); }
+.mcard.is-taken { opacity: 0.45; filter: grayscale(0.6); cursor: not-allowed; }
+.mcard.e-炎 { --accent: var(--e-fire); } .mcard.e-土 { --accent: var(--e-earth); } .mcard.e-風 { --accent: var(--e-wind); } .mcard.e-雷 { --accent: var(--e-thunder); } .mcard.e-無 { --accent: var(--e-none); }
+.mcard.r-N { --rar: var(--r-N); } .mcard.r-R { --rar: var(--r-R); } .mcard.r-SR { --rar: var(--r-SR); } .mcard.r-SSR { --rar: var(--r-SSR); }
+.mcard.r-SSR::after, .mcard.r-SR::after { content: ""; position: absolute; inset: 0; border-radius: 11px; pointer-events: none; background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.55) 50%, transparent 65%); background-size: 250% 100%; animation: shine 3.6s ease-in-out infinite; }
+@keyframes shine { 0% { background-position: 120% 0; } 60%, 100% { background-position: -80% 0; } }
+.mc-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.mc-name { font-family: var(--font-head); font-weight: 700; font-size: 1rem; overflow-wrap: anywhere; }
+.mc-rarity { font-family: var(--font-latin); font-weight: 700; font-size: 0.8rem; color: #fff; background: var(--rar); border-radius: 6px; padding: 0 7px; letter-spacing: 0.08em; flex: none; }
+.mc-art { position: relative; border-radius: 10px; background: radial-gradient(circle at 50% 35%, #fff, color-mix(in srgb, var(--accent) 25%, #fff8e0)); border: 1px solid var(--gold-line); aspect-ratio: 1; overflow: hidden; }
+.mc-art img { display: block; width: 100%; height: 100%; }
+.mc-art.is-hidden { display: grid; place-items: center; font-family: var(--font-latin); font-size: 4rem; color: var(--gold-deep); background: repeating-linear-gradient(45deg, #f3e3b0, #f3e3b0 8px, #ecd899 8px, #ecd899 16px); }
+.mc-elem { position: absolute; top: 6px; left: 6px; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #fff; font-weight: 700; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
+.mc-zoro { position: absolute; top: 6px; right: 6px; z-index: 1; padding: 0 7px; border-radius: 999px; background: #fff3c4; border: 1px solid var(--gold); color: var(--gold-deep); font-size: 0.7rem; font-weight: 700; }
+.mc-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; margin: 0; text-align: center; }
+.mc-stats div { background: rgba(255, 255, 255, 0.7); border-radius: 6px; padding: 1px 0; }
+.mc-stats dt { font-size: 0.62rem; color: var(--ink-soft); font-family: var(--font-latin); letter-spacing: 0.06em; }
+.mc-stats dd { margin: 0; font-weight: 700; font-size: 0.88rem; line-height: 1.2; }
+.mc-skill { font-size: 0.8rem; font-weight: 700; color: var(--gold-deep); }
+.mc-flavor { margin: 0; font-size: 0.74rem; line-height: 1.5; color: var(--ink-soft); }
+.mc-foot { font-size: 0.7rem; color: var(--ink-soft); border-top: 1px dashed var(--gold-line); padding-top: 4px; }
+.mc-foot .src { float: right; }
+
+/* 対戦 */
+.battle-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.arena { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); align-items: center; gap: 10px; max-width: 720px; margin: 8px auto 12px; }
+.vs { text-align: center; font-family: var(--font-latin); font-weight: 700; font-size: 1.6rem; color: var(--gold-deep); }
+.fighter { position: relative; }
+.fighter .mcard { max-width: 300px; margin: 0 auto; }
+.hp-box { margin: 0 auto 8px; max-width: 300px; }
+.hp-label { display: flex; justify-content: space-between; font-size: 0.82rem; font-weight: 700; }
+.hp-bar { height: 12px; border-radius: 999px; background: #e9dcc0; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25); }
+.hp-bar > i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #7c8f2e, #b6c64a); transition: width 0.45s ease; }
+.hp-bar > i.is-mid { background: linear-gradient(90deg, #d49a1a, #f1c94d); }
+.hp-bar > i.is-low { background: linear-gradient(90deg, #b0372a, #e0674f); }
+.float-dmg { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); font-family: var(--font-latin); font-weight: 700; font-size: 2.2rem; color: #b0372a; text-shadow: 0 2px 0 #fff, 0 0 8px #fff; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 3; }
+.float-dmg.is-crit { color: #c22; font-size: 2.8rem; }
+.float-dmg.is-weak { color: #6b6b6b; font-size: 1.6rem; }
+@keyframes floatUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -60px); } }
+.fighter.is-attacking .mcard { animation: lunge 0.45s ease; }
+.fighter.is-hit .mcard { animation: shake 0.4s ease; }
+.fighter.is-defeated .mcard { filter: grayscale(1); opacity: 0.55; transition: all 0.6s ease; }
+.fighter.is-winner .mcard { box-shadow: 0 0 0 4px rgba(201, 151, 31, 0.7), 0 0 30px rgba(255, 220, 120, 0.9); }
+@keyframes lunge { 50% { transform: translateX(var(--lunge, 24px)) scale(1.05); } }
+@keyframes shake { 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+.battle-controls { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 12px; }
+.battle-log { list-style: none; margin: 0 auto; padding: 12px 16px; max-width: 720px; max-height: 220px; overflow: auto; background: var(--surface-strong); border: 1px solid var(--line); border-radius: var(--radius-sm); font-size: 0.9rem; }
+.battle-log li { padding: 3px 0; border-bottom: 1px dashed var(--line); }
+.battle-log li:last-child { border-bottom: 0; }
+.battle-log .who0 { color: #2d6aa3; font-weight: 700; } .battle-log .who1 { color: #a3412d; font-weight: 700; }
+.battle-log .tag { display: inline-block; padding: 0 6px; margin-left: 4px; border-radius: 6px; font-size: 0.72rem; background: var(--gold-mist); color: var(--gold-deep); border: 1px solid var(--gold-line); }
+
+/* 結果 */
+.result-banner { text-align: center; font-family: var(--font-head); font-weight: 700; font-size: clamp(1.8rem, 5vw, 2.8rem); letter-spacing: 0.1em; padding: 12px; margin-bottom: 4px; background: var(--gold-grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.result-banner.is-lose { background: none; color: var(--ink-soft); }
+#view-result .lead { text-align: center; }
+.result-arena .fighter { opacity: 1; }
+
+h3 { margin-top: 16px; }
+.help-text.small { font-size: 0.78rem; }
+
+@media (max-width: 640px) {
+  .arena { grid-template-columns: 1fr; }
+  .vs { font-size: 1.1rem; }
+  .hero-mini { padding: 22px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mcard::after, .float-dmg, .fighter.is-attacking .mcard, .fighter.is-hit .mcard { animation: none !important; }
+  .hp-bar > i { transition: none; }
+}
+
+/* めくる前のレシート（個人情報は伏せ字）と手札 */
+.receipt-field { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
+.receipt-tile { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 10px; text-align: left; font: inherit; color: var(--ink); background: #fffef8; border: 1px solid #e3cf9c; border-radius: 6px; box-shadow: 0 8px 16px -12px rgba(80, 50, 0, 0.7); cursor: pointer; transition: transform 0.15s ease; letter-spacing: 0; background-image: linear-gradient(transparent 94%, #f0e4bd 94%); background-size: 100% 22px; }
+.receipt-tile::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 8px; background: radial-gradient(circle at 6px -1px, transparent 6px, #fffef8 7px) 0 0 / 12px 8px repeat-x; filter: drop-shadow(0 2px 1px rgba(80, 50, 0, 0.15)); }
+.receipt-tile:hover:not(:disabled) { transform: translateY(-4px) rotate(-1deg); border-color: var(--gold); }
+.receipt-tile.is-flipped { opacity: 0.85; border-style: dashed; }
+.rt-no { font-family: var(--font-latin); font-weight: 700; color: var(--gold-deep); font-size: 0.82rem; letter-spacing: 0.08em; }
+.rt-cat { align-self: flex-start; padding: 0 9px; border-radius: 999px; background: var(--gold-mist); border: 1px solid var(--gold-line); font-size: 0.8rem; font-weight: 700; }
+.rt-foot { font-size: 0.74rem; color: var(--gold-deep); font-weight: 700; }
+.hand-slot { display: grid; place-items: center; text-align: center; min-height: 160px; border: 2px dashed var(--gold-line); border-radius: 14px; color: var(--ink-soft); background: rgba(255, 255, 255, 0.4); }
+.mcard.is-revealed { animation: reveal 0.6s ease; }
+@keyframes reveal { from { transform: rotateY(90deg) scale(0.9); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .mcard.is-revealed { animation: none; } }
+
+.rt-no em { font-style: normal; margin-left: 6px; padding: 0 9px; border-radius: 999px; background: var(--gold-mist); border: 1px solid var(--gold-line); font-size: 0.78rem; color: var(--ink); }
+.rt-store { font-family: var(--font-head); font-weight: 700; font-size: 1.05rem; text-align: center; }
+.rt-meta { font-size: 0.78rem; color: var(--ink-soft); }
+.rt-items { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.rt-items th { font-weight: 700; color: var(--ink-soft); border-bottom: 1px dashed #d8c58f; padding: 2px 3px; text-align: left; }
+.rt-items td { padding: 2px 3px; border-bottom: 1px dotted #eadfb8; overflow-wrap: anywhere; }
+.rt-items .q { text-align: center; width: 2.2em; } .rt-items .n { text-align: right; white-space: nowrap; }
+.rt-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--ink); padding-top: 4px; font-weight: 700; }
+.rt-total b { font-size: 1.1rem; }
+.draw-row { margin-bottom: 12px; }
+
+.receipt-tile { cursor: default; }
+.receipt-tile:hover { transform: none; }
+.receipt-tile h3 { font-size: 0.95rem; margin: 0; }
+.receipt-tile > .small-button { margin-top: auto; align-self: stretch; }
+#result-receipts { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+.drop-zone.is-disabled { opacity: 0.5; pointer-events: none; }
+.subtab:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 本番：幅に応じてレシートの列数を減らす */
+@media (max-width: 900px) { .receipt-field { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .receipt-field { grid-template-columns: minmax(0, 1fr); } }
+.game-notice { margin: 0 0 14px; }
+.game-notice .button-row { margin-top: 8px; }
+.join-row .text-input[aria-invalid="true"] { border-color: #b0372a; }
+.field-error { color: #b0372a; font-size: 0.82rem; margin: 6px 0 0; }

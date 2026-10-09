@@ -218,6 +218,10 @@ public class ReceiptTableRepository {
         if (tableExists("receipt_structured_summary")) {
             jdbcTemplate.update("DELETE FROM receipt_structured_summary WHERE receipt_table_name = ?", tableName);
         }
+        // モンスターカードもレシートと同時に削除する
+        if (tableExists("monster_card")) {
+            jdbcTemplate.update("DELETE FROM monster_card WHERE receipt_table_name = ?", tableName);
+        }
         ensureImageHashRegistry();
         jdbcTemplate.update("DELETE FROM receipt_image_hash_registry WHERE table_name = ?", tableName);
     }
