@@ -1,5 +1,5 @@
 // モンスターレシート対戦ゲーム デモ用エンジン
-// demo/monster-battle/34_monster_receipt_battle_requirements.html の5章（カード生成）と6章（対戦）を再現する。
+// demo/34_monster_receipt_battle_requirements.html の5章（カード生成）と6章（対戦）を再現する。
 // DOM・DB・Gemini に依存しない純粋な関数だけで構成する（本番でも同じ分け方にする）。
 (function (root) {
   "use strict";
