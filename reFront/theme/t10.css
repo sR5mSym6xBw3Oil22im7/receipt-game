@@ -1,0 +1,43 @@
+/* 案10 レシート路線図（ハンドドリップ × ゆで太郎）点線の路線、橙・青・緑の路線カラー、往復する列車 */
+:root[data-theme="t10"] {
+  --bg-top: #fbfaf5; --bg-mid: #fbfaf5; --bg-low: #fbfaf5;
+  --gold: #f08a24; --gold-deep: #c4640c; --gold-light: #ffd9a8; --gold-mist: #fff4e6;
+  --gold-grad: linear-gradient(#f08a24, #f08a24); --gold-ink: #fff; --gold-line: #c3c7cf;
+  --paper: #fff; --paper-solid: #fff; --surface: #fff; --surface-strong: #fff;
+  --ink: #1d2433; --ink-soft: #6f7787; --line: #dde0e6; --ok: #2fa74f;
+  --sub: #1f86c8; --sub-light: #e5f2fb; --sub-ink: #17527a;
+  --radius: 10px; --radius-sm: 8px; --shadow: 0 6px 0 -2px rgba(29, 36, 51, .12);
+  --font-head: "BIZ UDPGothic", "Hiragino Sans", sans-serif; --font-latin: "BIZ UDPGothic", sans-serif; --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", sans-serif;
+
+  & body { background: #fbfaf5; }
+  /* 左端の路線と、往復する列車 */
+  & body::before { content: ""; position: fixed; left: 5px; top: 0; bottom: 0; width: 0; border-left: 6px dotted #f08a24; z-index: 4; pointer-events: none; }
+  & body::after { content: ""; position: fixed; left: 2px; top: 20px; width: 16px; height: 16px; border-radius: 4px; background: #f08a24; box-shadow: 0 0 0 3px #fff, 0 0 8px #f08a24; z-index: 5; pointer-events: none; animation: t10-go 8s ease-in-out infinite alternate; }
+  & .card { --c: #f08a24; border: 2px solid var(--ink); border-left: 10px solid var(--c); backdrop-filter: none; animation: t10-stn .6s cubic-bezier(.2, .8, .2, 1) both; }
+  & .card:nth-of-type(3n + 2) { --c: #1f86c8; }
+  & .card:nth-of-type(3n) { --c: #2fa74f; }
+  & .card::before { display: none; }
+  & h1, & .hero-title { font-weight: 700; }
+  & h2::before { content: ""; display: inline-block; width: .7em; height: .7em; margin-right: .5em; border: 4px solid var(--c, #f08a24); border-radius: 50%; background: #fff; vertical-align: -.05em; }
+  & .eyebrow, & .hero-sub { color: #fff; background: var(--c, #f08a24); display: inline-block; padding: 0 10px; border-radius: 3px; letter-spacing: .15em; font-size: .72rem; font-weight: 700; }
+  & .primary-button { border: 0; border-radius: 8px; box-shadow: 0 4px 0 #b9640f; text-shadow: none; transition: transform .12s, box-shadow .12s; }
+  & .primary-button:hover { transform: none; background-position: 0 0; }
+  & .primary-button:active { transform: translateY(3px); box-shadow: 0 1px 0 #b9640f; }
+  & .menu-link, & .receipt-row, & .seat-list li { border: 0; border-bottom: 3px dotted var(--line); border-radius: 0; background: transparent; position: relative; }
+  & .menu-link:hover, & .receipt-row:hover { transform: none; box-shadow: none; border-bottom-color: var(--c, #f08a24); }
+  /* 駅の丸：触れると拡大して塗りつぶされる */
+  & .menu-link::before, & .receipt-row::before { content: ""; position: absolute; left: -2px; top: 50%; width: 14px; height: 14px; margin-top: -7px; border: 4px solid var(--c, #f08a24); border-radius: 50%; background: #fff; transition: transform .25s, background .25s; }
+  & .menu-link:has(.seat-mark)::before { display: none; }
+  & .menu-link, & .receipt-row { padding-left: 24px; }
+  & .menu-link:has(.seat-mark) { padding-left: 4px; }
+  & .menu-link:hover::before, & .receipt-row:hover::before, & .receipt-row.is-open::before { transform: scale(1.35); background: var(--c, #f08a24); }
+  & .receipt-row input[type="checkbox"] { margin-left: 0; }
+  & .badge { background: var(--c, #f08a24); color: #fff; border: 0; border-radius: 3px; }
+  & .steps li { border-radius: 4px; }
+  & .steps li.is-active { background: var(--ink); border-color: var(--ink); color: #fff; }
+  & .back-link { border: 2px solid var(--ink); border-radius: 6px; font-weight: 700; }
+  & .mcard { border-radius: 10px; }
+}
+@keyframes t10-go { to { top: calc(100% - 36px); } }
+@keyframes t10-stn { from { opacity: 0; transform: translateX(18px); } }
+@media (prefers-reduced-motion: reduce) { :root[data-theme="t10"] body::after { display: none; } }

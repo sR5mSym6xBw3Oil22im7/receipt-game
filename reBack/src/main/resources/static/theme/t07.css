@@ -1,0 +1,42 @@
+/* 案07 モノクロ索引（カフェメニュー × パスタ写真グリッド）黒と紙の白に赤1点、コンタクトシートの罫線、スキャンライン */
+:root[data-theme="t07"] {
+  --bg-top: #fafaf7; --bg-mid: #fafaf7; --bg-low: #fafaf7;
+  --gold: #111; --gold-deep: #111; --gold-light: #e4002b; --gold-mist: #eeeee8;
+  --gold-grad: linear-gradient(#111, #111); --gold-ink: #fafaf7; --gold-line: #111;
+  --paper: #fafaf7; --paper-solid: #fafaf7; --surface: #fafaf7; --surface-strong: #fff;
+  --ink: #111; --ink-soft: #55554f; --line: #111; --ok: #111;
+  --sub: #111; --sub-light: #eeeee8; --sub-ink: #111; --danger: #e4002b; --danger-bg: #fff;
+  --radius: 0; --radius-sm: 0; --shadow: none;
+  --font-head: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif; --font-latin: "Space Mono", monospace; --font-body: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif;
+
+  & body { background: #fafaf7; font-weight: 500; }
+  /* 赤い読み取り線が画面を縦に走る */
+  & body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; height: 2px; z-index: 6; pointer-events: none; background: #e4002b; box-shadow: 0 0 12px #e4002b; animation: t07-scan 5.5s linear infinite; }
+  & .card { border: 2px solid #111; backdrop-filter: none; animation: t07-blip .5s steps(4) both; }
+  & .card::before { display: none; }
+  & h1, & .hero-title { font-weight: 900; letter-spacing: 0; }
+  & h2 { font-family: var(--font-latin); font-size: 1rem; letter-spacing: .1em; text-transform: uppercase; border-bottom: 2px solid #111; padding-bottom: 6px; }
+  & .eyebrow, & .hero-sub { font-family: var(--font-latin); font-size: .7rem; letter-spacing: .1em; color: #e4002b; }
+  & .flourish::after { background: #111; opacity: 1; height: 2px; }
+  & button, & .button, & .back-link, & .badge, & .steps li, & .chip, & .tab, & .subtab, & .file-chip { border-radius: 0; }
+  & .primary-button { border: 2px solid #111; box-shadow: none; text-shadow: none; letter-spacing: .1em; transition: background-color .2s; }
+  & .primary-button:hover { background: #e4002b; border-color: #e4002b; transform: none; }
+  & .secondary-button, & .back-link { border: 2px solid #111; font-family: var(--font-latin); font-size: .8rem; }
+  & .secondary-button:hover, & .back-link:hover { background: #111; color: #fafaf7; }
+  /* 触れると黒が下から反転 */
+  & .menu-link, & .receipt-row, & .seat-list li, & .receipt-tile { border: 1px solid #111; position: relative; overflow: hidden; z-index: 0; animation: t07-blip .5s steps(4) both; transition: color .2s; }
+  & .menu-link::after, & .receipt-row::after { content: ""; position: absolute; inset: 0; background: #111; transform: translateY(101%); transition: transform .3s; z-index: -1; }
+  & .menu-link:hover, & .receipt-row:hover { transform: none; box-shadow: none; color: #fafaf7; }
+  & .menu-link:hover::after, & .receipt-row:hover::after { transform: none; }
+  & .menu-link:hover .menu-title, & .menu-link:hover .menu-desc, & .menu-link:hover .menu-arrow, & .receipt-row:hover .row-meta, & .receipt-row:hover strong { color: #fafaf7; }
+  & .badge { background: #fafaf7; color: #111; border: 1px solid #111; font-family: var(--font-latin); }
+  & .badge.is-accent { background: #e4002b; color: #fff; border-color: #e4002b; }
+  & .steps li { border: 1px solid #111; font-family: var(--font-latin); }
+  & .steps li.is-active { background: #111; color: #fafaf7; }
+  & .steps li::before { background: #111; color: #fafaf7; border-radius: 0; }
+  & .mcard { border-radius: 0; border-width: 2px; box-shadow: none; background: #fff; }
+  & .menu-arrow, & .line-no, & .rt-no, & .room-code { font-family: var(--font-latin); }
+}
+@keyframes t07-scan { 0% { transform: translateY(0); opacity: 0; } 8% { opacity: .9; } 92% { opacity: .9; } 100% { transform: translateY(100vh); opacity: 0; } }
+@keyframes t07-blip { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { :root[data-theme="t07"] body::before { display: none; } }

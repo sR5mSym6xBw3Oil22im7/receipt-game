@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>案08 食券機</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Zen+Kaku+Gothic+New:wght@500;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+:root{--steel:#b9bec4;--steel2:#8d939b;--dark:#22262b;--amber:#ffb326;--maroon:#6a1e24;--cream:#fbf0d4;--green:#17402f;
+  --dot:"DotGothic16","Courier New",monospace;--j:"Zen Kaku Gothic New","Hiragino Sans",sans-serif}
+body{background:#2a2d31;font-family:var(--j);color:var(--dark);font-weight:500}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding:12px 12px 92px;position:relative;
+  background:linear-gradient(90deg,#7e848c,#c6cbd1 12%,#a2a8af 50%,#c6cbd1 88%,#7e848c)}
+header{background:var(--green);color:var(--cream);border:3px solid var(--dark);border-radius:8px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;box-shadow:inset 0 0 0 2px var(--cream)}
+header h1{font-weight:900;font-size:20px;letter-spacing:.2em}
+.led{font-family:var(--dot);background:#150d00;color:var(--amber);padding:4px 10px;border-radius:4px;font-size:18px;text-shadow:0 0 6px var(--amber);letter-spacing:.1em;min-width:92px;text-align:right}
+.led.b{animation:led 1.6s steps(2) infinite}
+@keyframes led{50%{opacity:.55}}
+.panel{background:linear-gradient(#d3d7db,#aeb3ba);border:3px solid var(--dark);border-radius:10px;padding:12px;margin-top:12px;box-shadow:inset 0 2px 0 #fff,0 4px 0 rgba(0,0,0,.35)}
+.panel h2{font-weight:900;font-size:13px;letter-spacing:.2em;color:var(--maroon);margin-bottom:8px;display:flex;justify-content:space-between}
+.btns{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+/* 食券ボタン：押すと沈む */
+.tb{background:var(--cream);border:3px solid var(--dark);border-radius:8px;padding:8px 8px 6px;text-align:left;box-shadow:0 5px 0 var(--dark);transition:transform .1s,box-shadow .1s;position:relative}
+.tb:active,.tb[aria-pressed=true]{transform:translateY(4px);box-shadow:0 1px 0 var(--dark)}
+.tb h3{font-size:13px;font-weight:900;line-height:1.3}.tb small{font-size:10px;color:#6a5e49}
+.tb .pr{display:block;font-family:var(--dot);background:#150d00;color:var(--amber);font-size:16px;text-align:right;padding:1px 6px;margin-top:6px;border-radius:3px}
+.tb .sold{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:#2c2;box-shadow:0 0 6px #2f2}
+.tb.dr .sold{background:var(--amber);box-shadow:0 0 6px var(--amber);animation:led 1.2s steps(2) infinite}
+.tb[aria-pressed=true]{background:#ffe9a8}
+.go{display:block;width:100%;margin-top:12px;background:var(--maroon);color:var(--cream);border:3px solid var(--dark);border-radius:8px;font-weight:900;font-size:18px;letter-spacing:.2em;padding:14px;box-shadow:0 5px 0 var(--dark);transition:transform .1s,box-shadow .1s}
+.go:active{transform:translateY(4px);box-shadow:0 1px 0 var(--dark)}
+/* 排出口 + 食券 */
+.slot{height:16px;background:#111;border-radius:4px;margin:14px 6px 0;box-shadow:inset 0 3px 4px #000;position:relative;overflow:visible}
+.ticket{background:var(--cream);margin:0 14px;border:1px solid #bba;border-top:0;padding:10px 12px 14px;position:relative;font-family:var(--dot);animation:print 1.2s steps(10,end) both;transform-origin:top;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),96% 100%,92% calc(100% - 6px),88% 100%,84% calc(100% - 6px),80% 100%,76% calc(100% - 6px),72% 100%,68% calc(100% - 6px),64% 100%,60% calc(100% - 6px),56% 100%,52% calc(100% - 6px),48% 100%,44% calc(100% - 6px),40% 100%,36% calc(100% - 6px),32% 100%,28% calc(100% - 6px),24% 100%,20% calc(100% - 6px),16% 100%,12% calc(100% - 6px),8% 100%,4% calc(100% - 6px),0 100%)}
+@keyframes print{from{transform:translateY(-90%);opacity:.2}}
+.ticket .l{display:flex;justify-content:space-between;font-size:15px;padding:3px 0;border-bottom:1px dashed #8a7d63}
+.ticket b{color:var(--maroon)}
+.big{font-family:var(--dot);font-size:60px;line-height:1;text-align:center;color:var(--amber);background:#150d00;border-radius:6px;padding:12px;text-shadow:0 0 10px var(--amber)}
+.stub{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:var(--cream);border:2px solid var(--dark);border-radius:4px;padding:8px 10px;margin-bottom:8px;position:relative;transition:transform .2s;animation:print .8s steps(8,end) both}
+.stub:nth-child(2){animation-delay:.08s}.stub:nth-child(3){animation-delay:.16s}.stub:nth-child(4){animation-delay:.24s}.stub:nth-child(5){animation-delay:.32s}.stub:nth-child(6){animation-delay:.4s}.stub:nth-child(7){animation-delay:.48s}
+.stub:hover{transform:translateX(4px) rotate(-.6deg)}
+.stub::before,.stub::after{content:"";position:absolute;left:46px;width:12px;height:12px;border-radius:50%;background:#aab0b6;border:2px solid var(--dark)}
+.stub::before{top:-8px;border-top-color:#aab0b6}.stub::after{bottom:-8px;border-bottom-color:#aab0b6}
+.stub .no{font-family:var(--dot);font-size:20px;border-right:2px dashed var(--dark);padding-right:12px;color:var(--maroon)}
+.stub h3{font-size:14px;font-weight:900}.stub small{font-size:10px;color:#6a5e49}
+.stub .pr{font-family:var(--dot);font-size:16px}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:var(--dark);z-index:5}
+nav button{background:var(--cream);border:2px solid #000;border-radius:6px;padding:8px 0 6px;display:grid;justify-items:center;font-size:11px;font-weight:900;box-shadow:0 3px 0 #000;transition:transform .1s,box-shadow .1s}
+nav button[aria-current]{background:var(--amber);transform:translateY(2px);box-shadow:0 1px 0 #000}
+.note{margin-top:12px;background:var(--cream);border:2px dashed var(--dark);border-radius:6px;padding:10px;font-size:12px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>レシート食券機</h1><span class="led b">No.24</span></header>
+<main>
+<section class="screen" data-screen="home">
+  <div class="panel"><h2><span>STEP 1　ボタンをおす</span><span>本日の記録</span></h2>
+    <div class="btns">
+      <button class="tb" data-go="list"><span class="sold"></span><h3>レシート</h3><small>保存済み</small><span class="pr" data-to="24">0</span></button>
+      <button class="tb" data-go="list"><span class="sold"></span><h3>勝利数</h3><small>これまでの合計</small><span class="pr" data-to="17">0</span></button>
+      <button class="tb" data-go="lobby"><span class="sold"></span><h3>連勝</h3><small>いま</small><span class="pr" data-to="5" data-suf="回">0</span></button>
+      <button class="tb" data-go="list"><span class="sold"></span><h3>総額</h3><small>全レシート</small><span class="pr" data-to="48260" data-pre="¥">0</span></button>
+    </div>
+    <button class="go" data-go="lobby">対戦の食券を買う</button></div>
+  <div class="slot"></div>
+  <div class="ticket"><div class="l"><span>NO.0024</span><span>10/10 16:20</span></div><div class="l"><span>コンビニ・ドラゴン</span><b>攻72</b></div><div class="l"><span>ドラッグ・スライム</span><b>攻38</b></div><div class="l"><span>券の有効</span><b>本日中</b></div></div>
+</section>
+
+<section class="screen" data-screen="lobby" hidden>
+  <div class="panel"><h2><span>STEP 2　待機中</span><span>相手を探しています</span></h2>
+    <div class="big" data-countdown="90"></div>
+    <p style="font-size:11px;margin-top:6px;text-align:center">0:00 でコンピューターが対戦します</p></div>
+  <div class="panel"><h2><span>STEP 3　カードを2枚</span></h2>
+    <div class="btns">
+      <button class="tb" data-pick aria-pressed="true"><span class="sold"></span><h3>コンビニ・<br>ドラゴン</h3><span class="pr">攻72</span></button>
+      <button class="tb" data-pick aria-pressed="true"><span class="sold"></span><h3>ドラッグ・<br>スライム</h3><span class="pr">攻38</span></button>
+      <button class="tb" data-pick aria-pressed="false"><span class="sold"></span><h3>スーパー・<br>ゴーレム</h3><span class="pr">攻64</span></button>
+      <button class="tb dr" data-pick aria-pressed="false"><span class="sold"></span><h3>カフェ・<br>ゴースト</h3><span class="pr">攻55</span></button>
+    </div>
+    <button class="go">入室券を発券</button></div>
+</section>
+
+<section class="screen" data-screen="list" hidden>
+  <div class="panel"><h2><span>発券済みレシート</span><span>24枚</span></h2>
+    <div class="stub"><span class="no">01</span><span><h3>ローソン 渋谷店</h3><small>2026.10.08 ・ 6点 ・ 有効</small></span><span class="pr">¥1,284</span></div>
+    <div class="stub"><span class="no">02</span><span><h3>マツモトキヨシ</h3><small>2026.10.06 ・ 11点 ・ 有効</small></span><span class="pr">¥3,480</span></div>
+    <div class="stub"><span class="no">03</span><span><h3>スターバックス</h3><small>2026.10.05 ・ 2点 ・ 下書き</small></span><span class="pr">¥860</span></div>
+    <div class="stub"><span class="no">04</span><span><h3>業務スーパー</h3><small>2026.10.03 ・ 23点 ・ 有効</small></span><span class="pr">¥6,912</span></div>
+    <div class="stub"><span class="no">05</span><span><h3>高木珈琲</h3><small>2026.10.01 ・ 3点 ・ 有効</small></span><span class="pr">¥1,780</span></div>
+    <div class="stub"><span class="no">06</span><span><h3>ココイチ番屋</h3><small>2026.09.29 ・ 2点 ・ 下書き</small></span><span class="pr">¥1,096</span></div></div>
+</section>
+<aside class="note"><b>案08｜洋食メニュー看板 × ココイチ看板</b><br>洋食看板のえんじ・深緑の格式と、ココイチの「量・辛さを選ぶ」ステップ式の注文を、飲食店の食券機に変換。ボタンを押すと食券が発券されるように、操作がそのままUIの体験になる。<br><b>動き：</b>食券が排出口からコマ送りで出てくる、LED表示が点滅、ボタンが物理的に沈む。</aside>
+</main>
+<nav><button data-go="home"><svg class="ic"><use href="#i-home"/></svg>ホーム</button><button data-go="lobby"><svg class="ic"><use href="#i-battle"/></svg>対戦</button><button data-go="list"><svg class="ic"><use href="#i-receipt"/></svg>レシート</button></nav>
+</div>
+<script src="common.js"></script>
+</body>
+</html>

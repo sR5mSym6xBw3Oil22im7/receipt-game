@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>案04 トラットリア図鑑</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+:root{--red:#c8321f;--cream:#f2e4c6;--tag:#e7d3a8;--ink:#241812;--olive:#6d7a2e;--maroon:#5a1d1a;
+  --h:"Mochiy Pop One","M PLUS Rounded 1c",sans-serif;--b:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN",sans-serif}
+body{background:#3b2a20;font-family:var(--b);color:var(--ink);font-weight:500}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:88px;position:relative;
+  background:
+    linear-gradient(90deg,rgba(200,50,31,.13) 50%,transparent 50%) 0 0/48px 48px,
+    linear-gradient(rgba(200,50,31,.13) 50%,transparent 50%) 0 0/48px 48px,var(--cream);
+  animation:cloth 14s linear infinite}
+@keyframes cloth{to{background-position:48px 48px,48px 48px,0 0}}
+header{background:var(--red);color:#fff;padding:16px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:4px solid var(--ink)}
+header h1{font-family:var(--h);font-size:20px}
+header span{background:var(--ink);padding:3px 10px;border-radius:99px;font-size:12px;font-weight:800}
+main{padding:14px}
+.how{background:var(--maroon);color:#fff;border-radius:10px;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;text-align:center;font-size:11px;font-weight:800;margin-bottom:14px}
+.how i{display:block;font-style:normal;font-family:var(--h);font-size:20px;color:#ffd24a}
+/* 4×4 写真グリッド風のタイル */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:#fff;border-radius:10px;overflow:hidden;border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);text-align:left;transition:transform .2s,box-shadow .2s;animation:flip .6s cubic-bezier(.2,.8,.2,1) both;transform-origin:50% 100%}
+.tile:nth-child(1){animation-delay:.05s}.tile:nth-child(2){animation-delay:.12s}.tile:nth-child(3){animation-delay:.19s}.tile:nth-child(4){animation-delay:.26s}.tile:nth-child(5){animation-delay:.33s}.tile:nth-child(6){animation-delay:.4s}
+@keyframes flip{from{opacity:0;transform:perspective(500px) rotateX(-50deg)}}
+.tile:hover,.tile:active{transform:translate(-2px,-4px);box-shadow:5px 7px 0 var(--ink)}
+.plate{aspect-ratio:1;display:grid;place-items:center;background:#f6edda}
+.plate i{width:74%;aspect-ratio:1;border-radius:50%;box-shadow:0 0 0 5px #fff,0 0 0 7px #cfc2a3,0 6px 10px rgba(0,0,0,.2)}
+.p1{background:radial-gradient(circle at 40% 40%,#ffe28a 0 12%,transparent 13%),radial-gradient(circle,#e49a3a 0 40%,#b5521f 41% 78%,#f1e7d1 79%)}
+.p2{background:radial-gradient(circle at 60% 35%,#fff 0 10%,transparent 11%),radial-gradient(circle,#7b8a3a 0 35%,#c9412b 36% 76%,#f1e7d1 77%)}
+.p3{background:radial-gradient(circle,#5a2c1a 0 30%,#d8a55a 31% 76%,#f1e7d1 77%)}
+.p4{background:radial-gradient(circle,#f2c94c 0 34%,#fff3c4 35% 76%,#f1e7d1 77%)}
+.p5{background:radial-gradient(circle,#c8321f 0 32%,#ecb76f 33% 76%,#f1e7d1 77%)}
+.p6{background:radial-gradient(circle,#3a5b2c 0 32%,#a9c06a 33% 76%,#f1e7d1 77%)}
+.tag{background:var(--tag);padding:7px 8px 8px}
+.tag h3{font-size:12.5px;font-weight:800;line-height:1.3}
+.tag .row{display:flex;gap:5px;margin-top:5px}
+.chip{background:var(--ink);color:#fff;font-size:11px;font-weight:800;padding:1px 7px;border-radius:3px}
+.chip.r{background:var(--red)}
+.cta{display:block;width:100%;margin:16px 0 0;padding:15px;background:var(--red);color:#fff;font-family:var(--h);font-size:18px;border:2px solid var(--ink);border-radius:12px;box-shadow:0 5px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+.cta:active{transform:translateY(4px);box-shadow:0 1px 0 var(--ink)}
+.sec{font-family:var(--h);font-size:17px;margin:4px 0 10px;display:flex;align-items:center;gap:8px}
+.sec::after{content:"";flex:1;height:0;border-top:3px dotted var(--ink)}
+.panel{background:#fff;border:2px solid var(--ink);border-radius:12px;padding:14px;margin-bottom:14px;animation:flip .6s both}
+.timer{font-family:var(--h);font-size:48px;text-align:center;color:var(--red);line-height:1.1}
+.sel{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.sel button{background:var(--tag);border:2px solid var(--ink);border-radius:8px;padding:8px 0;font-weight:800;font-size:12px;transition:transform .15s,background .2s}
+.sel button[aria-pressed=true]{background:var(--red);color:#fff;transform:translateY(-3px);box-shadow:0 3px 0 var(--ink)}
+.lt{display:grid;grid-template-columns:56px 1fr auto;gap:10px;align-items:center;background:#fff;border:2px solid var(--ink);border-radius:10px;padding:8px;margin-bottom:8px;width:100%;text-align:left}
+.lt .plate{width:56px;border-radius:50%}
+.lt h3{font-size:14px}.lt small{font-size:11px;color:#6b5a45}
+.lt .pr{background:var(--ink);color:#fff;border-radius:4px;padding:2px 8px;font-weight:800;font-size:13px}
+.lt .s{display:block;font-size:10px;text-align:right;margin-top:3px;font-weight:800;color:var(--olive)}.lt .s.d{color:var(--red)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:grid;grid-template-columns:repeat(3,1fr);background:var(--ink);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+nav button{color:#bba98a;padding:10px 0 8px;display:grid;justify-items:center;gap:2px;font-size:11px;font-weight:800}
+nav button[aria-current]{color:#ffd24a}
+.note{margin-top:14px;background:#fff;border:2px dashed var(--ink);border-radius:10px;padding:10px;font-size:12px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>レシート図鑑</h1><span>No.24</span></header>
+<main>
+<section class="screen" data-screen="home">
+  <div class="how"><div><i>1</i>レシートを保存</div><div><i>2</i>カードを選ぶ</div><div><i>3</i>対戦する</div></div>
+  <p class="sec">新着モンスター</p>
+  <div class="grid">
+    <button class="tile" data-go="list"><div class="plate"><i class="p1"></i></div><div class="tag"><h3>コンビニ・ドラゴン</h3><div class="row"><span class="chip r">攻72</span><span class="chip">守45</span></div></div></button>
+    <button class="tile" data-go="list"><div class="plate"><i class="p2"></i></div><div class="tag"><h3>ドラッグ・スライム</h3><div class="row"><span class="chip r">攻38</span><span class="chip">守81</span></div></div></button>
+    <button class="tile" data-go="list"><div class="plate"><i class="p3"></i></div><div class="tag"><h3>カフェ・ゴースト</h3><div class="row"><span class="chip r">攻55</span><span class="chip">守40</span></div></div></button>
+    <button class="tile" data-go="list"><div class="plate"><i class="p4"></i></div><div class="tag"><h3>スーパー・ゴーレム</h3><div class="row"><span class="chip r">攻64</span><span class="chip">守92</span></div></div></button>
+  </div>
+  <button class="cta" data-go="lobby">対戦ロビーへ！</button>
+</section>
+
+<section class="screen" data-screen="lobby" hidden>
+  <div class="panel"><p class="sec">対戦ロビー</p><div class="timer" data-countdown="90"></div>
+    <p style="text-align:center;font-size:12px">相手がいなければコンピューターが登場</p></div>
+  <div class="panel"><p class="sec">ごはんの量（カード枚数）</p>
+    <div class="sel"><button data-group="n" aria-pressed="false">1枚</button><button data-group="n" aria-pressed="true">2枚</button><button data-group="n" aria-pressed="false">3枚</button><button data-group="n" aria-pressed="false">5枚</button></div></div>
+  <p class="sec">手札を選ぶ</p>
+  <button class="lt" data-pick aria-pressed="true"><span class="plate"><i class="p1"></i></span><span><h3>コンビニ・ドラゴン</h3><small>ローソン</small></span><span><span class="chip r">攻72</span><span class="s">選択中</span></span></button>
+  <button class="lt" data-pick aria-pressed="true"><span class="plate"><i class="p2"></i></span><span><h3>ドラッグ・スライム</h3><small>マツモトキヨシ</small></span><span><span class="chip r">攻38</span><span class="s">選択中</span></span></button>
+  <button class="lt" data-pick aria-pressed="false"><span class="plate"><i class="p4"></i></span><span><h3>スーパー・ゴーレム</h3><small>業務スーパー</small></span><span><span class="chip r">攻64</span></span></button>
+  <button class="cta">入室する</button>
+</section>
+
+<section class="screen" data-screen="list" hidden>
+  <p class="sec">保存済みレシート</p>
+  <div class="grid">
+    <div class="tile"><div class="plate"><i class="p1"></i></div><div class="tag"><h3>ローソン 渋谷店</h3><div class="row"><span class="chip">¥1,284</span><span class="chip r">有効</span></div></div></div>
+    <div class="tile"><div class="plate"><i class="p2"></i></div><div class="tag"><h3>マツモトキヨシ</h3><div class="row"><span class="chip">¥3,480</span><span class="chip r">有効</span></div></div></div>
+    <div class="tile"><div class="plate"><i class="p3"></i></div><div class="tag"><h3>スターバックス</h3><div class="row"><span class="chip">¥860</span><span class="chip" style="background:#8a7a5a">下書き</span></div></div></div>
+    <div class="tile"><div class="plate"><i class="p4"></i></div><div class="tag"><h3>業務スーパー</h3><div class="row"><span class="chip">¥6,912</span><span class="chip r">有効</span></div></div></div>
+    <div class="tile"><div class="plate"><i class="p5"></i></div><div class="tag"><h3>高木珈琲</h3><div class="row"><span class="chip">¥1,780</span><span class="chip r">有効</span></div></div></div>
+    <div class="tile"><div class="plate"><i class="p6"></i></div><div class="tag"><h3>ココイチ番屋</h3><div class="row"><span class="chip">¥1,096</span><span class="chip" style="background:#8a7a5a">下書き</span></div></div></div>
+  </div>
+</section>
+<aside class="note"><b>案04｜パスタ写真グリッド看板 × ココイチ看板</b><br>パスタ看板の「写真タイル＋ベージュの値札＋黒い価格チップ」で、レシートとモンスターを料理図鑑のように並べ、ココイチの「HOW TO ORDER」の手順を上部に添える。タイルは皿＝円のイラスト。<br><b>動き：</b>タイルが奥から起き上がる順次表示、ギンガムのテーブルクロスが斜めにゆっくり流れる、選択チップが持ち上がる。</aside>
+</main>
+<nav><button data-go="home"><svg class="ic"><use href="#i-card"/></svg>図鑑</button><button data-go="lobby"><svg class="ic"><use href="#i-battle"/></svg>対戦</button><button data-go="list"><svg class="ic"><use href="#i-receipt"/></svg>レシート</button></nav>
+</div>
+<script src="common.js"></script>
+</body>
+</html>

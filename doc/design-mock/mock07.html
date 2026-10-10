@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>案07 モノクロ索引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Zen+Kaku+Gothic+New:wght@500;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+:root{--paper:#fafaf7;--ink:#111;--red:#e4002b;--g:#c9c9c4;
+  --mono:"Space Mono","SFMono-Regular",Menlo,monospace;--j:"Zen Kaku Gothic New","Hiragino Sans",sans-serif}
+body{background:#d8d8d3;font-family:var(--j);color:var(--ink);font-weight:500}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--paper);padding-bottom:78px;position:relative;border-left:1px solid var(--ink);border-right:1px solid var(--ink)}
+/* 読み取りスキャンライン */
+.scan{position:fixed;left:50%;transform:translateX(-50%);width:100%;max-width:430px;top:0;height:2px;background:var(--red);box-shadow:0 0 12px var(--red);z-index:4;pointer-events:none;animation:scan 5s linear infinite}
+@keyframes scan{0%{top:0;opacity:0}8%{opacity:.9}92%{opacity:.9}100%{top:100vh;opacity:0}}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:2px solid var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+header b{font-size:13px}.dotr{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-right:6px;animation:blink 1.4s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+.hero{padding:22px 14px 18px;border-bottom:2px solid var(--ink)}
+.hero .l{font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+.hero .n{font-family:var(--mono);font-weight:700;font-size:112px;line-height:.95;letter-spacing:-.06em;margin:8px 0 4px}
+.hero h1{font-weight:900;font-size:24px;line-height:1.25}
+.hero h1 mark{background:var(--ink);color:var(--paper);padding:0 6px}
+/* コンタクトシート：コマ番号＋罫線グリッド */
+.sheet{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:2px solid var(--ink)}
+.fr{aspect-ratio:3/4;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:8px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;position:relative;overflow:hidden;transition:color .2s;animation:blip .5s steps(4) both}
+.fr:nth-child(3n){border-right:0}
+.fr:nth-child(1){animation-delay:.05s}.fr:nth-child(2){animation-delay:.1s}.fr:nth-child(3){animation-delay:.15s}.fr:nth-child(4){animation-delay:.2s}.fr:nth-child(5){animation-delay:.25s}.fr:nth-child(6){animation-delay:.3s}
+@keyframes blip{from{opacity:0;transform:translateY(8px)}}
+.fr::before{content:"";position:absolute;inset:0;background:var(--ink);transform:translateY(101%);transition:transform .3s;z-index:0}
+.fr:hover::before,.fr:active::before,.fr[aria-pressed=true]::before{transform:none}
+.fr:hover,.fr:active,.fr[aria-pressed=true]{color:var(--paper)}
+.fr>*{position:relative;z-index:1}
+.fr .no{font-family:var(--mono);font-size:10px}.fr .v{font-family:var(--mono);font-weight:700;font-size:30px;letter-spacing:-.05em}
+.fr .nm{font-size:11px;font-weight:900;line-height:1.3}
+.fr .rd{position:absolute;right:6px;top:6px;width:8px;height:8px;background:var(--red);z-index:2}
+.row{display:grid;grid-template-columns:34px 1fr auto;align-items:baseline;gap:8px;padding:12px 14px;border-bottom:1px solid var(--ink);width:100%;text-align:left;transition:background .2s,padding-left .2s;animation:blip .5s steps(4) both}
+.row:nth-child(2){animation-delay:.06s}.row:nth-child(3){animation-delay:.12s}.row:nth-child(4){animation-delay:.18s}.row:nth-child(5){animation-delay:.24s}.row:nth-child(6){animation-delay:.3s}.row:nth-child(7){animation-delay:.36s}
+.row:hover{background:var(--ink);color:var(--paper);padding-left:20px}
+.row .i{font-family:var(--mono);font-size:11px}.row h3{font-size:16px;font-weight:900}.row small{font-family:var(--mono);font-size:10px;display:block;opacity:.7}
+.row .p{font-family:var(--mono);font-weight:700;font-size:18px}
+.tag{font-family:var(--mono);font-size:9px;border:1px solid currentColor;padding:0 4px;margin-left:6px;vertical-align:middle}.tag.r{background:var(--red);border-color:var(--red);color:#fff}
+.cta{display:flex;justify-content:space-between;align-items:center;width:100%;padding:18px 14px;background:var(--ink);color:var(--paper);font-weight:900;font-size:18px;position:relative;overflow:hidden;transition:background .2s}
+.cta:hover{background:var(--red)}.cta:active{transform:translateY(1px)}
+.cta span{font-family:var(--mono)}
+.big{font-family:var(--mono);font-weight:700;font-size:88px;text-align:center;letter-spacing:-.06em;padding:18px 0 4px;line-height:1}
+.cap{font-family:var(--mono);font-size:11px;text-align:center;padding:0 14px 16px;border-bottom:2px solid var(--ink)}
+.sub{padding:10px 14px;font-family:var(--mono);font-size:11px;border-bottom:1px solid var(--ink);letter-spacing:.1em}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;display:grid;grid-template-columns:repeat(3,1fr);background:var(--paper);border-top:2px solid var(--ink);z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+nav button{padding:12px 0 10px;font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.1em;border-right:1px solid var(--ink)}nav button:last-child{border:0}
+nav button[aria-current]{background:var(--ink);color:var(--paper)}
+.note{padding:14px;font-size:12px;line-height:1.7;border-bottom:1px solid var(--ink);background:#eeeee8}
+</style>
+</head>
+<body>
+<div class="scan" aria-hidden="true"></div>
+<div class="app">
+<header><span><i class="dotr"></i><b>RECEIPT/MONSTER</b></span><span>2026.10.10</span></header>
+<main>
+<section class="screen" data-screen="home">
+  <div class="hero"><div class="l">TOTAL ARCHIVE ／ 保存済み</div><div class="n" data-to="24">0</div>
+    <h1>食べ歩きの記録が、<br><mark>モンスター</mark>になる。</h1></div>
+  <div class="sheet">
+    <button class="fr" data-go="list"><span class="no">01</span><span class="v">72</span><span class="nm">コンビニ・<br>ドラゴン</span></button>
+    <button class="fr" data-go="list"><span class="no">02</span><span class="v">81</span><span class="nm">ドラッグ・<br>スライム</span></button>
+    <button class="fr" data-go="list"><span class="no">03</span><span class="v">55</span><span class="nm">カフェ・<br>ゴースト</span></button>
+    <button class="fr" data-go="list"><i class="rd"></i><span class="no">04</span><span class="v">92</span><span class="nm">スーパー・<br>ゴーレム</span></button>
+    <button class="fr" data-go="list"><span class="no">05</span><span class="v">47</span><span class="nm">カレー・<br>サラマンダー</span></button>
+    <button class="fr" data-go="list"><span class="no">06</span><span class="v">63</span><span class="nm">そば・<br>ナーガ</span></button>
+  </div>
+  <button class="cta" data-go="lobby">対戦ロビーへ<span>→</span></button>
+</section>
+
+<section class="screen" data-screen="lobby" hidden>
+  <div class="sub">LOBBY ／ 待機</div>
+  <div class="big" data-countdown="90"></div>
+  <p class="cap">0:00 で COM が相手になります</p>
+  <div class="sub">CARD SELECT ／ 2枚えらぶ</div>
+  <div class="sheet">
+    <button class="fr" data-pick aria-pressed="true"><span class="no">01</span><span class="v">72</span><span class="nm">コンビニ・<br>ドラゴン</span></button>
+    <button class="fr" data-pick aria-pressed="true"><span class="no">02</span><span class="v">81</span><span class="nm">ドラッグ・<br>スライム</span></button>
+    <button class="fr" data-pick aria-pressed="false"><span class="no">04</span><span class="v">92</span><span class="nm">スーパー・<br>ゴーレム</span></button>
+  </div>
+  <button class="cta">入室する<span>→</span></button>
+</section>
+
+<section class="screen" data-screen="list" hidden>
+  <div class="sub">INDEX ／ 保存済みレシート 24件</div>
+  <button class="row"><span class="i">001</span><div><h3>ローソン 渋谷店<span class="tag r">有効</span></h3><small>2026.10.08 / 6 ITEMS</small></div><span class="p">¥1,284</span></button>
+  <button class="row"><span class="i">002</span><div><h3>マツモトキヨシ<span class="tag r">有効</span></h3><small>2026.10.06 / 11 ITEMS</small></div><span class="p">¥3,480</span></button>
+  <button class="row"><span class="i">003</span><div><h3>スターバックス<span class="tag">下書き</span></h3><small>2026.10.05 / 2 ITEMS</small></div><span class="p">¥860</span></button>
+  <button class="row"><span class="i">004</span><div><h3>業務スーパー<span class="tag r">有効</span></h3><small>2026.10.03 / 23 ITEMS</small></div><span class="p">¥6,912</span></button>
+  <button class="row"><span class="i">005</span><div><h3>高木珈琲<span class="tag r">有効</span></h3><small>2026.10.01 / 3 ITEMS</small></div><span class="p">¥1,780</span></button>
+  <button class="row"><span class="i">006</span><div><h3>ココイチ番屋<span class="tag">下書き</span></h3><small>2026.09.29 / 2 ITEMS</small></div><span class="p">¥1,096</span></button>
+</section>
+<aside class="note"><b>案07｜カフェメニュー看板 × パスタ写真グリッド看板</b><br>カフェ看板の刻印のような白地・黒文字・細いゴシックと、パスタ看板の整然とした写真グリッドを融合。色は黒と紙の白に、赤1点だけ。レシートを「コンタクトシート」として並べる冷たく潔い索引。<br><b>動き：</b>赤いスキャンラインが画面を縦に走り、コマが段階的に現れ、触れると黒が下から反転。</aside>
+</main>
+<nav><button data-go="home">HOME</button><button data-go="lobby">BATTLE</button><button data-go="list">INDEX</button></nav>
+</div>
+<script src="common.js"></script>
+</body>
+</html>

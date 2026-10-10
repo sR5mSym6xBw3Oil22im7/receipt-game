@@ -1,0 +1,45 @@
+/* 全テーマ共通のベース。金貨の装飾を外し、各テーマが色・形・動きを上書きできる土台にする。
+   各テーマ（t01〜t10.css）は :root[data-theme="tNN"] { ... } の中に CSS ネストで書く。 */
+:root[data-theme] {
+  /* 金貨の絵・背景の金貨・飾りの絵はテーマごとの CSS 装飾に置き換える */
+  & .scene, & .twinkle, & .motif, & .flourish svg, & .row-icon, & .drop-zone svg.drop-icon { display: none !important; }
+  & .hero { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  & .page-header, & .login-card .page-header { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  & .menu-link { grid-template-columns: minmax(0, 1fr) auto; background: var(--surface-strong); }
+  & .menu-link:has(.seat-mark) { grid-template-columns: 48px minmax(0, 1fr) auto; }
+  & .join-row .small-button { white-space: nowrap; flex: none; }
+  & .receipt-row { grid-template-columns: auto minmax(0, 1fr) auto; }
+  & .flourish { margin: 8px 0 14px; }
+  & .flourish::before, & .flourish::after { background: var(--gold); opacity: .55; }
+  & .login-card { text-align: left; }
+
+  /* ハードコードされていた金色を、テーマの色変数に付け替える */
+  & :focus-visible { outline-color: var(--gold); }
+  & .text-input:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 25%, transparent); }
+  & .drop-zone { border-color: color-mix(in srgb, var(--gold) 60%, transparent); }
+  & .receipt-paper { background: var(--paper-solid); color: var(--ink); }
+  & .receipt-paper h3 { color: var(--ink); border-bottom-color: var(--line); }
+  & .receipt-paper pre { color: var(--ink); }
+  & .receipt-paper.is-saved h3::after { background: var(--gold-mist); color: var(--gold-deep); }
+  & .gold-button { background: var(--gold-deep); color: var(--paper-solid); border-color: transparent; box-shadow: none; }
+  & .mcard { background: linear-gradient(180deg, var(--paper-solid), var(--gold-mist)); box-shadow: 0 10px 20px -12px rgba(0, 0, 0, .5); }
+  & .mcard.is-selected { box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 55%, transparent); }
+  & .mc-art { background: radial-gradient(circle at 50% 35%, #fff, color-mix(in srgb, var(--accent) 25%, var(--paper-solid))); border-color: var(--line); }
+  & .mc-art.is-hidden { background: repeating-linear-gradient(45deg, var(--gold-mist), var(--gold-mist) 8px, var(--line) 8px, var(--line) 16px); color: var(--gold-deep); }
+  & .mc-zoro { background: var(--gold-mist); border-color: var(--gold); color: var(--gold-deep); }
+  & .receipt-tile { background-color: var(--paper-solid); border-color: var(--line); background-image: linear-gradient(transparent 94%, var(--line) 94%); color: var(--ink); }
+  & .receipt-tile::after { background: radial-gradient(circle at 6px -1px, transparent 6px, var(--paper-solid) 7px) 0 0 / 12px 8px repeat-x; }
+  & .rt-items th, & .rt-items td { border-bottom-color: var(--line); }
+  & .hand-slot { border-color: var(--gold-line); background: color-mix(in srgb, var(--surface-strong) 50%, transparent); }
+  & .hp-bar { background: var(--line); }
+  & .result-banner { background: none; color: var(--gold-deep); -webkit-background-clip: border-box; background-clip: border-box; }
+  & .result-banner.is-lose { color: var(--ink-soft); }
+  & .float-dmg { text-shadow: 0 2px 0 var(--paper-solid), 0 0 8px var(--paper-solid); }
+  & .tab.is-active, & .steps li.is-active::before, & .seat-mark { background: var(--gold-grad); color: var(--gold-ink); }
+  & .tab, & .subtab, & .chip { background: var(--surface); }
+  & .chip.is-on, & .subtab.is-active { background: var(--gold-mist); border-color: var(--gold); color: var(--gold-deep); }
+  & .room-code-box { background: var(--gold-mist); border-color: var(--gold); }
+  & .battle-log { background: var(--surface-strong); }
+  & .battle-log .tag { background: var(--gold-mist); color: var(--gold-deep); border-color: var(--gold-line); }
+  & .footer-note { font-family: var(--font-body); font-style: normal; }
+}

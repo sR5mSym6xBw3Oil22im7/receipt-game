@@ -1,0 +1,36 @@
+/* 案08 食券機（洋食メニュー × ココイチ）ステンレスの筐体、物理的に沈むボタン、LED表示、発券される食券 */
+:root[data-theme="t08"] {
+  --bg-top: #b9bec4; --bg-mid: #a2a8af; --bg-low: #8d939b;
+  --gold: #6a1e24; --gold-deep: #6a1e24; --gold-light: #ffb326; --gold-mist: #ffefc2;
+  --gold-grad: linear-gradient(#6a1e24, #6a1e24); --gold-ink: #fbf0d4; --gold-line: rgba(34, 38, 43, .5);
+  --paper: #fbf0d4; --paper-solid: #fbf0d4; --surface: #fff8e4; --surface-strong: #fffdf5;
+  --ink: #22262b; --ink-soft: #5d5645; --line: #d8c99d; --ok: #17402f;
+  --radius: 8px; --radius-sm: 6px; --shadow: 0 5px 0 #22262b;
+  --font-head: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif; --font-latin: "DotGothic16", monospace; --font-body: "Zen Kaku Gothic New", "Hiragino Sans", sans-serif;
+
+  & body { background: linear-gradient(90deg, #7e848c, #c6cbd1 12%, #a2a8af 50%, #c6cbd1 88%, #7e848c); background-attachment: fixed; font-weight: 500; }
+  & .card { border: 3px solid var(--ink); backdrop-filter: none; animation: t08-print .8s steps(8, end) both; }
+  & .card::before { inset: 5px; border: 2px dashed rgba(34, 38, 43, .35); }
+  & h1, & .hero-title { font-weight: 900; letter-spacing: .2em; }
+  & h2 { font-weight: 900; color: var(--gold); letter-spacing: .15em; }
+  & .eyebrow, & .hero-sub { font-family: var(--font-latin); letter-spacing: .2em; }
+  & .primary-button, & .gold-button { border: 3px solid var(--ink); border-radius: 8px; box-shadow: 0 5px 0 var(--ink); text-shadow: none; letter-spacing: .2em; transition: transform .1s, box-shadow .1s; }
+  & .primary-button:hover { transform: none; background-position: 0 0; }
+  & .primary-button:active, & .gold-button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+  & .secondary-button, & .back-link { border: 3px solid var(--ink); background: var(--paper); border-radius: 8px; box-shadow: 0 4px 0 var(--ink); font-weight: 900; transition: transform .1s, box-shadow .1s; }
+  & .secondary-button:active, & .back-link:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+  & .menu-link, & .receipt-row, & .seat-list li { border: 3px solid var(--ink); box-shadow: 0 4px 0 var(--ink); background: var(--paper); transition: transform .1s, box-shadow .1s; }
+  & .menu-link:hover, & .receipt-row:hover { transform: none; border-color: var(--ink); }
+  & .menu-link:active, & .receipt-row:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
+  /* LED表示 */
+  & .room-code, & .rt-total b, & .battle-seed { font-family: var(--font-latin); background: #150d00; color: #ffb326; padding: 2px 14px; border-radius: 4px; text-shadow: 0 0 6px #ffb326; animation: t08-led 1.8s steps(2) infinite; }
+  & .badge { background: #150d00; color: #ffb326; border: 0; font-family: var(--font-latin); }
+  & .steps li { border: 2px solid var(--ink); border-radius: 4px; }
+  & .steps li.is-active { background: #ffb326; color: var(--ink); }
+  & .chip, & .tab, & .subtab { border: 2px solid var(--ink); box-shadow: 0 3px 0 var(--ink); border-radius: 6px; font-weight: 900; }
+  & .chip.is-on, & .tab.is-active, & .subtab.is-active { background: #ffb326; color: var(--ink); transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+  & .footer-note { color: var(--ink); }
+  & .mcard { border-radius: 6px; }
+}
+@keyframes t08-print { from { opacity: .2; transform: translateY(-26px); } }
+@keyframes t08-led { 50% { opacity: .6; } }

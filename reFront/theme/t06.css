@@ -1,0 +1,39 @@
+/* 案06 黄昏ゾーン（マスカット × ゆで太郎）夜紺〜葡萄グリーンの空とガラスの色帯、季節限定の縦タグ */
+:root[data-theme="t06"] {
+  --bg-top: #1c1c4a; --bg-mid: #33307a; --bg-low: #2f5a52;
+  --gold: #c6e07a; --gold-deep: #c6e07a; --gold-light: #8fd1a5; --gold-mist: rgba(198, 224, 122, .18);
+  --gold-grad: linear-gradient(#c6e07a, #c6e07a); --gold-ink: #1c1c4a; --gold-line: rgba(255, 255, 255, .28);
+  --paper: rgba(255, 255, 255, .1); --paper-solid: #2a2a66; --surface: rgba(255, 255, 255, .12); --surface-strong: rgba(28, 28, 74, .85);
+  --ink: #fff; --ink-soft: #d0d0ee; --line: rgba(255, 255, 255, .26); --ok: #8fd1a5;
+  --sub: #9cc8f0; --sub-light: rgba(156, 200, 240, .18); --sub-ink: #e4f1ff;
+  --danger: #ff9b8f; --danger-bg: rgba(255, 120, 110, .2); --warn-bg: rgba(255, 220, 120, .15); --warn-ink: #ffe7a8;
+  --radius: 20px; --radius-sm: 14px; --shadow: 0 18px 40px -20px rgba(0, 0, 0, .6);
+  --font-head: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif; --font-latin: "Cormorant Garamond", serif; --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+  color-scheme: dark;
+
+  /* 空が24秒かけて移ろう */
+  & body { background: linear-gradient(180deg, #1c1c4a, #33307a 40%, #2f5a52); background-size: 100% 200%; background-attachment: scroll; animation: t06-dusk 24s ease-in-out infinite alternate; }
+  & .card { border: 1px solid rgba(180, 160, 240, .45); background: linear-gradient(120deg, rgba(106, 79, 168, .5), rgba(51, 48, 122, .45)); overflow: hidden; animation: t06-in .8s cubic-bezier(.2, .8, .2, 1) both; }
+  & .card::before { inset: 0; border: 0; border-radius: 0; background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, .16) 50%, transparent 65%); background-size: 250% 100%; animation: t06-sheen 7s ease-in-out infinite; }
+  & .card > * { position: relative; }
+  & a { color: #c6e07a; }
+  & h1, & .hero-title { color: #c6e07a; font-family: var(--font-latin); font-style: italic; font-size: clamp(2rem, 6vw, 2.8rem); letter-spacing: .04em; }
+  & .eyebrow, & .hero-sub { color: #fff; opacity: .8; letter-spacing: .3em; }
+  & .primary-button { border-radius: 999px; box-shadow: 0 8px 20px rgba(198, 224, 122, .3); text-shadow: none; border-color: transparent; transition: transform .2s, box-shadow .2s; }
+  & .primary-button:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(198, 224, 122, .42); background-position: 0 0; }
+  & .primary-button:active { transform: scale(.97); }
+  & .menu-link, & .receipt-row, & .seat-list li { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .25); }
+  & .menu-link:hover, & .receipt-row:hover { transform: translateX(4px); border-color: #c6e07a; box-shadow: none; }
+  & .text-input { background: rgba(255, 255, 255, .12); color: #fff; }
+  & .text-input::placeholder { color: rgba(255, 255, 255, .5); }
+  & .back-link { background: rgba(20, 20, 60, .6); color: #c6e07a; border-color: rgba(255, 255, 255, .3); backdrop-filter: blur(6px); }
+  & .footer-note { color: #d0d0ee; }
+  & .badge.is-accent { background: #c6e07a; color: #1c1c4a; border: 0; }
+  & .mcard { color: #fff; }
+  & .mc-art { background: radial-gradient(circle at 50% 35%, rgba(255, 255, 255, .85), color-mix(in srgb, var(--accent) 35%, #5a5aa0)); }
+  & .drop-zone { background: rgba(255, 255, 255, .06); }
+  & .receipt-paper, & .receipt-tile, & .detail-body { color: #fff; }
+}
+@keyframes t06-dusk { to { background-position: 0 100%; } }
+@keyframes t06-in { from { opacity: 0; transform: translateX(28px); } }
+@keyframes t06-sheen { 0% { background-position: 160% 0; } 60%, 100% { background-position: -60% 0; } }

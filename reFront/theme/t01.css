@@ -1,0 +1,39 @@
+/* 案01 葡萄サロン（洋食メニュー × マスカット）深緑の二重罫・えんじのリボン・夜紺の丸バッジ */
+:root[data-theme="t01"] {
+  --bg-top: #f4ecd8; --bg-mid: #f4ecd8; --bg-low: #efe3c4;
+  --gold: #15402f; --gold-deep: #6b1f2a; --gold-light: #b8d36b; --gold-mist: #f3ead0;
+  --gold-grad: linear-gradient(#15402f, #15402f); --gold-ink: #f4ecd8; --gold-line: rgba(21, 64, 47, .45);
+  --paper: #fbf6e8; --paper-solid: #fbf6e8; --surface: #f7f0dc; --surface-strong: #fffaf0;
+  --ink: #2a2118; --ink-soft: #6a5e49; --line: #d6c9a4; --ok: #15402f;
+  --sub: #6b1f2a; --sub-light: #efe6cf; --sub-ink: #4a2a1a;
+  --radius: 2px; --radius-sm: 2px; --shadow: 0 14px 24px -16px rgba(0, 0, 0, .4);
+  --font-head: "Shippori Mincho", "Hiragino Mincho ProN", serif; --font-latin: "Cormorant Garamond", Georgia, serif; --font-body: "Shippori Mincho", "Hiragino Mincho ProN", serif;
+
+  & body { background: var(--bg-top); border-top: 8px solid transparent; border-image: repeating-linear-gradient(135deg, #15402f 0 6px, #f4ecd8 6px 9px) 8; }
+  /* 葡萄の粒がゆっくり漂う */
+  & body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background: radial-gradient(circle at 10% 24%, rgba(184, 211, 107, .38) 0 46px, transparent 47px), radial-gradient(circle at 90% 46%, rgba(184, 211, 107, .32) 0 30px, transparent 31px), radial-gradient(circle at 18% 82%, rgba(184, 211, 107, .3) 0 62px, transparent 63px), radial-gradient(circle at 78% 90%, rgba(37, 37, 90, .12) 0 40px, transparent 41px);
+    animation: t01-drift 18s ease-in-out infinite alternate; }
+  & .card { border: 1px solid var(--gold); outline: 1px solid var(--gold); outline-offset: -7px; backdrop-filter: none; animation: t01-rise .7s cubic-bezier(.2, .7, .2, 1) both; }
+  & .card::before { display: none; }
+  & h1, & .hero-title, & .result-banner { color: var(--gold-deep); letter-spacing: .1em; }
+  & .eyebrow, & .hero-sub { font-family: var(--font-latin); font-style: italic; text-transform: none; letter-spacing: .1em; font-size: 1.25rem; color: var(--gold-deep); }
+  & .card h2 { display: inline-block; background: var(--gold-deep); color: var(--bg-top); padding: 5px 24px 5px 16px; font-size: 1rem; letter-spacing: .14em; clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%); }
+  & button, & .button { border-radius: 0; }
+  & .primary-button { outline: 1px solid var(--bg-top); outline-offset: -5px; letter-spacing: .2em; border-color: var(--gold); box-shadow: none; text-shadow: none; transition: background-color .3s, transform .15s; }
+  & .primary-button:hover { background: var(--gold-deep); transform: none; }
+  & .primary-button:active { transform: scale(.97); }
+  & .menu-link { border: 1px solid var(--gold); border-radius: 0; }
+  & .menu-link:hover { transform: translateY(-3px); box-shadow: 0 8px 14px rgba(0, 0, 0, .14); }
+  & .badge { background: #25255a; color: #b8d36b; border: 2px double #b8d36b; }
+  & .seat-mark { background: #25255a; color: #b8d36b; border: 3px double #b8d36b; box-shadow: none; transition: transform .25s; }
+  & .seat-mark:hover { transform: translateY(-5px) rotate(-4deg); }
+  & .mcard { border-radius: 4px; }
+  & .steps li { border-radius: 0; }
+  & .steps li.is-active { background: var(--gold); color: var(--bg-top); }
+  & .receipt-row { border-radius: 0; border-style: none none dotted none; border-bottom: 1px dotted #8b7d5d; background: transparent; }
+  & .back-link, & .tab, & .subtab, & .chip { border-radius: 0; }
+  & .footer-note { color: var(--gold-deep); }
+}
+@keyframes t01-drift { to { transform: translate(18px, -26px); } }
+@keyframes t01-rise { from { opacity: 0; transform: translateY(14px); } }

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>案06 黄昏ゾーン</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;900&family=Cormorant+Garamond:ital,wght@1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+:root{--navy:#1c1c4a;--indigo:#33307a;--grape:#6a4fa8;--lime:#c6e07a;--mint:#8fd1a5;--sky:#9cc8f0;--ink:#fff;
+  --f:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif;--s:"Cormorant Garamond",serif}
+body{background:#0e0e2a;font-family:var(--f);color:var(--ink)}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:92px;position:relative;overflow:hidden;
+  background:linear-gradient(180deg,var(--navy),var(--indigo) 40%,#2f5a52 100%);background-size:100% 200%;animation:dusk 24s ease-in-out infinite alternate}
+@keyframes dusk{to{background-position:0 100%}}
+header{padding:22px 18px 6px;display:flex;align-items:flex-end;gap:10px}
+header h1{font-family:var(--s);font-style:italic;font-size:34px;font-weight:600;line-height:1;color:var(--lime)}
+header span{font-size:12px;letter-spacing:.2em;opacity:.8;margin-bottom:4px}
+main{padding:10px 14px}
+/* 横一直線の「ゾーン帯」：色ごとにガラス帯 */
+.band{position:relative;border-radius:18px;padding:16px;margin-bottom:12px;overflow:hidden;backdrop-filter:blur(2px);animation:in .8s cubic-bezier(.2,.8,.2,1) both}
+.band:nth-of-type(2){animation-delay:.12s}.band:nth-of-type(3){animation-delay:.24s}.band:nth-of-type(4){animation-delay:.36s}
+@keyframes in{from{opacity:0;transform:translateX(30px)}}
+.band::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(100deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%);background-size:250% 100%;animation:sheen 7s ease-in-out infinite}
+@keyframes sheen{0%{background-position:160% 0}60%,100%{background-position:-60% 0}}
+.b-g{background:linear-gradient(120deg,rgba(143,209,165,.35),rgba(198,224,122,.28));border:1px solid rgba(198,224,122,.5)}
+.b-p{background:linear-gradient(120deg,rgba(106,79,168,.55),rgba(51,48,122,.5));border:1px solid rgba(180,160,240,.5)}
+.b-b{background:linear-gradient(120deg,rgba(156,200,240,.3),rgba(143,209,165,.25));border:1px solid rgba(156,200,240,.5)}
+.band>*{position:relative}
+.lt{position:absolute!important;top:0;right:14px;background:var(--lime);color:var(--navy);writing-mode:vertical-rl;font-size:11px;font-weight:900;letter-spacing:.3em;padding:12px 6px;border-radius:0 0 8px 8px}
+.k{font-size:11px;letter-spacing:.25em;opacity:.8}
+.num{font-size:54px;font-weight:900;line-height:1.05;color:var(--lime)}
+.circles{display:flex;gap:10px;margin-top:10px}
+.circ{flex:1;aspect-ratio:1;max-width:100px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.45);display:grid;place-content:center;text-align:center;transition:transform .3s}
+.circ:hover,.circ:active{transform:translateY(-6px)}
+.circ b{font-size:24px;line-height:1}.circ small{font-size:11px;opacity:.85}
+.btn{display:block;width:100%;padding:15px;border-radius:99px;background:var(--lime);color:var(--navy);font-weight:900;font-size:17px;letter-spacing:.1em;margin-top:12px;box-shadow:0 8px 20px rgba(198,224,122,.3);transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(198,224,122,.4)}.btn:active{transform:scale(.97)}
+.ring{width:150px;height:150px;margin:6px auto;border-radius:50%;display:grid;place-items:center;font-size:36px;font-weight:900;
+  background:conic-gradient(var(--lime) 0 70%,rgba(255,255,255,.15) 70%);position:relative}
+.ring::after{content:"";position:absolute;inset:10px;border-radius:50%;background:var(--indigo)}
+.ring span{position:relative;z-index:1}
+.ring{animation:spin 90s linear infinite}.ring span{animation:spin 90s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pick{display:flex;gap:12px;align-items:center;width:100%;text-align:left;padding:10px;border-radius:14px;margin-top:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);transition:transform .25s,background .25s}
+.pick:hover{transform:translateX(4px)}.pick[aria-pressed=true]{background:rgba(198,224,122,.28);border-color:var(--lime)}
+.pick .o{width:46px;height:46px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e8f5b8,var(--lime) 60%,#7fa23a);color:var(--navy);display:grid;place-items:center;font-weight:900}
+.pick h3{font-size:15px}.pick small{font-size:11px;opacity:.8}.pick .s{margin-left:auto;font-size:12px;font-weight:900;text-align:right}
+.row{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.2)}
+.row:last-child{border:0}.row h3{font-size:15px}.row small{font-size:11px;opacity:.8}.row .pr{margin-left:auto;font-weight:900;font-size:17px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--lime);box-shadow:0 0 8px var(--lime)}.dot.d{background:var(--sky);box-shadow:0 0 8px var(--sky)}
+nav{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:402px;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(20,20,60,.75);backdrop-filter:blur(10px);border-radius:99px;border:1px solid rgba(255,255,255,.25);z-index:5}
+nav button{padding:10px 0 8px;display:grid;justify-items:center;font-size:11px;font-weight:900;color:#a9a9d6;gap:1px;border-radius:99px;transition:background .3s,color .3s}
+nav button[aria-current]{background:var(--lime);color:var(--navy)}
+.note{margin:14px 2px 0;font-size:12px;line-height:1.7;padding:12px;border-radius:14px;background:rgba(255,255,255,.1)}
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>Receipt Dusk</h1><span>秋のフロマージュ戦</span></header>
+<main>
+<section class="screen" data-screen="home">
+  <div class="band b-p"><span class="lt">季節限定</span><p class="k">TOTAL RECEIPTS</p><div class="num" data-to="24">0</div>
+    <div class="circles"><div class="circ"><b data-to="17">0</b><small>勝利</small></div><div class="circ"><b data-to="5">0</b><small>連勝</small></div><div class="circ"><b data-to="48260" style="font-size:17px" data-pre="¥">0</b><small>総額</small></div></div></div>
+  <div class="band b-g"><p class="k">NEXT MATCH</p><h2 style="font-size:20px;margin-top:4px">対戦ロビーが開いています</h2><button class="btn" data-go="lobby">対戦ロビーへ</button></div>
+  <div class="band b-b"><p class="k">LATEST</p><div class="row"><span class="dot"></span><div><h3>ローソン 渋谷店</h3><small>10/08</small></div><span class="pr">¥1,284</span></div><div class="row"><span class="dot"></span><div><h3>マツモトキヨシ</h3><small>10/06</small></div><span class="pr">¥3,480</span></div></div>
+</section>
+
+<section class="screen" data-screen="lobby" hidden>
+  <div class="band b-p"><p class="k">LOBBY</p><div class="ring"><span data-countdown="90"></span></div><p style="text-align:center;font-size:12px">相手が来なければコンピューターと対戦します</p></div>
+  <div class="band b-g"><p class="k">YOUR CARDS</p>
+    <button class="pick" data-pick aria-pressed="true"><span class="o">72</span><span><h3>コンビニ・ドラゴン</h3><small>ローソン</small></span><span class="s">攻72 守45</span></button>
+    <button class="pick" data-pick aria-pressed="true"><span class="o">81</span><span><h3>ドラッグ・スライム</h3><small>マツモトキヨシ</small></span><span class="s">攻38 守81</span></button>
+    <button class="pick" data-pick aria-pressed="false"><span class="o">92</span><span><h3>スーパー・ゴーレム</h3><small>業務スーパー</small></span><span class="s">攻64 守92</span></button>
+    <button class="btn">この2枚で入室</button></div>
+</section>
+
+<section class="screen" data-screen="list" hidden>
+  <div class="band b-g"><p class="k">VALID ・ 有効</p>
+    <div class="row"><span class="dot"></span><div><h3>ローソン 渋谷店</h3><small>2026.10.08 ・ 6点</small></div><span class="pr">¥1,284</span></div>
+    <div class="row"><span class="dot"></span><div><h3>マツモトキヨシ</h3><small>2026.10.06 ・ 11点</small></div><span class="pr">¥3,480</span></div>
+    <div class="row"><span class="dot"></span><div><h3>業務スーパー</h3><small>2026.10.03 ・ 23点</small></div><span class="pr">¥6,912</span></div></div>
+  <div class="band b-b"><p class="k">DRAFT ・ 下書き</p>
+    <div class="row"><span class="dot d"></span><div><h3>スターバックス</h3><small>2026.10.05 ・ 2点</small></div><span class="pr">¥860</span></div>
+    <div class="row"><span class="dot d"></span><div><h3>ココイチ番屋</h3><small>2026.09.29 ・ 2点</small></div><span class="pr">¥1,096</span></div></div>
+</section>
+<aside class="note"><b>案06｜マスカット看板 × ゆで太郎看板</b><br>マスカット看板の夜紺〜葡萄グリーンのグラデーションと「季節限定」の縦タグに、ゆで太郎看板の横長ゾーン帯（温・冷の区分）を融合。内容ごとにガラスの色帯を重ねる黄昏のUI。<br><b>動き：</b>背景の空が24秒かけて移ろい、帯に光沢が横切り、帯が右から順にスライドイン。</aside>
+</main>
+<nav><button data-go="home"><svg class="ic"><use href="#i-home"/></svg>ホーム</button><button data-go="lobby"><svg class="ic"><use href="#i-battle"/></svg>対戦</button><button data-go="list"><svg class="ic"><use href="#i-receipt"/></svg>レシート</button></nav>
+</div>
+<script src="common.js"></script>
+</body>
+</html>

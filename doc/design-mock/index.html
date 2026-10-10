@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>デザインMOCK 10案</title>
+<style>
+:root{--bg:#f4f2ee;--ink:#222;--mute:#666;--line:#d8d4cc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",sans-serif;line-height:1.7}
+.w{max-width:760px;margin:0 auto;padding:28px 16px 60px}
+h1{font-size:22px;margin:0 0 6px}p.lead{color:var(--mute);margin:0 0 20px;font-size:14px}
+.signs{font-size:12px;color:var(--mute);border:1px solid var(--line);padding:10px 12px;margin-bottom:22px;background:#fff}
+.c{background:#fff;border:1px solid var(--line);padding:14px 16px;margin-bottom:12px;display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:start}
+.c h2{font-size:16px;margin:0}.c .p{font-size:12px;color:var(--mute)}.c p{margin:2px 0;font-size:13px;grid-column:1}
+.c .a{font-size:12px;color:#355}
+.go{grid-column:2;grid-row:1/4;display:flex;flex-direction:column;gap:6px}
+.go a{display:block;text-align:center;padding:6px 14px;background:var(--ink);color:#fff;text-decoration:none;font-size:12px;border-radius:4px;white-space:nowrap}
+.go a.s{background:#fff;color:var(--ink);border:1px solid var(--ink)}
+@media(max-width:480px){.c{grid-template-columns:1fr}.go{grid-column:1;grid-row:auto;flex-direction:row}.go a{flex:1}}
+</style>
+</head>
+<body><div class="w">
+<h1>レシート解析システム　デザインMOCK 10案</h1>
+<p class="lead">各案：ホーム／対戦ロビー／レシート一覧（下のタブで切替）。スマホ幅で開くのがおすすめです。</p>
+<div class="signs">使用した看板（写真1枚＝1看板）：①洋食メニュー ②マスカット ③カフェメニュー ④ハンドドリップ ⑤パスタ写真グリッド ⑥ココイチ ⑦ゆで太郎　／　10案の組み合わせはすべて異なります。</div>
+
+<div class="c"><div><h2>案01　葡萄サロン</h2><div class="p">①洋食 × ②マスカット</div></div>
+<p>深緑の二重罫とえんじのリボンに、夜紺と葡萄グリーンの丸い価格バッジを重ね、ゲームを「秋の限定メニュー」として見せる。</p><p class="a">動き：葡萄の粒が漂い、皿が浮かび、数値がカウントアップ。</p>
+<div class="go"><a href="mock01.html">開く</a><a class="s" href="mock01.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案02　トッピング注文</h2><div class="p">⑥ココイチ × ⑦ゆで太郎</div></div>
+<p>「量・辛さを選ぶ」段階チップと緑・橙・青の縦ゾーン帯で、操作を“注文”、データを“メニュー”にした太く元気な配色。</p><p class="a">動き：ゾーン帯が左からスライド、選択チップが黄色に満ちる、待機バーが流れる。</p>
+<div class="go"><a href="mock02.html">開く</a><a class="s" href="mock02.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案03　白磁と洋紅</h2><div class="p">③カフェメニュー × ④ハンドドリップ</div></div>
+<p>白い板と刻印のような細字の静けさに、洋紅の帯と点線リーダーの価格表を一点だけ効かせ、数値を主役にする。</p><p class="a">動き：しずくが落ちて波紋、点線が伸びる、洋紅の帯に光が走る。</p>
+<div class="go"><a href="mock03.html">開く</a><a class="s" href="mock03.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案04　トラットリア図鑑</h2><div class="p">⑤パスタ写真グリッド × ⑥ココイチ</div></div>
+<p>写真タイル＋ベージュの値札＋黒い価格チップでモンスターを料理図鑑のように並べ、「HOW TO」の手順を上部に添える。</p><p class="a">動き：タイルが起き上がる順次表示、ギンガム柄が斜めに流れる、選択チップが持ち上がる。</p>
+<div class="go"><a href="mock04.html">開く</a><a class="s" href="mock04.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案05　純喫茶ナイト</h2><div class="p">①洋食 × ④ハンドドリップ</div></div>
+<p>えんじのリボン見出しと深緑を、点線で価格をつなぐ生成り紙のメニュー札に融合した、暗い店内のダークモード。</p><p class="a">動き：湯気が立ち上り、リボンが広がり、紙札がふわっと現れる。</p>
+<div class="go"><a href="mock05.html">開く</a><a class="s" href="mock05.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案06　黄昏ゾーン</h2><div class="p">②マスカット × ⑦ゆで太郎</div></div>
+<p>夜紺〜葡萄グリーンの空と「季節限定」の縦タグに、横長ゾーン帯をガラスの色帯として重ねる。</p><p class="a">動き：背景の空が移ろい、帯に光沢が横切り、帯が右から順にスライドイン。</p>
+<div class="go"><a href="mock06.html">開く</a><a class="s" href="mock06.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案07　モノクロ索引</h2><div class="p">③カフェメニュー × ⑤パスタ写真グリッド</div></div>
+<p>白地・黒文字の刻印感と整然としたグリッドを融合。黒と紙白に赤1点、レシートをコンタクトシートとして並べる。</p><p class="a">動き：赤いスキャンラインが走り、コマが段階表示、触れると黒が下から反転。</p>
+<div class="go"><a href="mock07.html">開く</a><a class="s" href="mock07.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案08　食券機</h2><div class="p">①洋食 × ⑥ココイチ</div></div>
+<p>洋食看板の格式とココイチのステップ式注文を食券機に変換。ボタンを押すと食券が発券される体験をUIにした。</p><p class="a">動き：食券がコマ送りで排出され、LEDが点滅、ボタンが物理的に沈む。</p>
+<div class="go"><a href="mock08.html">開く</a><a class="s" href="mock08.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案09　泡のパフェ</h2><div class="p">②マスカット × ③カフェメニュー</div></div>
+<p>丸い価格バッジとパフェの艶を「泡と円」のUIに展開し、白い余白と営業時間バーで軽く仕立てる。角のない世界。</p><p class="a">動き：泡が昇り、メインの円が呼吸し、ボタンがバネのように弾む。</p>
+<div class="go"><a href="mock09.html">開く</a><a class="s" href="mock09.html#lobby">ロビー</a></div></div>
+
+<div class="c"><div><h2>案10　レシート路線図</h2><div class="p">④ハンドドリップ × ⑦ゆで太郎</div></div>
+<p>点線の価格表を路線に、ゾーン色を路線カラーに読み替え、データを「駅」、遷移を「乗り換え」とした公共サイン風。</p><p class="a">動き：列車の四角が路線を往復し、駅が順に現れ、触れた駅が拡大して塗りつぶされる。</p>
+<div class="go"><a href="mock10.html">開く</a><a class="s" href="mock10.html#lobby">ロビー</a></div></div>
+</div></body>
+</html>

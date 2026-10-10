@@ -24,6 +24,16 @@
 - 主な環境変数：`MONSTER_WAIT_SECONDS`（待機秒数、既定90）、`MONSTER_AI_ILLUSTRATION`（レシートをDBに登録するとき、カードのパラメータとSVGイラストを GEMINI_API_MONSTER → GEMINI_API_DEFAULT の順に試して作り、どちらでも作れなければ計算式の値と代替イラストを使う。既定で有効）、`MONSTER_TRUST_FORWARDED_FOR`（Renderなどプロキシの背後で true）、`MONSTER_GEMINI_DAILY_LIMIT`（キーごとの1日の上限、既定200）。
 - 対戦には有効なカードが2枚以上必要です。
 
+## 日替わりデザイン
+
+画面の見た目は10種類のテーマ（案01 葡萄サロン／02 トッピング注文／03 白磁と洋紅／04 トラットリア図鑑／05 純喫茶ナイト／06 黄昏ゾーン／07 モノクロ索引／08 食券機／09 泡のパフェ／10 レシート路線図）があり、**毎日3:00（日本時間）に順番に切り替わります**。日付だけで決まるため、どの端末・どの画面でも同じ日は同じテーマです。開いたままの画面も、3:00になると自動で切り替わります。
+
+- 仕組み：各ページの `theme/theme.js` が日付からテーマを選び、`theme/base.css` と `theme/tNN.css` を読み込みます（既存の `styles.css` は変更しません）。
+- 確認：URLに `?theme=1`〜`?theme=10` を付けると、そのテーマで表示します（保存はしません）。
+- 配置：`reBack/src/main/resources/static/theme/` が元で、`reFront/theme/` に同じ内容のコピーを置きます（テストで一致を確認）。
+- 動き：CSSのtransition／animationのみ。`prefers-reduced-motion` の環境では止まります。
+- モックは [doc/design-mock/index.html](doc/design-mock/index.html) にあります。
+
 ## データの扱い
 
 - 画像ファイルそのものは保存しません。重複判定に使うSHA-256、読み取った文字列、構造化データを保存します。

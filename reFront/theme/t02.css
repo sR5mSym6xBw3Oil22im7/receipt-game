@@ -1,0 +1,41 @@
+/* 案02 トッピング注文（ココイチ × ゆで太郎）黄・えんじ・緑橙青のゾーン帯、押すと沈む太いボタン */
+:root[data-theme="t02"] {
+  --bg-top: #fff7dc; --bg-mid: #fff7dc; --bg-low: #fff0b8;
+  --gold: #561820; --gold-deep: #561820; --gold-light: #f7c51e; --gold-mist: #ffefa8;
+  --gold-grad: linear-gradient(#561820, #561820); --gold-ink: #f7c51e; --gold-line: rgba(86, 24, 32, .4);
+  --paper: #fffdf2; --paper-solid: #fffdf2; --surface: #fff; --surface-strong: #fff;
+  --ink: #2a1a14; --ink-soft: #6b4a3d; --line: #e6d49a; --ok: #2f8a3b;
+  --radius: 8px; --radius-sm: 6px; --shadow: 0 5px 0 #561820;
+  --font-head: "Dela Gothic One", "Noto Sans JP", sans-serif; --font-latin: "Dela Gothic One", sans-serif; --font-body: "Noto Sans JP", "Hiragino Sans", sans-serif;
+
+  & body { background: var(--bg-top); font-weight: 500; }
+  /* 上端：流れる黄とえんじのストライプ */
+  & body::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: 8px; z-index: 5; pointer-events: none;
+    background: repeating-linear-gradient(45deg, #f7c51e 0 10px, #561820 10px 20px); background-size: 28px 28px; animation: t02-run 1s linear infinite; }
+  & .card { border: 3px solid var(--gold); backdrop-filter: none; animation: t02-slide .55s cubic-bezier(.2, .8, .2, 1) both; }
+  & .card::before { display: none; }
+  & h1, & h2, & h3 { font-weight: 400; }
+  & .eyebrow, & .hero-sub { color: #d4601c; letter-spacing: .12em; }
+  & .primary-button, & .gold-button { border: 3px solid #2e0b10; border-radius: 6px; box-shadow: 0 5px 0 #2e0b10; text-shadow: none; transition: transform .1s, box-shadow .1s; }
+  & .primary-button:hover { transform: none; }
+  & .primary-button:active, & .gold-button:active { transform: translateY(4px); box-shadow: 0 1px 0 #2e0b10; }
+  & .secondary-button { border: 3px solid var(--gold); border-radius: 6px; font-weight: 900; }
+  /* ゾーン帯：緑・橙・青を順に */
+  & .menu-link, & .receipt-row, & .seat-list li { border-radius: 4px; border: 2px solid var(--gold); border-left-width: 14px; }
+  & .menu-link:nth-child(3n + 1), & .receipt-row:nth-child(3n + 1) { border-left-color: #2f8a3b; }
+  & .menu-link:nth-child(3n + 2), & .receipt-row:nth-child(3n + 2) { border-left-color: #d4601c; }
+  & .menu-link:nth-child(3n), & .receipt-row:nth-child(3n) { border-left-color: #1f7fb6; }
+  & .menu-link:hover, & .receipt-row:hover { transform: translateX(4px); box-shadow: none; }
+  & .steps li { border-radius: 4px; border: 2px solid var(--gold); font-weight: 900; }
+  & .steps li.is-active { background: #f7c51e; color: var(--gold); }
+  /* 選択チップ：下から黄色に満ちる */
+  & .chip, & .tab, & .subtab { position: relative; overflow: hidden; border: 2px solid var(--gold); border-radius: 4px; font-weight: 900; z-index: 0; }
+  & .chip::before, & .tab::before, & .subtab::before { content: ""; position: absolute; inset: 0; background: #f7c51e; transform: scaleY(0); transform-origin: bottom; transition: transform .3s; z-index: -1; }
+  & .chip.is-on::before, & .tab.is-active::before, & .subtab.is-active::before { transform: scaleY(1); }
+  & .chip.is-on, & .tab.is-active, & .subtab.is-active { background: transparent; color: var(--gold); }
+  & .badge { background: #f7c51e; color: var(--gold); border: 0; font-weight: 900; }
+  & .back-link { border: 2px solid var(--gold); border-radius: 6px; font-weight: 900; }
+  & .mcard { border-radius: 8px; }
+}
+@keyframes t02-run { to { background-position: 28px 0; } }
+@keyframes t02-slide { from { opacity: 0; transform: translateX(-36px); } }

@@ -1,0 +1,36 @@
+/* 案05 純喫茶ナイト（洋食メニュー × ハンドドリップ）暗い店内に灯る生成り紙のメニュー札、えんじのリボン、湯気 */
+:root[data-theme="t05"] {
+  --bg-top: #1d130f; --bg-mid: #1d130f; --bg-low: #14100d;
+  --gold: #7a1f2b; --gold-deep: #7a1f2b; --gold-light: #e9a65c; --gold-mist: #f6ecd2;
+  --gold-grad: linear-gradient(#7a1f2b, #7a1f2b); --gold-ink: #f3e8cf; --gold-line: rgba(42, 29, 20, .35);
+  --paper: #f3e8cf; --paper-solid: #f6ecd2; --surface: #f9f1dc; --surface-strong: #fff8e6;
+  --ink: #2a1d14; --ink-soft: #6d5b44; --line: #d3c29d; --ok: #1c4a37;
+  --sub: #1c4a37; --sub-light: #e9dfc3; --sub-ink: #3a2b1b;
+  --radius: 3px; --radius-sm: 3px; --shadow: 0 0 0 3px #2b1b14, 0 0 0 4px #5b4332, 0 14px 24px rgba(0, 0, 0, .5);
+  --font-head: "Shippori Mincho B1", "Hiragino Mincho ProN", serif; --font-latin: "Shippori Mincho B1", serif; --font-body: "Shippori Mincho B1", "Hiragino Mincho ProN", serif;
+
+  & body { background: repeating-linear-gradient(90deg, rgba(255, 255, 255, .025) 0 2px, transparent 2px 38px), #1d130f; color: #f3e8cf; }
+  /* 湯気が立ち上る */
+  & body::before { content: ""; position: fixed; left: 0; right: 0; bottom: 0; height: 100vh; z-index: 0; pointer-events: none;
+    background: radial-gradient(ellipse 18px 90px at 22% 100%, rgba(243, 232, 207, .2), transparent 70%), radial-gradient(ellipse 22px 120px at 50% 100%, rgba(243, 232, 207, .18), transparent 70%), radial-gradient(ellipse 18px 90px at 78% 100%, rgba(243, 232, 207, .2), transparent 70%);
+    animation: t05-steam 8s ease-in infinite; }
+  & .card { border: 0; backdrop-filter: none; animation: t05-up .8s both; }
+  & .card::before { display: none; }
+  & .card h2 { display: inline-block; background: var(--gold); color: var(--gold-ink); padding: 5px 24px; font-size: .95rem; letter-spacing: .2em; animation: t05-unfurl .8s cubic-bezier(.2, .8, .2, 1) both; transform-origin: left; margin-left: -12px; box-shadow: -4px 4px 0 rgba(0, 0, 0, .25); }
+  & h1, & .hero-title { letter-spacing: .15em; }
+  & .eyebrow, & .hero-sub { color: var(--gold); letter-spacing: .4em; }
+  & .primary-button { border-radius: 0; border: 1px solid #3a0d14; box-shadow: inset 0 0 0 3px var(--gold), inset 0 0 0 4px #f3e8cf; letter-spacing: .2em; text-shadow: none; transition: background-color .3s, transform .15s; }
+  & .primary-button:hover { background: #1c4a37; transform: none; }
+  & .primary-button:active { transform: scale(.97); }
+  & button, & .button, & .back-link, & .badge, & .steps li, & .chip, & .tab, & .subtab { border-radius: 0; }
+  & .back-link { background: #2b1b14; color: #e9a65c; border-color: #5b4332; }
+  & .back-link:hover { background: #3a251b; color: #f3e8cf; }
+  & .footer-note { color: #cbb892; }
+  & .menu-link, & .receipt-row { border: 0; border-bottom: 1.5px dotted #8f7d62; border-radius: 0; background: transparent; }
+  & .menu-link:hover, & .receipt-row:hover { transform: translateY(-2px); box-shadow: none; background: rgba(122, 31, 43, .06); }
+  & .badge { background: #1c4a37; color: #f3e8cf; border: 0; }
+  & .mcard { border-radius: 3px; }
+}
+@keyframes t05-steam { 0% { transform: translateY(40px); opacity: 0; } 25% { opacity: 1; } 100% { transform: translateY(-40vh); opacity: 0; } }
+@keyframes t05-up { from { opacity: 0; transform: translateY(16px); } }
+@keyframes t05-unfurl { from { opacity: 0; transform: scaleX(.1); } }

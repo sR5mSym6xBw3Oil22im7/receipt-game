@@ -174,3 +174,44 @@ test("analysis and save send the admin session cookie and CSRF token", () => {
   assert.match(js, /管理画面に再度ログインしてください/);
   assert.ok(html.indexOf("admin-api.js") < html.indexOf("app.js"), "admin-api.js must load before app.js");
 });
+
+// ---- 日替わりテーマ（毎日3時・日本時間に10種類が順番に切り替わる） ----
+import { readdir } from "node:fs/promises";
+import vm from "node:vm";
+
+const themeDirBack = new URL("../../reBack/src/main/resources/static/theme/", import.meta.url);
+const themeDirFront = new URL("../theme/", import.meta.url);
+
+function loadTheme() {
+  const context = { window: {}, document: { currentScript: null, documentElement: { setAttribute() {} }, head: { querySelector: () => null, appendChild() {} }, createElement: () => ({ setAttribute() {}, getAttribute: () => null }), querySelectorAll: () => [], addEventListener() {} }, location: { search: "" }, setTimeout() {}, URLSearchParams, Date };
+  context.window = context;
+  vm.runInNewContext(themeSource, context);
+  return context.ReceiptTheme;
+}
+const themeSource = await readFile(new URL("theme.js", themeDirBack), "utf8");
+
+test("theme: 毎日3時（日本時間）に切り替わり、10種類が順番に回る", () => {
+  const { themeIndex, nextSwitchAt, THEMES } = loadTheme();
+  assert.equal(THEMES.length, 10);
+  const jst = (s) => Date.parse(`${s}+09:00`);
+  assert.equal(themeIndex(jst("2026-10-11T02:59:59")), themeIndex(jst("2026-10-10T03:00:00")));
+  assert.equal(themeIndex(jst("2026-10-11T03:00:00")), (themeIndex(jst("2026-10-10T03:00:00")) + 1) % 10);
+  assert.equal(nextSwitchAt(jst("2026-10-11T10:00:00")), jst("2026-10-12T03:00:00"));
+  assert.equal(nextSwitchAt(jst("2026-10-11T02:00:00")), jst("2026-10-11T03:00:00"));
+  const seen = new Set();
+  for (let d = 0; d < 10; d++) seen.add(themeIndex(jst("2026-10-01T12:00:00") + d * 86400000));
+  assert.equal(seen.size, 10);
+});
+
+test("theme: base.css と10テーマのCSSがあり、フロントとバックエンドで同じ内容", async () => {
+  const names = ["theme.js", "base.css", ...Array.from({ length: 10 }, (_, i) => `t${String(i + 1).padStart(2, "0")}.css`)];
+  assert.deepEqual((await readdir(themeDirBack)).sort(), [...names].sort());
+  for (const name of names) {
+    assert.equal(await readFile(new URL(name, themeDirFront), "utf8"), await readFile(new URL(name, themeDirBack), "utf8"), `${name} がずれています`);
+  }
+});
+
+test("theme: すべてのページが theme.js を読み込む", async () => {
+  const pages = ["../index.html", ...["admin/login", "admin/menu", "admin/upload", "admin/select", "game/index", "demo/index"].map((p) => `../../reBack/src/main/resources/static/${p}.html`)];
+  for (const page of pages) assert.match(await readFile(new URL(page, import.meta.url), "utf8"), /<script src="(\.|\.\.)\/theme\/theme\.js"><\/script>/, page);
+});

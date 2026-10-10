@@ -1,0 +1,37 @@
+/* 案04 トラットリア図鑑（パスタ写真グリッド × ココイチ）ギンガムのテーブルクロス・ベージュの値札・黒い価格チップ */
+:root[data-theme="t04"] {
+  --bg-top: #f2e4c6; --bg-mid: #f2e4c6; --bg-low: #f2e4c6;
+  --gold: #c8321f; --gold-deep: #c8321f; --gold-light: #ffd24a; --gold-mist: #f2e4c6;
+  --gold-grad: linear-gradient(#c8321f, #c8321f); --gold-ink: #fff; --gold-line: rgba(36, 24, 18, .35);
+  --paper: #fff; --paper-solid: #fff; --surface: #fff; --surface-strong: #fff;
+  --ink: #241812; --ink-soft: #6b5a45; --line: #e7d3a8; --ok: #6d7a2e;
+  --radius: 12px; --radius-sm: 10px; --shadow: 3px 3px 0 #241812;
+  --font-head: "Mochiy Pop One", "M PLUS Rounded 1c", sans-serif; --font-latin: "Mochiy Pop One", sans-serif; --font-body: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", sans-serif;
+
+  /* ギンガム柄が斜めにゆっくり流れる */
+  & body { background: linear-gradient(90deg, rgba(200, 50, 31, .14) 50%, transparent 50%) 0 0 / 48px 48px, linear-gradient(rgba(200, 50, 31, .14) 50%, transparent 50%) 0 0 / 48px 48px, #f2e4c6; animation: t04-cloth 16s linear infinite; font-weight: 500; }
+  & .card { border: 2px solid var(--ink); backdrop-filter: none; animation: t04-flip .6s cubic-bezier(.2, .8, .2, 1) both; transform-origin: 50% 100%; }
+  & .card::before { display: none; }
+  & h1, & h2 { font-weight: 400; }
+  & h2 { display: flex; align-items: center; gap: 10px; } & h2::after { content: ""; flex: 1; border-top: 3px dotted var(--ink); }
+  & .eyebrow, & .hero-sub { color: var(--gold); letter-spacing: .15em; }
+  & .primary-button, & .gold-button { border: 2px solid var(--ink); border-radius: 12px; box-shadow: 0 5px 0 var(--ink); text-shadow: none; transition: transform .1s, box-shadow .1s; }
+  & .primary-button:hover { transform: none; }
+  & .primary-button:active, & .gold-button:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--ink); }
+  & .secondary-button, & .back-link { border: 2px solid var(--ink); font-weight: 800; }
+  & .menu-link, & .receipt-row, & .seat-list li { background: #e7d3a8; border: 2px solid var(--ink); box-shadow: 3px 3px 0 var(--ink); transition: transform .2s, box-shadow .2s; }
+  & .menu-link:hover, & .receipt-row:hover { transform: translate(-2px, -4px); box-shadow: 5px 7px 0 var(--ink); border-color: var(--ink); }
+  & .receipt-row.is-checked { background: #ffd24a; }
+  & .badge, & .rt-no em { background: var(--ink); color: #fff; border: 0; border-radius: 4px; }
+  & .badge.is-accent { background: var(--gold); }
+  & .steps { background: #5a1d1a; border-radius: 10px; padding: 8px; }
+  & .steps li { background: transparent; border: 0; color: #fff; font-weight: 800; }
+  & .steps li::before { background: #ffd24a; color: #5a1d1a; font-family: var(--font-head); }
+  & .steps li.is-active { color: #ffd24a; }
+  & .chip, & .tab, & .subtab { border: 2px solid var(--ink); background: #e7d3a8; font-weight: 800; transition: transform .15s, background .2s; }
+  & .chip.is-on, & .tab.is-active, & .subtab.is-active { background: var(--gold); color: #fff; border-color: var(--ink); transform: translateY(-3px); box-shadow: 0 3px 0 var(--ink); }
+  & .mcard { border-radius: 10px; box-shadow: 3px 3px 0 var(--ink); }
+  & .mc-art { border-radius: 50%; aspect-ratio: 1; box-shadow: 0 0 0 5px #fff, 0 0 0 7px #cfc2a3; margin: 6px; }
+}
+@keyframes t04-cloth { to { background-position: 48px 48px, 48px 48px, 0 0; } }
+@keyframes t04-flip { from { opacity: 0; transform: perspective(500px) rotateX(-40deg); } }

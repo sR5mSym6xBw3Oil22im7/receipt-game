@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>案09 泡のパフェ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="common.css">
+<style>
+:root{--bg:#f7f5fb;--lav:#e5def5;--grape:#5b4a9a;--lime:#c9e38a;--mint:#dff2c8;--ink:#2e2a45;--mute:#7b7699;--white:#fff;
+  --f:"Zen Maru Gothic","Hiragino Maru Gothic ProN",sans-serif}
+body{background:#cfc9e2;font-family:var(--f);color:var(--ink);font-weight:500}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:linear-gradient(180deg,#fff 0,var(--bg) 220px,var(--lav) 100%);padding-bottom:96px;position:relative;overflow:hidden}
+.bubbles{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.bubbles i{position:absolute;bottom:-60px;border-radius:50%;background:radial-gradient(circle at 30% 28%,#fff,rgba(201,227,138,.5) 60%,rgba(201,227,138,.2));border:1px solid rgba(255,255,255,.8);animation:rise 14s linear infinite}
+.bubbles i:nth-child(1){left:8%;width:30px;height:30px}.bubbles i:nth-child(2){left:30%;width:18px;height:18px;animation-duration:10s;animation-delay:3s}
+.bubbles i:nth-child(3){left:55%;width:40px;height:40px;animation-duration:18s;animation-delay:1s}.bubbles i:nth-child(4){left:78%;width:22px;height:22px;animation-duration:12s;animation-delay:6s}
+.bubbles i:nth-child(5){left:90%;width:34px;height:34px;animation-duration:16s;animation-delay:9s}
+@keyframes rise{to{transform:translateY(-110vh) translateX(20px)}}
+header{padding:20px 20px 4px;position:relative}
+header .t{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;color:var(--mute)}
+header .hrs{background:var(--grape);color:#fff;border-radius:99px;padding:3px 12px;font-size:11px;letter-spacing:.1em}
+header h1{font-size:28px;font-weight:900;margin-top:10px;line-height:1.25}
+header h1 em{font-style:normal;color:var(--grape);background:linear-gradient(transparent 62%,var(--lime) 62%)}
+main{padding:12px 16px;position:relative}
+.pop{animation:pop .7s cubic-bezier(.3,1.5,.5,1) both}
+.pop:nth-child(2){animation-delay:.1s}.pop:nth-child(3){animation-delay:.2s}.pop:nth-child(4){animation-delay:.3s}
+@keyframes pop{from{opacity:0;transform:scale(.88) translateY(12px)}}
+/* 大きな円のメイン数値 */
+.orb{width:230px;height:230px;margin:10px auto 18px;border-radius:50%;display:grid;place-items:center;text-align:center;
+  background:radial-gradient(circle at 32% 28%,#fff 0 12%,transparent 13%),radial-gradient(circle at 50% 40%,#d9ecaa,var(--lime) 55%,#9cc450);box-shadow:0 20px 40px rgba(120,150,60,.35),inset 0 -14px 30px rgba(80,120,30,.25);animation:bob 5s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) scale(1.02)}}
+.orb b{font-size:70px;font-weight:900;color:var(--grape);line-height:1;display:block}.orb span{font-size:13px;font-weight:700;color:#3d5a14}
+.mini{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mini div{background:var(--white);border-radius:50%;aspect-ratio:1;display:grid;place-content:center;text-align:center;box-shadow:0 8px 20px rgba(91,74,154,.15);transition:transform .3s}
+.mini div:active,.mini div:hover{transform:translateY(-6px) scale(1.04)}
+.mini b{font-size:22px;font-weight:900;color:var(--grape)}.mini small{font-size:11px;color:var(--mute)}
+.btn{display:block;width:100%;margin-top:18px;padding:16px;border-radius:99px;background:var(--grape);color:#fff;font-size:17px;font-weight:900;letter-spacing:.08em;box-shadow:0 10px 24px rgba(91,74,154,.4);transition:transform .25s cubic-bezier(.3,1.6,.5,1),box-shadow .25s}
+.btn:hover{transform:translateY(-3px) scale(1.02)}.btn:active{transform:scale(.96)}
+.card{background:var(--white);border-radius:28px;padding:18px;box-shadow:0 10px 30px rgba(91,74,154,.12);margin-bottom:14px}
+.card h2{font-size:15px;font-weight:900;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.card h2 small{font-size:11px;color:var(--mute);font-weight:500}
+.tm{width:170px;height:170px;margin:4px auto 6px;border-radius:50%;display:grid;place-items:center;position:relative;background:conic-gradient(var(--grape) 0 var(--p,70%),var(--lav) 0)}
+.tm::after{content:"";position:absolute;inset:12px;border-radius:50%;background:#fff}
+.tm span{position:relative;z-index:1;font-size:40px;font-weight:900;color:var(--grape)}
+.pk{display:flex;gap:12px;align-items:center;width:100%;text-align:left;border-radius:22px;padding:10px 12px;margin-top:8px;background:var(--bg);border:2px solid transparent;transition:transform .3s cubic-bezier(.3,1.6,.5,1),border-color .2s,background .2s}
+.pk:hover{transform:scale(1.02)}.pk[aria-pressed=true]{background:var(--mint);border-color:var(--lime)}
+.pk .o{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 30% 28%,#fff,var(--lime) 55%,#9cc450);display:grid;place-items:center;font-weight:900;color:var(--grape);flex:none}
+.pk h3{font-size:15px;font-weight:700}.pk small{font-size:11px;color:var(--mute)}.pk .s{margin-left:auto;font-weight:900;font-size:13px;color:var(--grape);text-align:right}
+.rc{display:flex;gap:12px;align-items:center;padding:12px 4px;border-bottom:1px dashed var(--lav)}.rc:last-child{border:0}
+.rc .o{width:42px;height:42px;border-radius:50%;background:var(--lav);display:grid;place-items:center;color:var(--grape);flex:none}
+.rc h3{font-size:15px;font-weight:700}.rc small{font-size:11px;color:var(--mute)}.rc .pr{margin-left:auto;font-weight:900;font-size:16px}
+.st{font-size:10px;border-radius:99px;padding:1px 8px;margin-left:6px;font-weight:700;background:var(--lime);color:#3d5a14}.st.d{background:var(--lav);color:var(--grape)}
+nav{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);width:calc(100% - 28px);max-width:402px;display:grid;grid-template-columns:repeat(3,1fr);background:#fff;border-radius:99px;box-shadow:0 10px 30px rgba(91,74,154,.3);z-index:5;padding:5px}
+nav button{padding:9px 0 7px;display:grid;justify-items:center;font-size:11px;font-weight:700;color:var(--mute);border-radius:99px;transition:background .3s,color .3s,transform .3s cubic-bezier(.3,1.6,.5,1)}
+nav button[aria-current]{background:var(--grape);color:#fff;transform:scale(1.05)}
+.note{background:rgba(255,255,255,.7);border-radius:20px;padding:14px;font-size:12px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="bubbles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+<header><div class="t"><span>RECEIPT PARFAIT</span><span class="hrs">受付 11:00–22:00</span></div><h1>集めたレシートが、<br><em>とろける</em>モンスターに。</h1></header>
+<main>
+<section class="screen" data-screen="home">
+  <div class="orb pop"><div><b data-to="24">0</b><span>枚のレシート</span></div></div>
+  <div class="mini pop"><div><b data-to="17">0</b><small>勝利</small></div><div><b data-to="5">0</b><small>連勝</small></div><div><b data-to="48" data-suf="k">0</b><small>総額(千円)</small></div></div>
+  <button class="btn pop" data-go="lobby">対戦ロビーへ</button>
+</section>
+
+<section class="screen" data-screen="lobby" hidden>
+  <div class="card pop"><h2>対戦ロビー<small>相手がいなければCOM</small></h2><div class="tm"><span data-countdown="90"></span></div></div>
+  <div class="card pop"><h2>カードを2枚<small>タップで選択</small></h2>
+    <button class="pk" data-pick aria-pressed="true"><span class="o">72</span><span><h3>コンビニ・ドラゴン</h3><small>ローソン</small></span><span class="s">攻72<br>守45</span></button>
+    <button class="pk" data-pick aria-pressed="true"><span class="o">81</span><span><h3>ドラッグ・スライム</h3><small>マツモトキヨシ</small></span><span class="s">攻38<br>守81</span></button>
+    <button class="pk" data-pick aria-pressed="false"><span class="o">92</span><span><h3>スーパー・ゴーレム</h3><small>業務スーパー</small></span><span class="s">攻64<br>守92</span></button>
+    <button class="btn">この2枚で入室</button></div>
+</section>
+
+<section class="screen" data-screen="list" hidden>
+  <div class="card pop"><h2>保存済みレシート<small>24件</small></h2>
+    <div class="rc"><span class="o"><svg class="ic"><use href="#i-receipt"/></svg></span><span><h3>ローソン 渋谷店<span class="st">有効</span></h3><small>2026.10.08 ・ 6点</small></span><span class="pr">¥1,284</span></div>
+    <div class="rc"><span class="o"><svg class="ic"><use href="#i-receipt"/></svg></span><span><h3>マツモトキヨシ<span class="st">有効</span></h3><small>2026.10.06 ・ 11点</small></span><span class="pr">¥3,480</span></div>
+    <div class="rc"><span class="o"><svg class="ic"><use href="#i-receipt"/></svg></span><span><h3>スターバックス<span class="st d">下書き</span></h3><small>2026.10.05 ・ 2点</small></span><span class="pr">¥860</span></div>
+    <div class="rc"><span class="o"><svg class="ic"><use href="#i-receipt"/></svg></span><span><h3>業務スーパー<span class="st">有効</span></h3><small>2026.10.03 ・ 23点</small></span><span class="pr">¥6,912</span></div>
+    <div class="rc"><span class="o"><svg class="ic"><use href="#i-receipt"/></svg></span><span><h3>高木珈琲<span class="st">有効</span></h3><small>2026.10.01 ・ 3点</small></span><span class="pr">¥1,780</span></div></div>
+</section>
+<aside class="note"><b>案09｜マスカット看板 × カフェメニュー看板</b><br>マスカット看板の丸い価格バッジ・パフェのグラス・葡萄の艶を「泡と円」のUIに展開し、カフェ看板の白い余白と営業時間バーで軽く仕立てる。角を持たない、触りたくなる円形の世界。<br><b>動き：</b>泡がゆっくり昇る、メインの円が呼吸し、ボタンが弾むバネ感でタップに応える。</aside>
+</main>
+<nav><button data-go="home"><svg class="ic"><use href="#i-home"/></svg>ホーム</button><button data-go="lobby"><svg class="ic"><use href="#i-battle"/></svg>対戦</button><button data-go="list"><svg class="ic"><use href="#i-receipt"/></svg>レシート</button></nav>
+</div>
+<script src="common.js"></script>
+</body>
+</html>

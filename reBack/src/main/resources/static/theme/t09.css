@@ -1,0 +1,38 @@
+/* 案09 泡のパフェ（マスカット × カフェメニュー）角のない円と泡、白い余白、バネのように弾むボタン */
+:root[data-theme="t09"] {
+  --bg-top: #fff; --bg-mid: #f7f5fb; --bg-low: #e5def5;
+  --gold: #5b4a9a; --gold-deep: #5b4a9a; --gold-light: #c9e38a; --gold-mist: #eef7d9;
+  --gold-grad: linear-gradient(#5b4a9a, #5b4a9a); --gold-ink: #fff; --gold-line: #ddd5f0;
+  --paper: #fff; --paper-solid: #fff; --surface: #f7f5fb; --surface-strong: #fff;
+  --ink: #2e2a45; --ink-soft: #7b7699; --line: #e5def5; --ok: #6f9330;
+  --sub: #5b4a9a; --sub-light: #efeaf9; --sub-ink: #3d3370;
+  --radius: 28px; --radius-sm: 22px; --shadow: 0 10px 30px rgba(91, 74, 154, .14);
+  --font-head: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif; --font-latin: "Zen Maru Gothic", sans-serif; --font-body: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", sans-serif;
+
+  & body { background: linear-gradient(180deg, #fff 0, #f7f5fb 240px, #e5def5); background-attachment: fixed; font-weight: 500; }
+  /* 泡がゆっくり昇る（継ぎ目なしの繰り返し） */
+  & body::before { content: ""; position: fixed; left: 0; right: 0; top: 0; height: calc(100% + 700px); z-index: 0; pointer-events: none;
+    background: radial-gradient(circle at 12% 80%, rgba(201, 227, 138, .55) 0 16px, transparent 17px), radial-gradient(circle at 38% 30%, rgba(201, 227, 138, .4) 0 9px, transparent 10px), radial-gradient(circle at 63% 62%, rgba(201, 227, 138, .5) 0 22px, transparent 23px), radial-gradient(circle at 86% 15%, rgba(91, 74, 154, .14) 0 12px, transparent 13px), radial-gradient(circle at 92% 90%, rgba(201, 227, 138, .45) 0 17px, transparent 18px);
+    background-size: 420px 700px; animation: t09-rise 30s linear infinite; }
+  & .card { border: 0; backdrop-filter: none; animation: t09-pop .7s cubic-bezier(.3, 1.5, .5, 1) both; }
+  & .card::before { display: none; }
+  & h1, & .hero-title { font-weight: 900; }
+  & h1::after { content: ""; display: block; width: 4.5em; height: .5em; margin-top: -.45em; background: #c9e38a; border-radius: 99px; opacity: .8; position: relative; z-index: -1; }
+  & .eyebrow, & .hero-sub { color: var(--ink-soft); letter-spacing: .2em; }
+  & .primary-button { border: 0; box-shadow: 0 10px 24px rgba(91, 74, 154, .4); text-shadow: none; transition: transform .25s cubic-bezier(.3, 1.6, .5, 1), box-shadow .25s; }
+  & .primary-button:hover { transform: translateY(-3px) scale(1.02); background-position: 0 0; }
+  & .primary-button:active { transform: scale(.96); }
+  & .secondary-button { border-color: var(--line); transition: transform .25s cubic-bezier(.3, 1.6, .5, 1); }
+  & .secondary-button:hover { transform: scale(1.04); }
+  & .menu-link, & .receipt-row, & .seat-list li { border-radius: 22px; border: 2px solid transparent; background: var(--surface); transition: transform .3s cubic-bezier(.3, 1.6, .5, 1), border-color .2s, background .2s; }
+  & .menu-link:hover, & .receipt-row:hover { transform: scale(1.02); border-color: #c9e38a; box-shadow: none; }
+  & .receipt-row.is-checked, & .chip.is-on, & .subtab.is-active { background: #eef7d9; border-color: #c9e38a; }
+  & .steps li.is-active { background: #c9e38a; border-color: #c9e38a; color: #3d5a14; }
+  & .steps li::before { background: #5b4a9a; color: #fff; }
+  & .badge { background: #c9e38a; color: #3d5a14; border: 0; }
+  & .mcard { border-radius: 28px; }
+  & .seat-mark { box-shadow: 0 8px 18px rgba(91, 74, 154, .3); }
+  & .back-link { box-shadow: 0 6px 16px rgba(91, 74, 154, .15); border-color: var(--line); }
+}
+@keyframes t09-rise { to { transform: translateY(-700px); } }
+@keyframes t09-pop { from { opacity: 0; transform: scale(.92) translateY(12px); } }
