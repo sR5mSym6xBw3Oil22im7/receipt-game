@@ -45,7 +45,7 @@
 
 /* カード */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
-.mcard { --accent: var(--e-none); --rar: var(--r-N); position: relative; display: flex; flex-direction: column; gap: 6px; padding: 10px 10px 12px; border-radius: 14px; border: 3px solid var(--accent); background: linear-gradient(180deg, #fffdf5, #f7ecc8); box-shadow: 0 10px 20px -12px rgba(80, 50, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.8); text-align: left; font: inherit; color: var(--ink); cursor: default; }
+.mcard { --accent: var(--e-none); --rar: var(--r-N); position: relative; display: flex; flex-direction: column; align-items: stretch; width: 100%; box-sizing: border-box; gap: 6px; padding: 10px 10px 12px; border-radius: 14px; border: 3px solid var(--accent); background: linear-gradient(180deg, #fffdf5, #f7ecc8); box-shadow: 0 10px 20px -12px rgba(80, 50, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.8); text-align: left; font: inherit; color: var(--ink); cursor: default; }
 button.mcard, .mcard.is-clickable { cursor: pointer; transition: transform 0.15s ease, box-shadow 0.2s ease; }
 button.mcard:hover { transform: translateY(-3px); }
 .mcard.is-selected { box-shadow: 0 0 0 4px rgba(201, 151, 31, 0.55), 0 14px 24px -12px rgba(80, 50, 0, 0.7); }
@@ -57,8 +57,8 @@ button.mcard:hover { transform: translateY(-3px); }
 .mc-head { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .mc-name { font-family: var(--font-head); font-weight: 700; font-size: 1rem; overflow-wrap: anywhere; }
 .mc-rarity { font-family: var(--font-latin); font-weight: 700; font-size: 0.8rem; color: #fff; background: var(--rar); border-radius: 6px; padding: 0 7px; letter-spacing: 0.08em; flex: none; }
-.mc-art { position: relative; border-radius: 10px; background: radial-gradient(circle at 50% 35%, #fff, color-mix(in srgb, var(--accent) 25%, #fff8e0)); border: 1px solid var(--gold-line); aspect-ratio: 1; overflow: hidden; }
-.mc-art img { display: block; width: 100%; height: 100%; }
+.mc-art { position: relative; width: 100%; flex: none; border-radius: 10px; background: radial-gradient(circle at 50% 35%, #fff, color-mix(in srgb, var(--accent) 25%, #fff8e0)); border: 1px solid var(--gold-line); aspect-ratio: 1; overflow: hidden; }
+.mc-art img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; }
 .mc-art.is-hidden { display: grid; place-items: center; font-family: var(--font-latin); font-size: 4rem; color: var(--gold-deep); background: repeating-linear-gradient(45deg, #f3e3b0, #f3e3b0 8px, #ecd899 8px, #ecd899 16px); }
 .mc-elem { position: absolute; top: 6px; left: 6px; z-index: 1; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #fff; font-weight: 700; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); }
 .mc-zoro { position: absolute; top: 6px; right: 6px; z-index: 1; padding: 0 7px; border-radius: 999px; background: #fff3c4; border: 1px solid var(--gold); color: var(--gold-deep); font-size: 0.7rem; font-weight: 700; }
