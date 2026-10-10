@@ -125,8 +125,8 @@ test("public index routes admin login to Backend", () => {
 });
 
 test("admin pages use Backend session authentication and CSRF instead of Referrer guards", () => {
-  assert.match(select, /<script src="\.\/admin-api\.js\?v=20261004-admin-only-receipt-api"><\/script>/);
-  assert.match(html, /<script src="\.\/admin-api\.js\?v=20261004-admin-only-receipt-api"><\/script>/);
+  assert.match(select, /<script src="\.\/admin-api\.js\?v=20261011-keep-href2"><\/script>/);
+  assert.match(html, /<script src="\.\/admin-api\.js\?v=20261011-keep-href2"><\/script>/);
   assert.doesNotMatch(select + html, /access-guard\.js|document\.referrer|history\.replaceState/);
   assert.match(adminApi, /X-XSRF-TOKEN/);
   assert.match(adminApi, /credentials: "same-origin"/);
