@@ -109,22 +109,19 @@ test("frontend does not persist the Gemini API key in browser storage", () => {
   assert.doesNotMatch(js, /sessionStorage/);
 });
 
-test("index links to upload, and the saved-receipts login entry", () => {
-  assert.match(index, /class="menu-link admin-upload-link" href="https:\/\/receipt-analysis-b8po\.onrender\.com\/admin\/login\.html\?returnTo=upload"/);
-  assert.doesNotMatch(index, /href="\.\/upload\.html"/);
-  assert.match(index, /id="select-link"[^>]*href="https:\/\/receipt-analysis-b8po\.onrender\.com\/admin\/login\.html"/);
-  assert.match(index, /<script src="\.\/index\.js\?v=20260924-login-upload-routing"><\/script>/);
+test("index links to game, demo and admin login in that order", () => {
+  assert.doesNotMatch(index, /admin-upload-link|id="select-link"|レシートを解析|保存済みレシートを確認する/);
+  const order = ["id=\"game-link\"", "id=\"demo-link\"", "id=\"admin-login-link\""].map((key) => index.indexOf(key));
+  assert.ok(order[0] > 0 && order[0] < order[1] && order[1] < order[2]);
+  assert.match(index, /id="admin-login-link"[^>]*href="https:\/\/receipt-analysis-b8po\.onrender\.com\/admin\/login\.html"/);
 });
 
-test("public index routes receipt analysis to Backend and saved receipts to login", () => {
+test("public index routes admin login to Backend", () => {
   assert.doesNotMatch(indexJs, /fetch\s*\(/);
   assert.doesNotMatch(indexJs, /api\/receipts/);
   assert.match(indexJs, /ADMIN_BASE_URL/);
-  assert.match(indexJs, /admin-upload-link/);
-  assert.match(indexJs, /login\.html\?returnTo=upload/);
-  assert.match(indexJs, /select-link/);
+  assert.match(indexJs, /admin-login-link/);
   assert.match(indexJs, /login\.html/);
-  assert.match(index, /保存済みレシートを確認する/);
 });
 
 test("admin pages use Backend session authentication and CSRF instead of Referrer guards", () => {
@@ -134,9 +131,7 @@ test("admin pages use Backend session authentication and CSRF instead of Referre
   assert.match(adminApi, /X-XSRF-TOKEN/);
   assert.match(adminApi, /credentials: "same-origin"/);
   assert.match(loginJs, /\/api\/auth\/login/);
-  assert.match(loginJs, /returnTo === "upload"/);
-  assert.match(loginJs, /\/admin\/upload\.html/);
-  assert.match(loginJs, /\/admin\/select\.html/);
+  assert.match(loginJs, /\/admin\/menu\.html/);
   assert.doesNotMatch(loginJs, /\.value\s*===?\s*["']/);
 });
 

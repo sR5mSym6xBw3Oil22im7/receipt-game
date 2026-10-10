@@ -1,13 +1,3 @@
-const uploadLink = document.querySelector(".admin-upload-link");
-if (uploadLink && window.APP_CONFIG?.ADMIN_BASE_URL) {
-  uploadLink.href = `${window.APP_CONFIG.ADMIN_BASE_URL}/login.html?returnTo=upload`;
-}
-
-const adminLink = document.getElementById("select-link");
-if (adminLink && window.APP_CONFIG?.ADMIN_BASE_URL) {
-  adminLink.href = `${window.APP_CONFIG.ADMIN_BASE_URL}/login.html`;
-}
-
 const demoLink = document.getElementById("demo-link");
 if (demoLink && window.APP_CONFIG?.DEMO_URL) {
   demoLink.href = window.APP_CONFIG.DEMO_URL;
@@ -16,4 +6,9 @@ if (demoLink && window.APP_CONFIG?.DEMO_URL) {
 const gameLink = document.getElementById("game-link");
 if (gameLink && window.APP_CONFIG?.GAME_URL) {
   gameLink.href = window.APP_CONFIG.GAME_URL;
+}
+
+const adminLoginLink = document.getElementById("admin-login-link");
+if (adminLoginLink && window.APP_CONFIG?.ADMIN_BASE_URL) {
+  adminLoginLink.href = `${window.APP_CONFIG.ADMIN_BASE_URL}/login.html`;
 }

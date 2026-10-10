@@ -14,7 +14,7 @@ const COIN_ICON = '<svg aria-hidden="true"><use href="#gd" width="34" height="34
 const EMPTY_ICON = '<svg width="56" height="56" aria-hidden="true"><use href="#gd" width="56" height="56"/></svg>';
 
 function configureBackLink() {
-  backLink.href = window.APP_CONFIG?.PUBLIC_BASE_URL ?? "https://sr5msym6xbw3oil22im7.github.io/";
+  backLink.href = "/admin/menu.html";
 }
 
 function updateDeleteSelectedButton() {

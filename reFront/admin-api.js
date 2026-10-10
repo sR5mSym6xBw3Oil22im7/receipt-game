@@ -21,6 +21,6 @@ document.getElementById("logout-button")?.addEventListener("click", async () => 
 });
 
 const menuBackLink = document.getElementById("back-link");
-if (menuBackLink && window.APP_CONFIG?.PUBLIC_BASE_URL) {
+if (menuBackLink && !menuBackLink.dataset.keepHref && window.APP_CONFIG?.PUBLIC_BASE_URL) {
   menuBackLink.href = window.APP_CONFIG.PUBLIC_BASE_URL;
 }
