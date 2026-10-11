@@ -4,15 +4,27 @@ const status = document.getElementById("login-status");
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   status.textContent = "";
+  const username = form.elements.username.value;
+  const password = form.elements.password.value;
+  if (!username.trim() || !password) {
+    status.textContent = "ユーザーIDとパスワードを入力してください。";
+    return;
+  }
+  if (username.length > 64 || password.length > 128) {
+    status.textContent = "ユーザーIDは64文字、パスワードは128文字以内で入力してください。";
+    return;
+  }
   try {
     const response = await adminFetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: form.elements.username.value, password: form.elements.password.value })
+      body: JSON.stringify({ username, password })
     });
     if (!response.ok) {
       if (response.status === 401) {
         status.textContent = "ユーザーIDまたはパスワードが正しくありません。";
+      } else if (response.status === 400) {
+        status.textContent = "入力内容を確認してください。";
       } else if (response.status === 429) {
         status.textContent = "ログインの失敗が続いたため、しばらくしてから再度お試しください。";
       } else {

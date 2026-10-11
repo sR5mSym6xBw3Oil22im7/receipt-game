@@ -22,6 +22,12 @@ const API_BASE_URL = window.APP_CONFIG?.API_BASE_URL ?? "http://localhost:8081";
 const ANALYZE_REQUEST_TIMEOUT_MS = 210000;
 const ANALYSIS_WAIT_MESSAGE_INTERVAL_MS = 15000;
 const SAVE_REQUEST_TIMEOUT_MS = 30000;
+// サーバー側の上限（5MiB、ZIPは展開後の画像ごと）と合わせた、ブラウザー側の事前チェック。
+// ZIP爆弾（小さなZIPが巨大に展開される）でブラウザーのメモリを使い切らないよう、件数・展開後の大きさにも上限を置く。
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_ZIP_BYTES = 50 * 1024 * 1024;
+const MAX_ZIP_ENTRIES = 50;
+const MAX_ZIP_TOTAL_BYTES = 100 * 1024 * 1024;
 const API_KEY_ERROR_CODES = new Set([
   "GEMINI_QUOTA_EXCEEDED",
   "GEMINI_API_KEY_REJECTED",
@@ -214,12 +220,30 @@ function isZipDirectory(name, versionMadeBy, externalAttributes) {
   return ((externalAttributes >>> 16) & 0xf000) === 0x4000;
 }
 
-async function inflateRaw(bytes) {
+async function inflateRaw(bytes, limit) {
   if (typeof DecompressionStream !== "function") {
     throw new Error("このブラウザはZIP解凍に対応していません。最新のブラウザで再実行してください。");
   }
-  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
+  const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw")).getReader();
+  const chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.length;
+    if (total > limit) {
+      await reader.cancel();
+      throw new Error("ZIP内の画像が展開後に大きすぎます（1枚あたり5 MiBまで）。処理を中断しました。");
+    }
+    chunks.push(value);
+  }
+  const result = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    result.set(chunk, offset);
+    offset += chunk.length;
+  }
+  return result;
 }
 
 async function unzipReceiptImages(zipFile) {
@@ -241,7 +265,9 @@ async function unzipReceiptImages(zipFile) {
   const centralOffset = view.getUint32(endOffset + 16, true);
   if (centralOffset + centralSize > archive.length) throw new Error("ZIPファイルの構造が不正です。");
 
+  if (entryCount > MAX_ZIP_ENTRIES) throw new Error(`ZIPファイルに含まれるファイルが多すぎます（${MAX_ZIP_ENTRIES}件まで）。`);
   const files = [];
+  let totalBytes = 0;
   let cursor = centralOffset;
   for (let index = 0; index < entryCount; index++) {
     if (cursor + 46 > archive.length || view.getUint32(cursor, true) !== 0x02014b50) {
@@ -265,6 +291,11 @@ async function unzipReceiptImages(zipFile) {
     if (!/\.(jpe?g|png)$/i.test(name)) {
       throw new Error(`ZIP内にJPEG/PNG以外のファイル「${name}」があるため、処理を中断しました。`);
     }
+    if (uncompressedSize > MAX_IMAGE_BYTES || compressedSize > MAX_IMAGE_BYTES) {
+      throw new Error(`ZIP内のファイル「${name}」が大きすぎます（1枚あたり5 MiBまで）。処理を中断しました。`);
+    }
+    totalBytes += uncompressedSize;
+    if (totalBytes > MAX_ZIP_TOTAL_BYTES) throw new Error("ZIPファイル全体の展開後の大きさが上限を超えています。処理を中断しました。");
     if (localOffset + 30 > archive.length || view.getUint32(localOffset, true) !== 0x04034b50) {
       throw new Error(`ZIP内のファイル「${name}」を読み込めません。`);
     }
@@ -276,7 +307,7 @@ async function unzipReceiptImages(zipFile) {
     const compressed = archive.slice(dataStart, dataEnd);
     let bytes;
     if (method === 0) bytes = compressed;
-    else if (method === 8) bytes = await inflateRaw(compressed);
+    else if (method === 8) bytes = await inflateRaw(compressed, MAX_IMAGE_BYTES);
     else throw new Error(`ZIP内のファイル「${name}」は未対応の圧縮方式です。処理を中断しました。`);
     if (bytes.length !== uncompressedSize || (!isJpeg(bytes) && !isPng(bytes))) {
       throw new Error(`ZIP内のファイル「${name}」がJPEG/PNG画像ではないため、処理を中断しました。`);
@@ -289,7 +320,12 @@ async function unzipReceiptImages(zipFile) {
 }
 
 async function expandSelectedFile(file) {
-  if (isZipFile(file)) return unzipReceiptImages(file);
+  if (file.size === 0) throw new Error("空のファイルです。画像を選択してください。");
+  if (isZipFile(file)) {
+    if (file.size > MAX_ZIP_BYTES) throw new Error("ZIPファイルが大きすぎます（50 MiBまで）。");
+    return unzipReceiptImages(file);
+  }
+  if (file.size > MAX_IMAGE_BYTES) throw new Error("画像ファイルが大きすぎます（5 MiBまで）。");
   const bytes = new Uint8Array(await file.slice(0, 8).arrayBuffer());
   if (!isJpeg(bytes) && !isPng(bytes)) throw new Error("JPEGまたはPNG画像、またはZIPファイルを選択してください。");
   return [file];

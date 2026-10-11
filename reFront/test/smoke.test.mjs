@@ -40,7 +40,7 @@ test("analysis reports per-image progress and does not wait forever", () => {
 
 
 test("upload page cache-busts app.js so old upload code is not reused", () => {
-  assert.match(html, /<script src="\.\/app\.js\?v=20261007-server-gemini-key"><\/script>/);
+  assert.match(html, /<script src="\.\/app\.js\?v=20261011-zip-limits"><\/script>/);
 });
 
 test("frontend posts multipart data to the receipt endpoint", () => {
@@ -216,4 +216,44 @@ test("theme: base.css と10テーマのCSSがあり、フロントとバック�
 test("theme: すべてのページが theme.js を読み込む", async () => {
   const pages = ["../index.html", ...["admin/login", "admin/menu", "admin/upload", "admin/select", "game/index", "demo/index"].map((p) => `../../reBack/src/main/resources/static/${p}.html`)];
   for (const page of pages) assert.match(await readFile(new URL(page, import.meta.url), "utf8"), /<script src="(\.|\.\.)\/theme\/theme\.js"><\/script>/, page);
+});
+
+test("upload page limits file size, ZIP entries and decompressed size before sending", () => {
+  assert.match(js, /MAX_IMAGE_BYTES = 5 \* 1024 \* 1024/);
+  assert.match(js, /MAX_ZIP_ENTRIES = 50/);
+  assert.match(js, /MAX_ZIP_TOTAL_BYTES/);
+  assert.match(js, /uncompressedSize > MAX_IMAGE_BYTES/);
+  assert.match(js, /inflateRaw\(compressed, MAX_IMAGE_BYTES\)/);
+  assert.match(js, /file\.size === 0/);
+});
+
+test("login form limits input length in the browser and the server limit is mirrored", async () => {
+  const loginHtml = await readFile(new URL("../../reBack/src/main/resources/static/admin/login.html", import.meta.url), "utf8");
+  assert.match(loginHtml, /name="username"[^>]*maxlength="64"/);
+  assert.match(loginHtml, /name="password"[^>]*maxlength="128"/);
+  assert.match(loginJs, /username\.length > 64 \|\| password\.length > 128/);
+  assert.match(loginJs, /response\.status === 400/);
+});
+
+test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET methods", async () => {
+  const { spawn } = await import("node:child_process");
+  const child = spawn(process.execPath, [new URL("../server.mjs", import.meta.url).pathname], { stdio: "ignore" });
+  try {
+    await new Promise((resolve) => setTimeout(resolve, 800));
+    const get = (path, init = {}) => fetch(`http://localhost:5051${path}`, init).then((r) => r.status);
+    assert.equal(await get("/index.html"), 200);
+    assert.equal(await get("/.gitignore"), 404);
+    assert.equal(await get("/%E0%A4%A"), 400);
+    assert.equal(await get("/%00"), 400);
+    assert.equal(await get("/index.html", { method: "POST" }), 405);
+    const res = await new Promise((resolve) => {
+      import("node:http").then(({ request }) => {
+        const r = request({ host: "localhost", port: 5051, path: "/index.html", headers: { Host: "evil.example" } }, (m) => resolve(m.statusCode));
+        r.end();
+      });
+    });
+    assert.equal(res, 403);
+  } finally {
+    child.kill();
+  }
 });

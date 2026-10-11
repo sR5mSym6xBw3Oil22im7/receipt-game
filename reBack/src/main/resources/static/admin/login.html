@@ -21,11 +21,11 @@
       <form id="login-form">
         <div class="field">
           <label class="field-label" for="user-id">ユーザーID</label>
-          <input id="user-id" class="text-input" name="username" type="text" autocomplete="username" required>
+          <input id="user-id" class="text-input" name="username" type="text" autocomplete="username" maxlength="64" required>
         </div>
         <div class="field">
           <label class="field-label" for="password">パスワード</label>
-          <input id="password" class="text-input" name="password" type="password" autocomplete="current-password" required>
+          <input id="password" class="text-input" name="password" type="password" autocomplete="current-password" maxlength="128" required>
         </div>
         <button class="primary-button" type="submit">ログイン</button>
         <p id="login-status" class="status" aria-live="polite"></p>
@@ -34,6 +34,6 @@
   </main>
   <script src="./config.js?v=20261007-local-front-5051"></script>
   <script src="./admin-api.js?v=20261011-keep-href2"></script>
-  <script src="./login.js?v=20260924-login-destination-routing"></script>
+  <script src="./login.js?v=20261011-input-limits"></script>
 </body>
 </html>
