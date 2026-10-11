@@ -1,0 +1,16 @@
+/index.html                                          -> 200
+/../reBack/pom.xml                                   -> 404
+/%2e%2e/reBack/pom.xml                               -> 404
+/..%2freBack/pom.xml                                 -> 404
+/%2e%2e%2f%2e%2e%2fetc/passwd                        -> 404
+/....//....//etc/passwd                              -> 404
+//etc/passwd                                         -> 404
+/%00                                                 -> 404
+/.gitignore                                          -> 200
+/server.mjs                                          -> 200
+/test/smoke.test.mjs                                 -> 200
+/README.md                                           -> 200
+/theme/                                              -> 404
+--- Host ヘッダーを偽装しても localhost:5051 にしか bind しない（外部アドレスからは届かない）ことの確認
+LISTEN 0      511        127.0.0.1:5051       0.0.0.0:*   
+Host: evil.example -> 200

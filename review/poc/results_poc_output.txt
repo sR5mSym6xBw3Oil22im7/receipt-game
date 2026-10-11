@@ -1,0 +1,238 @@
+POC|CARD-TOTAL|total=-9223372036854775808 hp=-214748145 atk=60 def=-214748332 spd=55 luck=17 power=-257697840 rarity=N
+POC|CARD-TOTAL|total=-30000 hp=158 atk=60 def=39 spd=55 luck=17 power=192 rarity=N
+POC|CARD-TOTAL|total=-1 hp=295 atk=60 def=52 spd=55 luck=17 power=232 rarity=N
+POC|CARD-TOTAL|total=0 hp=295 atk=60 def=52 spd=55 luck=17 power=232 rarity=N
+POC|CARD-TOTAL|total=30000 hp=433 atk=60 def=66 spd=55 luck=17 power=274 rarity=N
+POC|CARD-TOTAL|total=9223372036854775807 hp=433 atk=60 def=66 spd=55 luck=17 power=274 rarity=N
+POC|CARD-OVERFLOW|hp=330 atk=80 power=243
+POC|CARD-CATEGORY-LEN|storeCategory.length=200 flavor.length=227
+POC|CARD-NULLITEM|ok=true
+POC|PII-REDOS|spaces=250 ms=478
+POC|PII-REDOS|spaces=500 ms=222
+POC|PII-REDOS|spaces=1000 ms=1161
+POC|PII-REDOS|spaces=2000 ms=8959
+POC|PII-REDOS-FULLWIDTH|spaces=500 ms=365
+POC|PII-REDOS-FULLWIDTH|spaces=1000 ms=2825
+POC|PII-EMAIL-QUADRATIC|chars=10000 ms=815
+POC|PII-EMAIL-QUADRATIC|chars=20000 ms=3089
+POC|PII-EMAIL-QUADRATIC|chars=40000 ms=12488
+POC|PII-EMAIL-QUADRATIC|chars=80000 ms=53369
+POC|SEC-LIMITER-MEM|5 x 1,000,000文字のユーザー名を保持（key.length>=1,000,000 each, 15分間）
+POC|PII-RECEIPTNO|receiptNumber=090-1234-5678 storeCategory=<img src=x onerror=alert(1)> itemCategory=<b>
+POC|SEC-SVG-COMMENT|isSafe=true
+POC|SEC-SVG-VARIANT|plain -> isSafe=true
+POC|SEC-SVG-VARIANT|xml-prolog -> isSafe=true
+POC|SEC-SVG-VARIANT|huge-width -> isSafe=true
+POC|SEC-SVG-VARIANT|dasharray-tiny -> isSafe=true
+POC|SEC-SVG-VARIANT|single-quote-attr -> isSafe=true
+POC|SEC-SVG-VARIANT|char-ref-in-attr -> isSafe=false
+POC|SEC-SVG-VARIANT|style-attr -> isSafe=false
+POC|SEC-SVG-VARIANT|href-attr -> isSafe=false
+POC|SEC-SVG-VARIANT|entity -> isSafe=false
+POC|SEC-SVG-VARIANT|cdata -> isSafe=false
+POC|SEC-SVG-NEST|len=28066 isSafe=true
+POC|SEC-SVG-MANY|len=29907 isSafe=true
+POC|PII|TEL 03-1234-5678                   -> TEL （非表示）                      masked=1
+POC|PII|TEL ０３－１２３４－５６７８                   -> TEL ０３－１２３４－５６７８               masked=0
+POC|PII|TEL 03‐1234‐5678                   -> TEL 03‐1234‐5678               masked=0
+POC|PII|TEL 03ー1234ー5678                   -> TEL 03ー1234ー5678               masked=0
+POC|PII|TEL 03.1234.5678                   -> TEL 03.1234.5678               masked=0
+POC|PII|TEL 03 1234 5678                   -> TEL （非表示）                      masked=1
+POC|PII|電話 0３-1234-5678                    -> 電話 （非表示）                       masked=1
+POC|PII|090-1234-5678                      -> （非表示）                          masked=1
+POC|PII|09012345678                        -> （非表示）                          masked=1
+POC|PII|０９０１２３４５６７８９                       -> ０９０１２３４５６７８９                   masked=0
+POC|PII|カード番号 4111 1111 1111 1111          -> （非表示）                          masked=1
+POC|PII|4111-1111-1111-1111                -> （非表示）                          masked=1
+POC|PII|4111·1111·1111·1111                -> 4111·1111·1111·1111            masked=0
+POC|PII|4111111111111111111111             -> 4111111111111111111111         masked=0
+POC|PII|会員番号 1234567                       -> （非表示）                          masked=1
+POC|PII|会員番号　１２３４５６７                       -> （非表示）                          masked=1
+POC|PII|会員No １２３４５６７                       -> （非表示）                          masked=1
+POC|PII|会員 No.12 34 56                     -> （非表示）                          masked=1
+POC|PII|お客様番号 1234567                      -> （非表示）番号 1234567                masked=1
+POC|PII|メンバーID 1234567                     -> メンバー（非表示）                      masked=1
+POC|PII|メンバーズカード 1234567                   -> メンバーズ（非表示）                     masked=1
+POC|PII|山田太郎様                              -> （非表示）                          masked=1
+POC|PII|山田 太郎 様                            -> 山田 太郎 様                        masked=0
+POC|PII|ご担当 佐藤                             -> ご担当 佐藤                         masked=0
+POC|PII|担当：鈴木                              -> 担当：鈴木                          masked=0
+POC|PII|お名前 山田太郎                           -> （非表示）                          masked=1
+POC|PII|東京都千代田区丸の内1-1-1                    -> （非表示）                          masked=1
+POC|PII|名古屋市中区栄3-1-1                       -> 名古屋市中区栄3-1-1                   masked=0
+POC|PII|大阪市北区梅田1-1                         -> 大阪市北区梅田1-1                     masked=0
+POC|PII|〒100-0001                          -> （非表示）                          masked=1
+POC|PII|１００－０００１                           -> １００－０００１                       masked=0
+POC|PII|foo＠example.com                    -> foo＠example.com                masked=0
+POC|PII|foo@example.com                    -> （非表示）                          masked=1
+POC|PII|foo (at) example.com               -> foo (at) example.com           masked=0
+POC|SEC-LOCK-DOS|adminLockedAfter5Failures=true
+POC|SEC-LOCK-EVICT|adminAcceptedAfterFlood=true
+POC|MATRIX|GET    /api/health                                                    -> 200
+POC|MATRIX|GET    /api/auth/session                                              -> 200
+POC|MATRIX|GET    /api/auth/csrf                                                 -> 200
+POC|MATRIX|GET    /api/receipts                                                  -> 401
+POC|MATRIX|POST   /api/receipts/save                                             -> 401
+POC|MATRIX|POST   /api/receipts/analyze                                          -> 401
+POC|MATRIX|GET    /api/receipts/receipt_00000000000000000000000000000000         -> 401
+POC|MATRIX|DELETE /api/receipts/receipt_00000000000000000000000000000000         -> 401
+POC|MATRIX|POST   /api/auth/logout                                               -> 403
+POC|MATRIX|GET    /api/unknown                                                   -> 401
+POC|MATRIX|GET    /actuator/health                                               -> 404
+POC|MATRIX|GET    /error                                                         -> 500
+POC|MATRIX|GET    /admin/login.html                                              -> 200
+POC|MATRIX|GET    /admin/menu.html                                               -> 302
+POC|MATRIX|GET    /admin/upload.html                                             -> 302
+POC|MATRIX|GET    /admin/app.js                                                  -> 302
+POC|MATRIX|GET    /admin/config.js                                               -> 200
+POC|MATRIX|GET    /admin/admin-api.js                                            -> 200
+POC|MATRIX|GET    /admin/select.js                                               -> 302
+POC|MATRIX|GET    /admin/styles.css                                              -> 200
+POC|MATRIX|GET    /game/index.html                                               -> 200
+POC|MATRIX|GET    /game/game.js                                                  -> 200
+POC|MATRIX|GET    /demo/index.html                                               -> 200
+POC|MATRIX|GET    /theme/theme.js                                                -> 200
+POC|MATRIX|GET    /index.html                                                    -> 404
+POC|MATRIX|GET    /                                                              -> 404
+POC|MATRIX|GET    /application.yml                                               -> 404
+POC|MATRIX|GET    /application-local.yml                                         -> 404
+POC|MATRIX|GET    /.env                                                          -> 404
+POC|MATRIX|GET    /API/receipts                                                  -> 404
+POC|MATRIX|GET    /api/receipts/                                                 -> 401
+POC|MATRIX|GET    /api//receipts                                                 -> 400
+POC|MATRIX|GET    /api/receipts;x=1                                              -> 400
+POC|MATRIX|GET    /api/receipts/%2e%2e/health                                    -> 400
+POC|MATRIX|GET    /api/monster/rooms/../../receipts                              -> 400
+POC|MATRIX|GET    /admin/../api/receipts                                         -> 400
+POC|MATRIX|GET    /api/receipts.json                                             -> 401
+POC|MATRIX|GET    /admin;jsessionid=x/menu.html                                  -> 400
+POC|MATRIX|GET    /%61pi/receipts                                                -> 401
+POC|HEADERS|/game/index.html {accept-ranges=[bytes], cache-control=[no-cache, no-store, max-age=0, must-revalidate], content-length=[8875], content-type=[text/html], date=[Sun, 11 Oct 2026 06:30:54 GMT], expires=[0], last-modified=[Sun, 11 Oct 2026 06:15:51 GMT], pragma=[no-cache], x-content-type-options=[nosniff], x-frame-options=[DENY], x-xss-protection=[0]}
+POC|HEADERS|/api/auth/csrf {cache-control=[no-cache, no-store, max-age=0, must-revalidate], content-length=[48], content-type=[application/json], date=[Sun, 11 Oct 2026 06:30:54 GMT], expires=[0], pragma=[no-cache], set-cookie=[XSRF-TOKEN=ab2e9c7b-1111-4cdb-bf2b-f2683eafd6f9; Path=/; Secure; HttpOnly; SameSite=Lax], x-content-type-options=[nosniff], x-frame-options=[DENY], x-xss-protection=[0]}
+POC|HEADERS|/api/monster/rooms/ABCDEF 404 {cache-control=[no-cache, no-store, max-age=0, must-revalidate], content-type=[application/json], date=[Sun, 11 Oct 2026 06:30:54 GMT], expires=[0], pragma=[no-cache], transfer-encoding=[chunked], x-content-type-options=[nosniff], x-frame-options=[DENY], x-xss-protection=[0]}
+POC|CSRF|login without token -> 403
+POC|CSRF|unauthenticated POST /api/receipts/save (no token) -> 401
+POC|CSRF|unauthenticated DELETE (no token) -> 401
+POC|CSRF|monster create without any token/cookie -> 200
+POC|COOKIE|csrf Set-Cookie=[XSRF-TOKEN=8c2f7c3a-989a-4f85-8853-cc8851464d5e; Path=/; Secure; HttpOnly; SameSite=Lax]
+POC|FIXATION|login=200 Set-Cookie=[JSESSIONID=D721D100E7063FC4C094852462FA1388; Path=/; Secure; HttpOnly; SameSite=Lax, XSRF-TOKEN=; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/; Secure; HttpOnly; SameSite=Lax] jarJSESSIONID=D721D100E7063FC4C094852462FA1388
+POC|SESSION|session body={"username":"poc-admin","authenticated":true}
+POC|FIXATION|request with fixed id -> /api/receipts 401
+POC|CSRF|admin POST /api/receipts/save no token -> 403
+POC|CSRF|admin POST /api/receipts/save wrong token -> 403
+POC|LOGOUT|status=204 Set-Cookie=[XSRF-TOKEN=; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/; Secure; HttpOnly; SameSite=Lax] /api/receipts after logout with old cookie -> 401
+POC|LOGIN-INPUT|                                                             -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:30:55.197287731+09:00"}
+POC|LOGIN-INPUT|null                                                         -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:30:55.206647416+09:00"}
+POC|LOGIN-INPUT|[]                                                           -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:30:55.214395297+09:00"}
+POC|LOGIN-INPUT|{}                                                           -> 401 
+POC|LOGIN-INPUT|{"username":null,"password":null}                            -> 401 
+POC|LOGIN-INPUT|{"username":123,"password":true}                             -> 401 
+POC|LOGIN-INPUT|{"username":"poc-admin"}                                     -> 401 
+POC|LOGIN-INPUT|not json                                                     -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:30:55.312990648+09:00"}
+POC|LOGIN-INPUT|{"username":"poc-admin","password":"pppp...(100038chars)     -> 401 
+POC|LOGIN-INPUT|Content-Type text/plain -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:30:55.397694424+09:00"}
+POC|LOGIN-HUGE|5M文字のusername -> status=401 ms=147
+POC|LOGIN-HUGE|25M文字のusername -> status=401 ms=345
+POC|LOGIN-HUGE|limiterが保持しているキー数=5 合計文字数=30000012
+POC|SEC-LOCK-DOS|5回失敗後に正しいパスワードで -> 429
+POC|ENUM|実在しないユーザー名も6回目は 429 body={"message":"ログインの失敗が続いたため、しばらくしてから再度お試しください。"} / 実在: 429 body={"message":"ログインの失敗が続いたため、しばらくしてから再度お試しください。"}
+POC|ENUM-TIMING|avg ms real-name=6 fake-name=69 (※実在名は先にロックされるため2回目以降は429で短い点に注意)
+POC|BCRYPT|72バイトのハッシュに100バイトの入力 matches=true
+POC|TABLENAME|receipt_00000000000000000000000000000000         GET=404(RECEIPT_NOT_FOUND) DELETE=404(RECEIPT_NOT_FOUND)
+POC|TABLENAME|receipt_ABCDEF00000000000000000000000000         GET=500(UNSAFE_TABLE_NAME) DELETE=500(UNSAFE_TABLE_NAME)
+POC|TABLENAME|x                                                GET=500(UNSAFE_TABLE_NAME) DELETE=500(UNSAFE_TABLE_NAME)
+POC|TABLENAME|receipt_0'; DROP TABLE x;-- EXC IllegalArgumentException
+POC|TABLENAME|..%2f..%2fetc                                    GET=400(-) DELETE=400(-)
+POC|TABLENAME|%00                                              GET=400(-) DELETE=400(-)
+POC|TABLENAME|receipt_0000000000000000000000000000000%0a       GET=400(-) DELETE=400(-)
+POC|TABLENAME|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa GET=500(UNSAFE_TABLE_NAME) DELETE=500(UNSAFE_TABLE_NAME)
+POC|SAVE|lines=null                       -> 400 EMPTY_RECEIPT {"code":"EMPTY_RECEIPT","message":"レシートデータが空です。","timestamp":"2026-10-11T15:30:57.123068879+09:00"} (24ms)
+POC|SAVE|lines=[]                         -> 400 EMPTY_RECEIPT {"code":"EMPTY_RECEIPT","message":"レシートデータが空です。","timestamp":"2026-10-11T15:30:57.131948596+09:00"} (6ms)
+POC|SAVE|lines=[null]                     -> 400 EMPTY_RECEIPT {"code":"EMPTY_RECEIPT","message":"レシートデータが空です。","timestamp":"2026-10-11T15:30:57.140115843+09:00"} (6ms)
+POC|SAVE|lines=['  ']                     -> 200 OK (37ms)
+POC|SAVE|lines が文字列(型違い)                  -> 500 INTERNAL_ERROR {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:30:57.188148223+09:00"} (7ms)
+POC|SAVE|lines=[1,2]                      -> 200 OK (16ms)
+POC|SAVE|lines=[NUL含む]                    -> 200 OK (14ms)
+POC|SAVE|lines=[制御文字/改行]                  -> 200 OK (14ms)
+POC|SAVE|lines=[絵文字]                      -> 200 OK (18ms)
+POC|SAVE|lines=[英数字だけの1行 30,000文字]        -> 200 OK (20373ms)
+POC|SAVE|structured=null                  -> 200 OK (14ms)
+POC|SAVE|structured={} (全項目null)          -> 200 OK (14ms)
+POC|SAVE|storeName 300文字                  -> 503 DATABASE_ERROR {"code":"DATABASE_ERROR","message":"PostgreSQLとの通信に失敗しました。時間をおいて再度保存してください。","timestamp":"2026-10-11T15:31:17.692324847+09:00"} (23ms)
+POC|SAVE|storeCategory 100文字              -> 503 DATABASE_ERROR {"code":"DATABASE_ERROR","message":"PostgreSQLとの通信に失敗しました。時間をおいて再度保存してください。","timestamp":"2026-10-11T15:31:17.706932693+09:00"} (12ms)
+POC|SAVE|storeCategory=HTML               -> 200 OK (16ms)
+POC|SAVE|items=[null]                     -> 200 OK (20ms)
+POC|SAVE|items name=null                  -> 200 OK (20ms)
+POC|SAVE|amount 負                         -> 200 OK (13ms)
+POC|SAVE|amount=Long.MAX                  -> 200 OK (13ms)
+POC|SAVE|amount が小数                       -> 200 OK (15ms)
+POC|SAVE|amount が文字列                      -> 500 INTERNAL_ERROR {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:17.826235105+09:00"} (6ms)
+POC|SAVE|quantity 1e30                    -> 503 DATABASE_ERROR {"code":"DATABASE_ERROR","message":"PostgreSQLとの通信に失敗しました。時間をおいて再度保存してください。","timestamp":"2026-10-11T15:31:17.843965527+09:00"} (15ms)
+POC|SAVE|quantity 1E999999999             -> 503 DATABASE_ERROR {"code":"DATABASE_ERROR","message":"PostgreSQLとの通信に失敗しました。時間をおいて再度保存してください。","timestamp":"2026-10-11T15:31:17.860365747+09:00"} (15ms)
+POC|SAVE|purchasedAt 不正                   -> 500 INTERNAL_ERROR {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:17.872661618+09:00"} (9ms)
+POC|SAVE|purchasedAt 年99999               -> 200 OK (23ms)
+POC|SAVE|sha256 大文字                       -> 200 OK (15ms)
+POC|SAVE|sha256 63桁                       -> 400 INVALID_IMAGE_HASH {"code":"INVALID_IMAGE_HASH","message":"画像ハッシュ値が不正です。","timestamp":"2026-10-11T15:31:17.922301486+09:00"} (7ms)
+POC|SAVE|sha256 null                      -> 400 INVALID_IMAGE_HASH {"code":"INVALID_IMAGE_HASH","message":"画像ハッシュ値が不正です。","timestamp":"2026-10-11T15:31:17.92911006+09:00"} (6ms)
+POC|SAVE|sha256 未予約(解析していない)              -> 409 DUPLICATE_RECEIPT_IMAGE {"code":"DUPLICATE_RECEIPT_IMAGE","message":"同じレシート画像は既に登録されています。","timestamp":"2026-10-11T15:31:17.93876241+09:00"} (11ms)
+POC|SAVE|PII: 氏名+電話+カード                   -> 200 OK (12ms)
+POC|SAVE|壊れたJSON -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:17.960868539+09:00"}
+POC|SAVE|Content-Type text/plain -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:17.968829751+09:00"}
+POC|SAVE|空ボディ -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:17.974736312+09:00"}
+POC|SAVE|200000行 -> 200 {"tableName":"receipt_856e7fd22f9d40a89d8d3567e1fefed1","lineCount":200000,"lines":["x0","x1","x2","x3","x4","x5","x6","x7","x8","x9","x10",... (2890ms)
+POC|UPLOAD|analyze: 中身が画像でない + Content-Type=image/png -> 200 analyzerCalls=1
+POC|UPLOAD|analyze: Content-Type=image/gif -> 415 UNSUPPORTED_MEDIA_TYPE
+POC|UPLOAD|analyze: 空ファイル -> 400 EMPTY_FILE
+POC|UPLOAD|analyze: 6MiB -> HTTP/1.1 500  (送信中に切断 sent=4718592)
+POC|UPLOAD|analyze: boundaryなし -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:21.983928906+09:00"}
+POC|UPLOAD|analyze: Content-Type=json -> 500 {"code":"INTERNAL_ERROR","message":"サーバー内部でエラーが発生しました。","timestamp":"2026-10-11T15:31:21.997352472+09:00"}
+POC|MONSTER|create -> 200 keys=[code, seat, token, room] tokenLen=43 code=NREXS7
+POC|MONSTER|join -> 200 seat=P2
+POC|MONSTER|3人目のjoin -> 409 ROOM_NOT_JOINABLE
+POC|MONSTER-AUTHZ|GET state token無=403 誤り=403 別ルームの席=403
+POC|MONSTER-AUTHZ|GET /field token無=403 誤り=403 別ルームの席=403
+POC|MONSTER-AUTHZ|GET /battle token無=403 誤り=403 別ルームの席=403
+POC|MONSTER-AUTHZ|POST /shuffle token無=403 別ルームの席=403
+POC|MONSTER-AUTHZ|POST /leave token無=403 別ルームの席=403
+POC|MONSTER-AUTHZ|flip token無=403 select token無=403 rematch token無=403
+POC|MONSTER-ORACLE|存在するルーム(token無)=403 存在しない=404 形式不正=400
+POC|MONSTER-FLIP|{"index":0}              -> 200 -
+POC|MONSTER-FLIP|{"index":-1}             -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|{"index":999}            -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|{"index":"0"}            -> 409 ALREADY_FLIPPED
+POC|MONSTER-FLIP|{"index":1.5}            -> 200 -
+POC|MONSTER-FLIP|{"index":99999999999}    -> 500 INTERNAL_ERROR
+POC|MONSTER-FLIP|{}                       -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|null                     -> 500 INTERNAL_ERROR
+POC|MONSTER-FLIP|                         -> 500 INTERNAL_ERROR
+POC|MONSTER-FLIP|[0]                      -> 500 INTERNAL_ERROR
+POC|MONSTER-FLIP|{"index":null}           -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|Content-Type無し -> 500
+POC|MONSTER-FIELD|P1の配布数=9 handLimit=3 応答に sha/table 文字列を含む=true
+POC|MONSTER-FIELD|最初のレシートの項目=[storeCategory, storeName, branchName, purchasedAt, receiptNumber, items, totalAmount, paymentMethod]
+POC|MONSTER-SELECT|P1がP2の手札カードIDをselect -> 400 CARD_NOT_IN_HAND
+POC|MONSTER-SELECT|存在しないカードID -> 400 CARD_NOT_IN_HAND
+POC|MONSTER-RACE|同時flip(5本)の結果=[409, 409, 409, 409, 200] 最終手札枚数=3
+POC|MONSTER-RACE|同時select -> 200,200
+POC|MONSTER-BATTLE|battle -> 200 keys=[round, battleSeed, first, log, winner, reason, finalHp, cards, receipts, mode, cpuReason]
+POC|MONSTER-BATTLE|相手に見えるレシート項目=[storeCategory, storeName, branchName, purchasedAt, receiptNumber, items, totalAmount, paymentMethod] receiptNumber=null branchName=null
+POC|MONSTER-STATE|対戦後の flip=409 select=409 shuffle=409
+POC|MONSTER-STATE|rematch(現在round) -> 200 status="SELECTING"
+POC|MONSTER-STATE|rematch(古いround) -> 200
+POC|MONSTER-STATE|leave -> 204 leave後のstate=200
+POC|MONSTER-IMAGE|画像でないファイル(P1のみ・SELECTINGでない) -> 415 UNSUPPORTED_MEDIA_TYPE
+POC|MONSTER-IMAGE|token誤り + 6MiB -> HTTP/1.1 500  (送信中に切断 sent=4784128)
+POC|MONSTER-IMAGE|存在しないルーム + 4.9MB(認証前に全量受信される) -> HTTP/1.1 404  46ms
+POC|MONSTER-IMAGE|10MB超 -> HTTP/1.1 500  (送信中に切断 sent=4784128)
+POC|RATELIMIT|同一XFFで7回create=[200, 200, 200, 200, 200, 429, 429]
+POC|RATELIMIT|XFFを変えながら12回create=[200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]
+POC|RATELIMIT|先頭を偽装・末尾固定で7回create=[200, 200, 200, 200, 200, 429, 429]
+POC|RATELIMIT|joinを12回=[404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 429, 429]
+POC|RATELIMIT|XFFなし=200 XFF='  '=200
+POC|REDIRECT|status=302 Location=http://localhost:44133/admin/login.html HSTS(X-Forwarded-Proto:https付き)=なし
+POC|HSTS|/api/health with X-Forwarded-Proto:https -> なし / Referrer-Policy=なし / CSP=なし / Permissions-Policy=なし
+POC|CORS|preflight from evil origin -> 200 ACAO=なし
+POC|CORS|simple GET with Origin -> 200 ACAO=なし
+POC|SEC-IMGBOMB|pngBytes=17582 pixels=144000000 (upload limit 5MiB)
+POC|SEC-IMGBOMB|-Xmx128m exit=0 output=THROWN java.lang.OutOfMemoryError
+POC|SEC-IMGBOMB|-Xmx256m exit=0 output=THROWN java.lang.OutOfMemoryError
