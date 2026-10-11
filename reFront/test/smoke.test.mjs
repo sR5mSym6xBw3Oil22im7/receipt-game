@@ -5,12 +5,12 @@ import { readFile } from "node:fs/promises";
 const html = await readFile(new URL("../../reBack/src/main/resources/static/admin/upload.html", import.meta.url), "utf8");
 const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const select = await readFile(new URL("../../reBack/src/main/resources/static/admin/select.html", import.meta.url), "utf8");
-const js = await readFile(new URL("../app.js", import.meta.url), "utf8");
-const selectJs = await readFile(new URL("../select.js", import.meta.url), "utf8");
+const js = await readFile(new URL("../../reBack/src/main/resources/static/admin/app.js", import.meta.url), "utf8");
+const selectJs = await readFile(new URL("../../reBack/src/main/resources/static/admin/select.js", import.meta.url), "utf8");
 const config = await readFile(new URL("../config.js", import.meta.url), "utf8");
 const indexJs = await readFile(new URL("../index.js", import.meta.url), "utf8");
-const adminApi = await readFile(new URL("../admin-api.js", import.meta.url), "utf8");
-const loginJs = await readFile(new URL("../login.js", import.meta.url), "utf8");
+const adminApi = await readFile(new URL("../../reBack/src/main/resources/static/admin/admin-api.js", import.meta.url), "utf8");
+const loginJs = await readFile(new URL("../../reBack/src/main/resources/static/admin/login.js", import.meta.url), "utf8");
 
 test("frontend accepts JPEG, PNG, and ZIP", () => {
   assert.match(html, /accept="image\/jpeg,image\/png,\.zip,application\/zip"/);
@@ -150,8 +150,8 @@ test("select page loads receipt list and detail bubble", () => {
   assert.match(select, /チェックしたレシートを削除/);
 });
 
-test("reFront copies of admin scripts match the files served by Backend", async () => {
-  for (const name of ["app.js", "select.js", "login.js", "admin-api.js", "config.js"]) {
+test("reFront config.js matches Backend config.js apart from menu URLs", async () => {
+  for (const name of ["config.js"]) {
     const front = await readFile(new URL(`../${name}`, import.meta.url), "utf8");
     const back = await readFile(new URL(`../../reBack/src/main/resources/static/admin/${name}`, import.meta.url), "utf8");
     // reFront/config.js だけは、メニュー用の DEMO_URL / GAME_URL の2行が多い（意図した差）

@@ -17,7 +17,6 @@
 | `server.mjs` | ローカル確認用の静的ファイルサーバー（`http://localhost:5051`） |
 | `config.js` | 接続先URL（`window.APP_CONFIG`）の設定と、背景や見出しの装飾（金貨のSVG）の描画 |
 | `styles.css` | 画面共通のスタイル |
-| `app.js` / `select.js` / `login.js` / `admin-api.js` | 管理画面のスクリプト。バックエンド側の同名ファイルと同じ内容です。 |
 | `test/smoke.test.mjs` | HTMLとスクリプトの内容を検査するテスト |
 
 ## 接続先
@@ -43,10 +42,6 @@
 - すべての画像の解析が成功すると「PostgreSQLへ保存」ボタンが表示されます。
 - Gemini APIキーの未設定・無効・上限超過のエラーでは、バックエンドの `.env` の `GEMINI_API_KEY` の確認や、時間をおいての再解析を案内します。
 - 管理APIの呼び出しには `admin-api.js` の `adminFetch` を使い、POST・DELETEの要求にCSRFトークンを付けます。
-
-## 管理画面スクリプトの同期
-
-`app.js`、`select.js`、`login.js`、`admin-api.js` は、`reBack/src/main/resources/static/admin/` の同名ファイルと同じ内容に保ってください。ブラウザーに配信されるのはバックエンド側のファイルです。
 
 ## テスト
 
