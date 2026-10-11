@@ -7,6 +7,7 @@ import com.example.receipt.dto.ReceiptDetail;
 import com.example.receipt.dto.ReceiptSummary;
 import com.example.receipt.repository.ReceiptTableRepository;
 import com.example.receipt.service.ReceiptService;
+import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,7 +58,7 @@ public class ReceiptController {
 
     @PostMapping(value = "/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ReceiptUploadResponse> save(
-            @RequestBody ReceiptSaveRequest request) {
+            @Valid @RequestBody ReceiptSaveRequest request) {
         return ResponseEntity.ok(receiptService.store(request.lines(), request.sha256(), request.structuredData()));
     }
 }

@@ -1,0 +1,238 @@
+POC|CARD-TOTAL|total=-9223372036854775808 hp=295 atk=60 def=52 spd=55 luck=17 power=232 rarity=N
+POC|CARD-TOTAL|total=-30000 hp=295 atk=60 def=52 spd=55 luck=17 power=232 rarity=N
+POC|CARD-TOTAL|total=-1 hp=295 atk=60 def=52 spd=55 luck=17 power=232 rarity=N
+POC|CARD-TOTAL|total=0 hp=295 atk=60 def=52 spd=55 luck=17 power=232 rarity=N
+POC|CARD-TOTAL|total=30000 hp=433 atk=60 def=66 spd=55 luck=17 power=274 rarity=N
+POC|CARD-TOTAL|total=9223372036854775807 hp=433 atk=60 def=66 spd=55 luck=17 power=274 rarity=N
+POC|CARD-OVERFLOW|hp=467 atk=80 power=282
+POC|CARD-CATEGORY-LEN|storeCategory.length=3 flavor.length=30
+POC|CARD-NULLITEM|ok=true
+POC|PII-REDOS|spaces=250 ms=8
+POC|PII-REDOS|spaces=500 ms=2
+POC|PII-REDOS|spaces=1000 ms=3
+POC|PII-REDOS|spaces=2000 ms=9
+POC|PII-REDOS-FULLWIDTH|spaces=500 ms=3
+POC|PII-REDOS-FULLWIDTH|spaces=1000 ms=4
+POC|PII-EMAIL-QUADRATIC|chars=10000 ms=77
+POC|PII-EMAIL-QUADRATIC|chars=20000 ms=130
+POC|PII-EMAIL-QUADRATIC|chars=40000 ms=107
+POC|PII-EMAIL-QUADRATIC|chars=80000 ms=169
+POC|SEC-LIMITER-MEM|5 x 1,000,000文字のユーザー名を保持（key.length>=1,000,000 each, 15分間）
+POC|PII-RECEIPTNO|receiptNumber=（非表示） storeCategory=<img src=x onerror=alert(1)> itemCategory=<b>
+POC|SEC-SVG-COMMENT|isSafe=false
+POC|SEC-SVG-VARIANT|plain -> isSafe=true
+POC|SEC-SVG-VARIANT|xml-prolog -> isSafe=true
+POC|SEC-SVG-VARIANT|huge-width -> isSafe=false
+POC|SEC-SVG-VARIANT|dasharray-tiny -> isSafe=false
+POC|SEC-SVG-VARIANT|single-quote-attr -> isSafe=true
+POC|SEC-SVG-VARIANT|char-ref-in-attr -> isSafe=false
+POC|SEC-SVG-VARIANT|style-attr -> isSafe=false
+POC|SEC-SVG-VARIANT|href-attr -> isSafe=false
+POC|SEC-SVG-VARIANT|entity -> isSafe=false
+POC|SEC-SVG-VARIANT|cdata -> isSafe=false
+POC|SEC-SVG-NEST|len=28066 isSafe=false
+POC|SEC-SVG-MANY|len=29907 isSafe=false
+POC|PII|TEL 03-1234-5678                   -> TEL （非表示）                      masked=1
+POC|PII|TEL ０３－１２３４－５６７８                   -> TEL （非表示）                      masked=1
+POC|PII|TEL 03‐1234‐5678                   -> TEL （非表示）                      masked=1
+POC|PII|TEL 03ー1234ー5678                   -> TEL （非表示）                      masked=1
+POC|PII|TEL 03.1234.5678                   -> TEL （非表示）                      masked=1
+POC|PII|TEL 03 1234 5678                   -> TEL （非表示）                      masked=1
+POC|PII|電話 0３-1234-5678                    -> 電話 （非表示）                       masked=1
+POC|PII|090-1234-5678                      -> （非表示）                          masked=1
+POC|PII|09012345678                        -> （非表示）                          masked=1
+POC|PII|０９０１２３４５６７８９                       -> ０９０１２３４５６７８９                   masked=0
+POC|PII|カード番号 4111 1111 1111 1111          -> （非表示）                          masked=1
+POC|PII|4111-1111-1111-1111                -> （非表示）                          masked=1
+POC|PII|4111·1111·1111·1111                -> （非表示）                          masked=1
+POC|PII|4111111111111111111111             -> 4111111111111111111111         masked=0
+POC|PII|会員番号 1234567                       -> （非表示）                          masked=1
+POC|PII|会員番号　１２３４５６７                       -> （非表示）                          masked=1
+POC|PII|会員No １２３４５６７                       -> （非表示）                          masked=1
+POC|PII|会員 No.12 34 56                     -> （非表示）                          masked=1
+POC|PII|お客様番号 1234567                      -> （非表示）                          masked=1
+POC|PII|メンバーID 1234567                     -> メンバー（非表示）                      masked=1
+POC|PII|メンバーズカード 1234567                   -> メンバーズ（非表示）                     masked=1
+POC|PII|山田太郎様                              -> （非表示）                          masked=1
+POC|PII|山田 太郎 様                            -> （非表示）                          masked=1
+POC|PII|ご担当 佐藤                             -> （非表示）                          masked=1
+POC|PII|担当：鈴木                              -> （非表示）                          masked=1
+POC|PII|お名前 山田太郎                           -> （非表示）                          masked=1
+POC|PII|東京都千代田区丸の内1-1-1                    -> （非表示）                          masked=1
+POC|PII|名古屋市中区栄3-1-1                       -> 名古屋市中区栄3-1-1                   masked=0
+POC|PII|大阪市北区梅田1-1                         -> 大阪市北区梅田1-1                     masked=0
+POC|PII|〒100-0001                          -> （非表示）                          masked=1
+POC|PII|１００－０００１                           -> （非表示）                          masked=1
+POC|PII|foo＠example.com                    -> （非表示）                          masked=1
+POC|PII|foo@example.com                    -> （非表示）                          masked=1
+POC|PII|foo (at) example.com               -> foo (at) example.com           masked=0
+POC|SEC-LOCK-DOS|adminLockedAfter5Failures=true
+POC|SEC-LOCK-EVICT|adminAcceptedAfterFlood=false
+POC|MATRIX|GET    /api/health                                                    -> 200
+POC|MATRIX|GET    /api/auth/session                                              -> 200
+POC|MATRIX|GET    /api/auth/csrf                                                 -> 200
+POC|MATRIX|GET    /api/receipts                                                  -> 401
+POC|MATRIX|POST   /api/receipts/save                                             -> 401
+POC|MATRIX|POST   /api/receipts/analyze                                          -> 401
+POC|MATRIX|GET    /api/receipts/receipt_00000000000000000000000000000000         -> 401
+POC|MATRIX|DELETE /api/receipts/receipt_00000000000000000000000000000000         -> 401
+POC|MATRIX|POST   /api/auth/logout                                               -> 403
+POC|MATRIX|GET    /api/unknown                                                   -> 401
+POC|MATRIX|GET    /actuator/health                                               -> 404
+POC|MATRIX|GET    /error                                                         -> 500
+POC|MATRIX|GET    /admin/login.html                                              -> 200
+POC|MATRIX|GET    /admin/menu.html                                               -> 302
+POC|MATRIX|GET    /admin/upload.html                                             -> 302
+POC|MATRIX|GET    /admin/app.js                                                  -> 302
+POC|MATRIX|GET    /admin/config.js                                               -> 200
+POC|MATRIX|GET    /admin/admin-api.js                                            -> 200
+POC|MATRIX|GET    /admin/select.js                                               -> 302
+POC|MATRIX|GET    /admin/styles.css                                              -> 200
+POC|MATRIX|GET    /game/index.html                                               -> 200
+POC|MATRIX|GET    /game/game.js                                                  -> 200
+POC|MATRIX|GET    /demo/index.html                                               -> 200
+POC|MATRIX|GET    /theme/theme.js                                                -> 200
+POC|MATRIX|GET    /index.html                                                    -> 404
+POC|MATRIX|GET    /                                                              -> 404
+POC|MATRIX|GET    /application.yml                                               -> 404
+POC|MATRIX|GET    /application-local.yml                                         -> 404
+POC|MATRIX|GET    /.env                                                          -> 404
+POC|MATRIX|GET    /API/receipts                                                  -> 404
+POC|MATRIX|GET    /api/receipts/                                                 -> 401
+POC|MATRIX|GET    /api//receipts                                                 -> 400
+POC|MATRIX|GET    /api/receipts;x=1                                              -> 400
+POC|MATRIX|GET    /api/receipts/%2e%2e/health                                    -> 400
+POC|MATRIX|GET    /api/monster/rooms/../../receipts                              -> 400
+POC|MATRIX|GET    /admin/../api/receipts                                         -> 400
+POC|MATRIX|GET    /api/receipts.json                                             -> 401
+POC|MATRIX|GET    /admin;jsessionid=x/menu.html                                  -> 400
+POC|MATRIX|GET    /%61pi/receipts                                                -> 401
+POC|HEADERS|/game/index.html {accept-ranges=[bytes], cache-control=[no-cache, no-store, max-age=0, must-revalidate], content-length=[8875], content-security-policy=[default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'], content-type=[text/html], date=[Sun, 11 Oct 2026 07:04:15 GMT], expires=[0], last-modified=[Sun, 11 Oct 2026 07:04:02 GMT], permissions-policy=[camera=(), microphone=(), geolocation=()], pragma=[no-cache], referrer-policy=[no-referrer], x-content-type-options=[nosniff], x-frame-options=[DENY], x-xss-protection=[0]}
+POC|HEADERS|/api/auth/csrf {cache-control=[no-cache, no-store, max-age=0, must-revalidate], content-length=[48], content-security-policy=[default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'], content-type=[application/json], date=[Sun, 11 Oct 2026 07:04:15 GMT], expires=[0], permissions-policy=[camera=(), microphone=(), geolocation=()], pragma=[no-cache], referrer-policy=[no-referrer], set-cookie=[XSRF-TOKEN=1abbcbfc-8842-4c23-8c6e-f2c1e5145d5e; Path=/; Secure; HttpOnly; SameSite=Lax], x-content-type-options=[nosniff], x-frame-options=[DENY], x-xss-protection=[0]}
+POC|HEADERS|/api/monster/rooms/ABCDEF 403 {cache-control=[no-cache, no-store, max-age=0, must-revalidate], content-security-policy=[default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'], content-type=[application/json], date=[Sun, 11 Oct 2026 07:04:15 GMT], expires=[0], permissions-policy=[camera=(), microphone=(), geolocation=()], pragma=[no-cache], referrer-policy=[no-referrer], transfer-encoding=[chunked], x-content-type-options=[nosniff], x-frame-options=[DENY], x-xss-protection=[0]}
+POC|CSRF|login without token -> 403
+POC|CSRF|unauthenticated POST /api/receipts/save (no token) -> 401
+POC|CSRF|unauthenticated DELETE (no token) -> 401
+POC|CSRF|monster create without any token/cookie -> 200
+POC|COOKIE|csrf Set-Cookie=[XSRF-TOKEN=c14be5a8-0050-4a3a-9244-94481053cb4a; Path=/; Secure; HttpOnly; SameSite=Lax]
+POC|FIXATION|login=200 Set-Cookie=[JSESSIONID=49D63BBF673EB01344E2BC2904116199; Path=/; Secure; HttpOnly; SameSite=Lax, XSRF-TOKEN=; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/; Secure; HttpOnly; SameSite=Lax] jarJSESSIONID=49D63BBF673EB01344E2BC2904116199
+POC|SESSION|session body={"username":"poc-admin","authenticated":true}
+POC|FIXATION|request with fixed id -> /api/receipts 401
+POC|CSRF|admin POST /api/receipts/save no token -> 403
+POC|CSRF|admin POST /api/receipts/save wrong token -> 403
+POC|LOGOUT|status=204 Set-Cookie=[XSRF-TOKEN=; Expires=Thu, 01 Jan 1970 00:00:10 GMT; Path=/; Secure; HttpOnly; SameSite=Lax] /api/receipts after logout with old cookie -> 401
+POC|LOGIN-INPUT|                                                             -> 400 
+POC|LOGIN-INPUT|null                                                         -> 400 
+POC|LOGIN-INPUT|[]                                                           -> 400 
+POC|LOGIN-INPUT|{}                                                           -> 400 
+POC|LOGIN-INPUT|{"username":null,"password":null}                            -> 400 
+POC|LOGIN-INPUT|{"username":123,"password":true}                             -> 401 
+POC|LOGIN-INPUT|{"username":"poc-admin"}                                     -> 400 
+POC|LOGIN-INPUT|not json                                                     -> 400 
+POC|LOGIN-INPUT|{"username":"poc-admin","password":"pppp...(100038chars)     -> 400 
+POC|LOGIN-INPUT|Content-Type text/plain -> 415 {"code":"UNSUPPORTED_MEDIA_TYPE","message":"Content-Typeが正しくありません。","timestamp":"2026-10-11T16:04:16.403924762+09:00"}
+POC|LOGIN-HUGE|5M文字のusername -> status=400 ms=102
+POC|LOGIN-HUGE|25M文字のusername -> status=400 ms=390
+POC|LOGIN-HUGE|limiterが保持しているキー数=1 合計文字数=64
+POC|SEC-LOCK-DOS|5回失敗後に正しいパスワードで -> 429
+POC|ENUM|実在しないユーザー名も6回目は 429 body={"message":"ログインの失敗が続いたため、しばらくしてから再度お試しください。"} / 実在: 429 body={"message":"ログインの失敗が続いたため、しばらくしてから再度お試しください。"}
+POC|ENUM-TIMING|avg ms real-name=6 fake-name=70 (※実在名は先にロックされるため2回目以降は429で短い点に注意)
+POC|BCRYPT|72バイトのハッシュに100バイトの入力 matches=true
+POC|TABLENAME|receipt_00000000000000000000000000000000         GET=404(RECEIPT_NOT_FOUND) DELETE=404(RECEIPT_NOT_FOUND)
+POC|TABLENAME|receipt_ABCDEF00000000000000000000000000         GET=404(RECEIPT_NOT_FOUND) DELETE=404(RECEIPT_NOT_FOUND)
+POC|TABLENAME|x                                                GET=404(RECEIPT_NOT_FOUND) DELETE=404(RECEIPT_NOT_FOUND)
+POC|TABLENAME|receipt_0'; DROP TABLE x;-- EXC IllegalArgumentException
+POC|TABLENAME|..%2f..%2fetc                                    GET=400(-) DELETE=400(-)
+POC|TABLENAME|%00                                              GET=400(-) DELETE=400(-)
+POC|TABLENAME|receipt_0000000000000000000000000000000%0a       GET=400(-) DELETE=400(-)
+POC|TABLENAME|aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa GET=404(RECEIPT_NOT_FOUND) DELETE=404(RECEIPT_NOT_FOUND)
+POC|SAVE|lines=null                       -> 400 EMPTY_RECEIPT {"code":"EMPTY_RECEIPT","message":"レシートデータが空です。","timestamp":"2026-10-11T16:04:18.278370707+09:00"} (41ms)
+POC|SAVE|lines=[]                         -> 400 EMPTY_RECEIPT {"code":"EMPTY_RECEIPT","message":"レシートデータが空です。","timestamp":"2026-10-11T16:04:18.293057362+09:00"} (10ms)
+POC|SAVE|lines=[null]                     -> 400 EMPTY_RECEIPT {"code":"EMPTY_RECEIPT","message":"レシートデータが空です。","timestamp":"2026-10-11T16:04:18.306354176+09:00"} (13ms)
+POC|SAVE|lines=['  ']                     -> 200 OK (37ms)
+POC|SAVE|lines が文字列(型違い)                  -> 400 INVALID_REQUEST {"code":"INVALID_REQUEST","message":"リクエストの形式が正しくありません。","timestamp":"2026-10-11T16:04:18.357566125+09:00"} (6ms)
+POC|SAVE|lines=[1,2]                      -> 200 OK (17ms)
+POC|SAVE|lines=[NUL含む]                    -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（lines[0]）：制御文字（NUL）は使えません。","timestamp":"2026-10-11T16:04:18.386126264+09:00"} (8ms)
+POC|SAVE|lines=[制御文字/改行]                  -> 200 OK (15ms)
+POC|SAVE|lines=[絵文字]                      -> 200 OK (18ms)
+POC|SAVE|lines=[英数字だけの1行 30,000文字]        -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（lines[0]）：1行は500文字以内にしてください。","timestamp":"2026-10-11T16:04:18.441070917+09:00"} (13ms)
+POC|SAVE|structured=null                  -> 200 OK (18ms)
+POC|SAVE|structured={} (全項目null)          -> 200 OK (48ms)
+POC|SAVE|storeName 300文字                  -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（structuredData.storeName）：0 から 255 の間のサイズにしてください","timestamp":"2026-10-11T16:04:18.533199... (14ms)
+POC|SAVE|storeCategory 100文字              -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（structuredData.storeCategory）：0 から 50 の間のサイズにしてください","timestamp":"2026-10-11T16:04:18.549... (14ms)
+POC|SAVE|storeCategory=HTML               -> 200 OK (31ms)
+POC|SAVE|items=[null]                     -> 200 OK (30ms)
+POC|SAVE|items name=null                  -> 200 OK (55ms)
+POC|SAVE|amount 負                         -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（structuredData.items[0].amount）：-1000000000 以上の値にしてください","timestamp":"2026-10-11T16:04:18... (11ms)
+POC|SAVE|amount=Long.MAX                  -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（structuredData.items[1].amount）：1000000000 以下の値にしてください","timestamp":"2026-10-11T16:04:18.... (10ms)
+POC|SAVE|amount が小数                       -> 200 OK (22ms)
+POC|SAVE|amount が文字列                      -> 400 INVALID_REQUEST {"code":"INVALID_REQUEST","message":"リクエストの形式が正しくありません。","timestamp":"2026-10-11T16:04:18.738332287+09:00"} (6ms)
+POC|SAVE|quantity 1e30                    -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（structuredData.items[0].quantity）：数量が範囲外です。","timestamp":"2026-10-11T16:04:18.748611979+0... (8ms)
+POC|SAVE|quantity 1E999999999             -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（structuredData.items[0].quantity）：数量が範囲外です。","timestamp":"2026-10-11T16:04:18.757778781+0... (7ms)
+POC|SAVE|purchasedAt 不正                   -> 400 INVALID_REQUEST {"code":"INVALID_REQUEST","message":"リクエストの形式が正しくありません。","timestamp":"2026-10-11T16:04:18.768052063+09:00"} (8ms)
+POC|SAVE|purchasedAt 年99999               -> 200 OK (18ms)
+POC|SAVE|sha256 大文字                       -> 200 OK (12ms)
+POC|SAVE|sha256 63桁                       -> 400 VALIDATION_ERROR {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（sha256）：画像ハッシュ値が不正です。","timestamp":"2026-10-11T16:04:18.808875982+09:00"} (6ms)
+POC|SAVE|sha256 null                      -> 400 INVALID_IMAGE_HASH {"code":"INVALID_IMAGE_HASH","message":"画像ハッシュ値が不正です。","timestamp":"2026-10-11T16:04:18.815960214+09:00"} (7ms)
+POC|SAVE|sha256 未予約(解析していない)              -> 409 DUPLICATE_RECEIPT_IMAGE {"code":"DUPLICATE_RECEIPT_IMAGE","message":"同じレシート画像は既に登録されています。","timestamp":"2026-10-11T16:04:18.825311563+09:00"} (8ms)
+POC|SAVE|PII: 氏名+電話+カード                   -> 200 OK (14ms)
+POC|SAVE|壊れたJSON -> 400 {"code":"INVALID_REQUEST","message":"リクエストの形式が正しくありません。","timestamp":"2026-10-11T16:04:18.848984414+09:00"}
+POC|SAVE|Content-Type text/plain -> 415 {"code":"UNSUPPORTED_MEDIA_TYPE","message":"Content-Typeが正しくありません。","timestamp":"2026-10-11T16:04:18.856622085+09:00"}
+POC|SAVE|空ボディ -> 400 {"code":"INVALID_REQUEST","message":"リクエストの形式が正しくありません。","timestamp":"2026-10-11T16:04:18.862217294+09:00"}
+POC|SAVE|200000行 -> 400 {"code":"VALIDATION_ERROR","message":"入力値が正しくありません（lines）：linesは1000行以内にしてください。","timestamp":"2026-10-11T16:04:19.122225072+09:00"} (267ms)
+POC|UPLOAD|analyze: 中身が画像でない + Content-Type=image/png -> 415 analyzerCalls=0
+POC|UPLOAD|analyze: Content-Type=image/gif -> 415 UNSUPPORTED_MEDIA_TYPE
+POC|UPLOAD|analyze: 空ファイル -> 400 EMPTY_FILE
+POC|UPLOAD|analyze: 6MiB -> HTTP/1.1 413  (送信中に切断 sent=4784128)
+POC|UPLOAD|analyze: boundaryなし -> 400 {"code":"INVALID_MULTIPART","message":"アップロードの形式が正しくありません。","timestamp":"2026-10-11T16:04:20.226740052+09:00"}
+POC|UPLOAD|analyze: Content-Type=json -> 415 {"code":"UNSUPPORTED_MEDIA_TYPE","message":"Content-Typeが正しくありません。","timestamp":"2026-10-11T16:04:20.234414859+09:00"}
+POC|MONSTER|create -> 200 keys=[code, seat, token, room] tokenLen=43 code=VRC3EE
+POC|MONSTER|join -> 200 seat=P2
+POC|MONSTER|3人目のjoin -> 409 ROOM_NOT_JOINABLE
+POC|MONSTER-AUTHZ|GET state token無=403 誤り=403 別ルームの席=403
+POC|MONSTER-AUTHZ|GET /field token無=403 誤り=403 別ルームの席=403
+POC|MONSTER-AUTHZ|GET /battle token無=403 誤り=403 別ルームの席=403
+POC|MONSTER-AUTHZ|POST /shuffle token無=403 別ルームの席=403
+POC|MONSTER-AUTHZ|POST /leave token無=403 別ルームの席=403
+POC|MONSTER-AUTHZ|flip token無=403 select token無=403 rematch token無=403
+POC|MONSTER-ORACLE|存在するルーム(token無)=403 存在しない=403 形式不正=400
+POC|MONSTER-FLIP|{"index":0}              -> 200 -
+POC|MONSTER-FLIP|{"index":-1}             -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|{"index":999}            -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|{"index":"0"}            -> 409 ALREADY_FLIPPED
+POC|MONSTER-FLIP|{"index":1.5}            -> 200 -
+POC|MONSTER-FLIP|{"index":99999999999}    -> 400 INVALID_REQUEST
+POC|MONSTER-FLIP|{}                       -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|null                     -> 400 INVALID_REQUEST
+POC|MONSTER-FLIP|                         -> 400 INVALID_REQUEST
+POC|MONSTER-FLIP|[0]                      -> 400 INVALID_REQUEST
+POC|MONSTER-FLIP|{"index":null}           -> 400 INVALID_INDEX
+POC|MONSTER-FLIP|Content-Type無し -> 415
+POC|MONSTER-FIELD|P1の配布数=9 handLimit=3 応答に sha/table 文字列を含む=false
+POC|MONSTER-FIELD|最初のレシートの項目=[storeCategory, storeName, branchName, purchasedAt, receiptNumber, items, totalAmount, paymentMethod]
+POC|MONSTER-SELECT|P1がP2の手札カードIDをselect -> 400 CARD_NOT_IN_HAND
+POC|MONSTER-SELECT|存在しないカードID -> 400 CARD_NOT_IN_HAND
+POC|MONSTER-RACE|同時flip(5本)の結果=[409, 409, 409, 409, 200] 最終手札枚数=3
+POC|MONSTER-RACE|同時select -> 200,200
+POC|MONSTER-BATTLE|battle -> 200 keys=[round, battleSeed, first, log, winner, reason, finalHp, cards, receipts, mode, cpuReason]
+POC|MONSTER-BATTLE|相手に見えるレシート項目=[storeCategory, storeName, branchName, purchasedAt, receiptNumber, items, totalAmount, paymentMethod] receiptNumber=null branchName=null
+POC|MONSTER-STATE|対戦後の flip=409 select=409 shuffle=409
+POC|MONSTER-STATE|rematch(現在round) -> 200 status="SELECTING"
+POC|MONSTER-STATE|rematch(古いround) -> 200
+POC|MONSTER-STATE|leave -> 204 leave後のstate=200
+POC|MONSTER-IMAGE|画像でないファイル(P1のみ・SELECTINGでない) -> 415 UNSUPPORTED_MEDIA_TYPE
+POC|MONSTER-IMAGE|token誤り + 6MiB -> HTTP/1.1 403  (送信中に切断 sent=4849664)
+POC|MONSTER-IMAGE|存在しないルーム + 4.9MB(認証前に全量受信される) -> HTTP/1.1 403  (送信中に切断 sent=4718592) 1010ms
+POC|MONSTER-IMAGE|10MB超 -> HTTP/1.1 403  (送信中に切断 sent=4784128)
+POC|RATELIMIT|同一XFFで7回create=[200, 200, 200, 200, 200, 429, 429]
+POC|RATELIMIT|XFFを変えながら12回create=[200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200, 200]
+POC|RATELIMIT|先頭を偽装・末尾固定で7回create=[200, 200, 200, 200, 200, 200, 200]
+POC|RATELIMIT|joinを12回=[404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 429, 429]
+POC|RATELIMIT|XFFなし=200 XFF='  '=200
+POC|REDIRECT|status=302 Location=https://example.onrender.com/admin/login.html HSTS(X-Forwarded-Proto:https付き)=max-age=31536000 ; includeSubDomains
+POC|HSTS|/api/health with X-Forwarded-Proto:https -> max-age=31536000 ; includeSubDomains / Referrer-Policy=no-referrer / CSP=default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none' / Permissions-Policy=camera=(), microphone=(), geolocation=()
+POC|CORS|preflight from evil origin -> 200 ACAO=なし
+POC|CORS|simple GET with Origin -> 200 ACAO=なし
+POC|SEC-IMGBOMB|pngBytes=17582 pixels=144000000 (upload limit 5MiB)
+POC|SEC-IMGBOMB|-Xmx128m exit=0 output=rotate returned null
+POC|SEC-IMGBOMB|-Xmx256m exit=0 output=rotate returned null

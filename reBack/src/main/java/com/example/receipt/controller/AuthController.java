@@ -1,6 +1,9 @@
 package com.example.receipt.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,7 +63,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest login,
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest login,
                                                      HttpServletRequest request,
                                                      HttpServletResponse response) {
         // 照合前に試行枠を確保する。ロック中や同時試行が上限に達している場合は、正しいパスワードでも照合しない
@@ -93,5 +96,7 @@ public class AuthController {
         }
     }
 
-    public record LoginRequest(String username, String password) {}
+    public record LoginRequest(
+            @NotBlank @Size(max = 64) String username,
+            @NotBlank @Size(max = 128) String password) {}
 }

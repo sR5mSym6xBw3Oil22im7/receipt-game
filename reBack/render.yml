@@ -54,4 +54,6 @@ services:
 databases:
   - name: receipt-analysis-psl-service
     plan: free
+    # 外部（インターネット）からの接続を許可しない。アプリからは内部接続で使う
+    ipAllowList: []
     postgresMajorVersion: "18"

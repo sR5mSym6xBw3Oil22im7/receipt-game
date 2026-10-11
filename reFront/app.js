@@ -135,13 +135,13 @@ function showApiKeyError(errorCode, fallbackMessage) {
 
   if (errorCode === "GEMINI_API_KEY_REJECTED") {
     statusElement.textContent =
-      "Gemini APIキーが利用できません。サーバーの.envに設定したGEMINI_API_KEYを確認してください。";
+      "Gemini APIキーが利用できません。サーバーの.envに設定したGEMINI_API_ANALYZE（未設定ならGEMINI_API_DEFAULT）を確認してください。";
     return;
   }
 
   if (errorCode === "GEMINI_API_KEY_MISSING" || errorCode === "INVALID_GEMINI_API_KEY") {
     statusElement.textContent =
-      "Gemini APIキーが設定されていません。サーバーの.envにGEMINI_API_KEYを設定してください。";
+      "Gemini APIキーが設定されていません。サーバーの.envにGEMINI_API_ANALYZE（未設定ならGEMINI_API_DEFAULT）を設定してください。";
     return;
   }
 

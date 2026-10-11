@@ -24,7 +24,7 @@ public class MonsterTaskRunner {
         Thread t = new Thread(r, "monster-" + threadNo.incrementAndGet());
         t.setDaemon(true);
         return t;
-    }, new ThreadPoolExecutor.DiscardPolicy());
+    }, (r, e) -> LOGGER.warn("Monster background task was rejected (queue full)."));
 
     public void run(String label, Runnable task) {
         executor.execute(() -> {

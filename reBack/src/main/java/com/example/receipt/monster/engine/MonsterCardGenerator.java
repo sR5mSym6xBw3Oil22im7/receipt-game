@@ -88,14 +88,14 @@ public final class MonsterCardGenerator {
             itemSum += amount;
             maxAmount = Math.max(maxAmount, amount);
         }
-        long total = data.totalAmount() != null ? data.totalAmount() : itemSum;
+        long total = data.totalAmount() != null ? Math.clamp(data.totalAmount(), -1_000_000_000_000L, 1_000_000_000_000L) : itemSum;
         LocalDateTime purchasedAt = data.purchasedAt();
         int hour = purchasedAt != null ? purchasedAt.getHour() : 12;
         String element = determineElement(items);
-        String storeCategory = data.storeCategory() == null || data.storeCategory().isBlank() ? "その他" : data.storeCategory();
+        String storeCategory = normalizeStoreCategory(data.storeCategory());
 
         // 要素（すべて0〜1）。金額の影響は、どのステータスでも25%以下に抑える。
-        double fA = Math.min(total, 30000) / 30000.0;
+        double fA = Math.clamp(total, 0L, 30000L) / 30000.0;   // 負の合計で能力値が範囲外にならないよう0〜1に収める
         double fM = Math.min(maxAmount, 10000) / 10000.0;
         double fC = Math.min(charCount, 600) / 600.0;
         double fN = Math.min(items.size(), 20) / 20.0;
@@ -131,12 +131,12 @@ public final class MonsterCardGenerator {
                 ? Math.round(Math.clamp(p.skillPower(), 1.5, 2.0) * 100) / 100.0
                 : base.skillPower();
         return build(base.imageSha256(), base.source(),
-                text(p.name(), MAX_NAME_LENGTH, base.name()), element,
+                katakana(text(p.name(), MAX_NAME_LENGTH, base.name()), base.name()), element,
                 Math.clamp(p.hp(), HP_MIN, HP_MAX), Math.clamp(p.atk(), ATK_MIN, ATK_MAX),
                 Math.clamp(p.def(), DEF_MIN, DEF_MAX), Math.clamp(p.spd(), SPD_MIN, SPD_MAX),
                 Math.clamp(p.luck(), LUCK_MIN, LUCK_MAX),
-                text(p.skillName(), MAX_NAME_LENGTH, base.skillName()), skillPower, base.lucky(),
-                text(p.flavor(), MAX_FLAVOR_LENGTH, base.flavor()), base.storeCategory(), createdAt);
+                plain(text(p.skillName(), MAX_NAME_LENGTH, base.skillName()), base.skillName()), skillPower, base.lucky(),
+                plain(text(p.flavor(), MAX_FLAVOR_LENGTH, base.flavor()), base.flavor()), base.storeCategory(), createdAt);
     }
 
     /** 店の種類・ラッキーのボーナスを加え、POWER・レア度・代替イラストを決めてカードにする。 */
@@ -160,6 +160,32 @@ public final class MonsterCardGenerator {
         MonsterCard card = new MonsterCard(null, sha256, source, name, element, rarity, hp, atk, def, spd, luck, power,
                 skillName, skillPower, lucky, flavor, storeCategory, null, ALGORITHM_VERSION);
         return card.withSvg(MonsterSvgRenderer.fallbackSvg(element, rarity, illustrationSeed(seedFromSha(sha256), createdAt)));
+    }
+
+    public static final List<String> STORE_CATEGORIES = List.of("スーパー", "コンビニ", "ドラッグストア", "飲食店", "その他");
+    public static final List<String> ITEM_CATEGORIES = List.of("食料品", "日用品", "飲食", "交通・移動", "その他");
+
+    /** 店舗カテゴリーを許可リストに丸める（未知の値は「その他」）。 */
+    public static String normalizeStoreCategory(String value) {
+        return value != null && STORE_CATEGORIES.contains(value.trim()) ? value.trim() : "その他";
+    }
+
+    /** 商品カテゴリーを許可リストに丸める（未知の値は「その他」）。 */
+    public static String normalizeItemCategory(String value) {
+        return value != null && ITEM_CATEGORIES.contains(value.trim()) ? value.trim() : "その他";
+    }
+
+    private static final java.util.regex.Pattern KATAKANA = java.util.regex.Pattern.compile("[ァ-ヶー]+");
+    private static final java.util.regex.Pattern LINK_LIKE = java.util.regex.Pattern.compile("(?i)https?:|www\\.|@|://|\\.(?:com|net|jp|org)\\b");
+
+    /** モンスター名はカタカナだけ（プロンプトの指示をサーバーでも守らせる）。それ以外は fallback。 */
+    private static String katakana(String value, String fallback) {
+        return KATAKANA.matcher(value).matches() ? value : fallback;
+    }
+
+    /** URL・メールアドレスのような文字列（相手への誘導）を含む説明文は fallback。 */
+    private static String plain(String value, String fallback) {
+        return LINK_LIKE.matcher(value).find() ? fallback : value;
     }
 
     /** 制御文字を除いて前後の空白を取り、1〜max文字なら使う。それ以外は fallback。 */
@@ -232,6 +258,7 @@ public final class MonsterCardGenerator {
     }
 
     private static long amountOf(ReceiptItemData item) {
-        return item.amount() == null ? 0 : item.amount();
+        // Geminiの出力など未検証の値でオーバーフロー・範囲外にならないよう、金額は±10億に収める
+        return item.amount() == null ? 0 : Math.clamp(item.amount(), -1_000_000_000L, 1_000_000_000L);
     }
 }

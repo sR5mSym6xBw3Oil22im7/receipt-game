@@ -39,9 +39,20 @@ class MonsterSvgValidatorTest {
             "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><rect style=\"fill:red\"/></svg>",
             "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><rect fill=\"javascript:alert(1)\"/></svg>",
             "<html><svg/></html>",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><!-- \"><script>alert(1)</script> --><circle r=\"2\"/></svg>",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\" width=\"99999999\" height=\"10\"><circle r=\"2\"/></svg>",
+            "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><path d=\"M0 0L9 9\" stroke-dasharray=\"0.0001\"/></svg>",
             "not svg"
     })
     void unsafeOrInvalidSvgIsRejected(String svg) {
         assertThat(MonsterSvgValidator.isSafe(svg)).isFalse();
+    }
+
+    @org.junit.jupiter.api.Test
+    void tooManyOrTooDeepElementsAreRejected() {
+        String head = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\">";
+        assertThat(MonsterSvgValidator.isSafe(head + "<circle r=\"1\"/>".repeat(250) + "</svg>")).isTrue();
+        assertThat(MonsterSvgValidator.isSafe(head + "<circle r=\"1\"/>".repeat(400) + "</svg>")).isFalse();
+        assertThat(MonsterSvgValidator.isSafe(head + "<g>".repeat(20) + "</g>".repeat(20) + "</svg>")).isFalse();
     }
 }

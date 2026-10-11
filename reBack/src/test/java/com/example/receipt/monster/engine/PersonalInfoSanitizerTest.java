@@ -34,7 +34,21 @@ class PersonalInfoSanitizerTest {
             "100-0001",
             "東京都千代田区千代田1-1",
             "神奈川県横浜市中区本町1-2-3",
-            "大阪府大阪市北区梅田"
+            "大阪府大阪市北区梅田",
+            // レビューで見つかったすり抜け（全角・区切り文字違い・番号の残り・氏名の空白・担当者・全角メール）
+            "TEL ０３－１２３４－５６７８",
+            "TEL 03‐1234‐5678",
+            "TEL 03ー1234ー5678",
+            "TEL 03.1234.5678",
+            "０９０１２３４５６７８",
+            "4111·1111·1111·1111",
+            "お客様番号 1234567",
+            "お客様番号：１２３４５６７",
+            "山田 太郎 様",
+            "ご担当 佐藤",
+            "担当：鈴木",
+            "１００－０００１",
+            "foo＠example.com"
     })
     void personalInfoIsMasked(String text) {
         PersonalInfoSanitizer.Masked masked = PersonalInfoSanitizer.mask(text);
@@ -92,5 +106,20 @@ class PersonalInfoSanitizerTest {
         assertThat(result.data()).isNull();
         assertThat(result.lines()).isNull();
         assertThat(result.maskedCount()).isZero();
+    }
+
+    @org.junit.jupiter.api.Test
+    void receiptNumberThatLooksLikePhoneNumberIsMasked() {
+        var data = new com.example.receipt.dto.ReceiptStructuredData("店", null, null, null, 1L, null, "090-1234-5678", java.util.List.of());
+        assertThat(PersonalInfoSanitizer.sanitize(data, null).data().receiptNumber()).doesNotContain("090");
+    }
+
+    @org.junit.jupiter.api.Test
+    void longInputsFinishQuicklyWithoutBacktrackingBlowup() {
+        for (String text : new String[]{"会員" + " ".repeat(20_000) + "x", "カード" + "　".repeat(20_000) + "x", "a".repeat(200_000),
+                "1".repeat(100_000), "山".repeat(100_000)}) {
+            assertThat(org.junit.jupiter.api.Assertions.assertTimeoutPreemptively(java.time.Duration.ofSeconds(5),
+                    () -> PersonalInfoSanitizer.mask(text))).isNotNull();
+        }
     }
 }

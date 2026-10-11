@@ -101,7 +101,7 @@ test("frontend does not send a Gemini API key", () => {
 test("frontend explains server-side Gemini API key errors", () => {
   assert.match(js, /GEMINI_QUOTA_EXCEEDED/);
   assert.match(js, /GEMINI_API_KEY_MISSING/);
-  assert.match(js, /GEMINI_API_KEYを設定してください/);
+  assert.match(js, /GEMINI_API_ANALYZE（未設定ならGEMINI_API_DEFAULT）を設定してください/);
 });
 
 test("frontend does not persist the Gemini API key in browser storage", () => {
@@ -154,7 +154,9 @@ test("reFront copies of admin scripts match the files served by Backend", async 
   for (const name of ["app.js", "select.js", "login.js", "admin-api.js", "config.js"]) {
     const front = await readFile(new URL(`../${name}`, import.meta.url), "utf8");
     const back = await readFile(new URL(`../../reBack/src/main/resources/static/admin/${name}`, import.meta.url), "utf8");
-    assert.equal(front, back, `${name} differs between reFront and reBack/static/admin`);
+    // reFront/config.js だけは、メニュー用の DEMO_URL / GAME_URL の2行が多い（意図した差）
+    const normalize = (text) => (name === "config.js" ? text.split("\n").filter((line) => !/^\s*(DEMO_URL|GAME_URL):/.test(line)).join("\n") : text);
+    assert.equal(normalize(front), normalize(back), `${name} differs between reFront and reBack/static/admin`);
   }
 });
 

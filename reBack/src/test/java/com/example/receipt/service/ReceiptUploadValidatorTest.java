@@ -13,8 +13,8 @@ class ReceiptUploadValidatorTest {
 
     @Test
     void acceptsJpegAndPng() {
-        validator.validate(new MockMultipartFile("file", "receipt.jpg", "image/jpeg", new byte[]{1}));
-        validator.validate(new MockMultipartFile("file", "receipt.png", "image/png", new byte[]{1}));
+        validator.validate(new MockMultipartFile("file", "receipt.jpg", "image/jpeg", new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00}));
+        validator.validate(new MockMultipartFile("file", "receipt.png", "image/png", new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A}));
     }
 
     @Test
@@ -45,5 +45,23 @@ class ReceiptUploadValidatorTest {
             assertThat(e.status()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE);
             assertThat(e.code()).isEqualTo("FILE_TOO_LARGE");
         });
+    }
+
+    @Test
+    void rejectsFilesWhoseContentIsNotAnImageEvenWithImageContentType() {
+        assertThatThrownBy(() -> validator.validate(new MockMultipartFile("file", "x.png", "image/png", "<?php echo 1; ?>".getBytes())))
+                .isInstanceOf(com.example.receipt.exception.ReceiptException.class)
+                .extracting("code").isEqualTo("UNSUPPORTED_MEDIA_TYPE");
+    }
+
+    @Test
+    void rejectsImageBombWithHugeDimensionsButSmallFileSize() throws Exception {
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(12_000, 12_000, java.awt.image.BufferedImage.TYPE_BYTE_BINARY);
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+        javax.imageio.ImageIO.write(image, "png", out);
+        assertThat(out.size()).isLessThan(1024 * 1024);
+        assertThatThrownBy(() -> validator.validate(new MockMultipartFile("file", "bomb.png", "image/png", out.toByteArray())))
+                .isInstanceOf(com.example.receipt.exception.ReceiptException.class)
+                .extracting("code").isEqualTo("IMAGE_TOO_LARGE");
     }
 }

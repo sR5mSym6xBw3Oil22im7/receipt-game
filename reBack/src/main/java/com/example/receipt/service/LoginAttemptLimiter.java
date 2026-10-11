@@ -108,7 +108,9 @@ public class LoginAttemptLimiter {
         while (states.size() >= maxTrackedUsernames) {
             String oldest = states.entrySet().stream()
                     .filter(entry -> entry.getValue().inFlight == 0)
-                    .min(Comparator.comparing(entry -> entry.getValue().lastActivity))
+                    // ロック中の記録は最後まで残す（大量の別ユーザー名で追い出してロックを解除させない）
+                    .min(Comparator.<Map.Entry<String, State>, Boolean>comparing(entry -> entry.getValue().isLocked(now))
+                            .thenComparing(entry -> entry.getValue().lastActivity))
                     .map(Map.Entry::getKey)
                     .orElse(null);
             if (oldest == null) {
@@ -118,8 +120,16 @@ public class LoginAttemptLimiter {
         }
     }
 
+    /** ユーザー名の全文を保持しない（巨大な入力でメモリを使わせない）よう、SHA-256 で固定長にする。 */
     private static String key(String username) {
-        return username == null ? "" : username.trim().toLowerCase(Locale.ROOT);
+        String normalized = username == null ? "" : username.trim().toLowerCase(Locale.ROOT);
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(normalized.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return java.util.HexFormat.of().formatHex(digest);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private enum Outcome { SUCCEEDED, FAILED, ABORTED }

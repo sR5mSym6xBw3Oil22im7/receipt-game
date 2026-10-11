@@ -16,9 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.WebUtils;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import com.example.receipt.exception.ReceiptException;
+import org.springframework.http.HttpStatus;
 
 import java.io.IOException;
 
@@ -84,11 +87,16 @@ public class MonsterController {
     @PostMapping(value = "/{code}/image-card", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ImageCardResponse> imageCard(@PathVariable String code,
                                                        @RequestHeader(value = TOKEN_HEADER, required = false) String token,
-                                                       @RequestParam("file") MultipartFile file,
                                                        HttpServletRequest request) throws IOException {
-        // 席と状態を先に確かめてから回数を数える（無関係な要求で上限を消費させない）
+        // 席と状態を先に確かめてから回数を数える（無関係な要求で上限を消費させない）。
+        // 画像の本体は（spring.servlet.multipart.resolve-lazily=true により）この後で初めて読み込む＝認可前に受信しない
         service.field(code, token);
         limiter.check(MonsterRateLimiter.Action.IMAGE_CARD, request);
+        MultipartHttpServletRequest multipart = WebUtils.getNativeRequest(request, MultipartHttpServletRequest.class);
+        MultipartFile file = multipart == null ? null : multipart.getFile("file");
+        if (file == null) {
+            throw new ReceiptException(HttpStatus.BAD_REQUEST, "MISSING_REQUEST_DATA", "必須のリクエスト項目がありません。");
+        }
         return ok(service.imageCard(code, token, file.getBytes()));
     }
 

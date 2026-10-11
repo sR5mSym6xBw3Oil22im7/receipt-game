@@ -49,7 +49,7 @@ class ReceiptControllerIntegrationTest {
                 "SELECT table_name FROM information_schema.tables " +
                         "WHERE table_schema = 'public' AND table_name LIKE 'receipt_%'",
                 String.class
-        ).forEach(tableName -> jdbcTemplate.execute("DROP TABLE " + tableName));
+        ).forEach(tableName -> jdbcTemplate.execute("DROP TABLE " + tableName + " CASCADE"));
     }
 
     @Test
@@ -87,13 +87,13 @@ class ReceiptControllerIntegrationTest {
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .file(sampleFile()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sha256").value("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a"));
+                .andExpect(jsonPath("$.sha256").value("374ffede23adbc8bc625205f4bf86750807ffb6ce71fc7d10cac8bded0872bf5"));
 
         String storedHash = jdbcTemplate.queryForObject(
                 "SELECT image_sha256 FROM receipt_image_hash_registry",
                 String.class
         );
-        assertThat(storedHash).isEqualTo("9f64a747e1b97f131fabb6b447296c9b6f0201e79fb3c5356e6c77e89b6a806a");
+        assertThat(storedHash).isEqualTo("374ffede23adbc8bc625205f4bf86750807ffb6ce71fc7d10cac8bded0872bf5");
     }
 
     @Test
@@ -116,7 +116,7 @@ class ReceiptControllerIntegrationTest {
                 "file",
                 "sample.jpg",
                 "image/jpeg",
-                new byte[]{1, 2, 3, 4}
+                new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00}
         );
     }
 

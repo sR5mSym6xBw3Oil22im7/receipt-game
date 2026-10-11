@@ -22,6 +22,9 @@ import java.util.regex.Pattern;
  */
 public final class MonsterSvgValidator {
     static final int MAX_LENGTH = 30_000;
+    static final int MAX_ELEMENTS = 300;
+    static final int MAX_DEPTH = 12;
+    static final double MAX_SIZE = 1000;
     private static final Set<String> ELEMENTS = Set.of(
             "svg", "g", "defs", "path", "circle", "ellipse", "rect", "polygon", "polyline", "line",
             "linearGradient", "radialGradient", "stop");
@@ -48,13 +51,15 @@ public final class MonsterSvgValidator {
             Document doc = parser().parse(new InputSource(new StringReader(svg)));
             Element root = doc.getDocumentElement();
             if (!"svg".equals(root.getTagName()) || !root.hasAttribute("viewBox")) return false;
-            return isSafeElement(root);
+            return isSafeElement(root, 1, new int[1]);
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static boolean isSafeElement(Element element) {
+    private static boolean isSafeElement(Element element, int depth, int[] count) {
+        // 描画負荷の高いSVG（極端に深い・多い）を拒否する
+        if (depth > MAX_DEPTH || ++count[0] > MAX_ELEMENTS) return false;
         if (!ELEMENTS.contains(element.getTagName())) return false;
         NamedNodeMap attributes = element.getAttributes();
         for (int i = 0; i < attributes.getLength(); i++) {
@@ -68,23 +73,48 @@ public final class MonsterSvgValidator {
             String value = attribute.getNodeValue();
             String withoutRefs = URL_REF.matcher(value).replaceAll("");
             if (withoutRefs.toLowerCase(Locale.ROOT).contains("url(") || !SAFE_VALUE.matcher(withoutRefs).matches()) return false;
+            if (("width".equals(name) || "height".equals(name)) && !isNumberAtMost(value, MAX_SIZE)) return false;
+            if ("stroke-dasharray".equals(name) && !isDashArrayCoarse(value)) return false;
         }
         NodeList children = element.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             Node child = children.item(i);
             switch (child.getNodeType()) {
                 case Node.ELEMENT_NODE -> {
-                    if (!isSafeElement((Element) child)) return false;
+                    if (!isSafeElement((Element) child, depth + 1, count)) return false;
                 }
                 case Node.TEXT_NODE -> {
                     if (!child.getNodeValue().isBlank()) return false;
                 }
                 case Node.COMMENT_NODE -> {
-                    // コメントは表示に影響しない
+                    // コメントは不要で、任意の文字列（<script> など）を持ち込めるため拒否する
+                    return false;
                 }
                 default -> {
                     return false;
                 }
+            }
+        }
+        return true;
+    }
+
+    /** 数値（単位なし、または%）で、max以下か。 */
+    private static boolean isNumberAtMost(String value, double max) {
+        try {
+            double number = Double.parseDouble(value.trim().replace("%", ""));
+            return number >= 0 && number <= max;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    /** 点線の間隔が極端に小さい（描画が非常に重くなる）値を拒否する。各値は1以上。 */
+    private static boolean isDashArrayCoarse(String value) {
+        for (String part : value.trim().split("[\\s,]+")) {
+            try {
+                if (Double.parseDouble(part) < 1) return false;
+            } catch (NumberFormatException e) {
+                return false;
             }
         }
         return true;

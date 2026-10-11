@@ -200,7 +200,7 @@ public class ReceiptTableRepository {
     }
 
     public ReceiptDetail findReceipt(String tableName) {
-        assertSafeTableName(tableName);
+        requireKnownFormat(tableName);
         if (!tableExists(tableName)) {
             throw new ReceiptException(HttpStatus.NOT_FOUND, "RECEIPT_NOT_FOUND", "指定されたレシートが見つかりません。");
         }
@@ -215,7 +215,7 @@ public class ReceiptTableRepository {
 
     @Transactional
     public void deleteReceipt(String tableName) {
-        assertSafeTableName(tableName);
+        requireKnownFormat(tableName);
         if (!tableExists(tableName)) {
             throw new ReceiptException(HttpStatus.NOT_FOUND, "RECEIPT_NOT_FOUND", "指定されたレシートが見つかりません。");
         }
@@ -265,6 +265,13 @@ public class ReceiptTableRepository {
                 tableName
         );
         return count != null && count > 0;
+    }
+
+    /** 利用者が指定したテーブル名の形式が不正なら、存在しないものとして404にする（SQLには渡さない）。 */
+    private static void requireKnownFormat(String tableName) {
+        if (!ReceiptTableName.isSafe(tableName)) {
+            throw new ReceiptException(HttpStatus.NOT_FOUND, "RECEIPT_NOT_FOUND", "指定されたレシートが見つかりません。");
+        }
     }
 
     static void assertSafeTableName(String tableName) {

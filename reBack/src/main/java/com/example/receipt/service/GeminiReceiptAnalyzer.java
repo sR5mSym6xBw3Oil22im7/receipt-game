@@ -2,6 +2,8 @@ package com.example.receipt.service;
 
 import com.example.receipt.config.GeminiApiKeys;
 import com.example.receipt.dto.ReceiptText;
+import com.example.receipt.dto.ValidationRules;
+import com.example.receipt.monster.engine.MonsterCardGenerator;
 import com.example.receipt.dto.ReceiptItemData;
 import com.example.receipt.dto.ReceiptStructuredData;
 import com.example.receipt.exception.ReceiptException;
@@ -250,6 +252,8 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
     /** 画像を時計回りに90度単位で回す。読み込めない形式ならnull（回転せずに元の結果を使う）。 */
     static byte[] rotateClockwise(byte[] imageBytes, String mimeType, int degrees) {
         try {
+            // 巨大な画素数の画像は全画素をデコードしない（メモリ枯渇の防止）。回転せず元の結果を使う
+            if (!ImageInspector.canDecodeForRotation(imageBytes)) return null;
             BufferedImage source = ImageIO.read(new ByteArrayInputStream(imageBytes));
             if (source == null) return null;
             int quadrants = Math.floorMod(degrees / 90, 4);
@@ -365,12 +369,41 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
         if (raw == null) return null;
         LocalDateTime purchasedAt = correctYearByWeekday(
                 parsePurchasedAt(raw.purchasedAt()), lines, LocalDate.now());
+        // Geminiの出力は未検証の値として扱い、件数・長さ・範囲・許可リストに収める（保存API側の制約と同じ）
         List<ReceiptItemData> items = raw.items() == null ? List.of() : raw.items().stream()
                 .filter(Objects::nonNull)
-                .map(item -> new ReceiptItemData(item.name(), item.category(), item.quantity(), item.unitPrice(), item.amount()))
+                .limit(ValidationRules.MAX_ITEMS)
+                .map(item -> new ReceiptItemData(text(item.name(), ValidationRules.MAX_NAME),
+                        MonsterCardGenerator.normalizeItemCategory(item.category()),
+                        validQuantity(item.quantity()), amount(item.unitPrice()), amount(item.amount())))
                 .toList();
-        return new ReceiptStructuredData(raw.storeName(), raw.branchName(), raw.storeCategory(), purchasedAt,
-                raw.totalAmount(), raw.paymentMethod(), raw.receiptNumber(), items);
+        return new ReceiptStructuredData(text(raw.storeName(), ValidationRules.MAX_NAME), text(raw.branchName(), ValidationRules.MAX_NAME),
+                MonsterCardGenerator.normalizeStoreCategory(raw.storeCategory()), plausible(purchasedAt),
+                amount(raw.totalAmount()), text(raw.paymentMethod(), ValidationRules.MAX_PAYMENT),
+                text(raw.receiptNumber(), ValidationRules.MAX_RECEIPT_NUMBER), items);
+    }
+
+    /** NUL・制御文字（改行・タブ以外）を除き、上限の長さに切り詰める。 */
+    static String text(String value, int max) {
+        if (value == null) return null;
+        String cleaned = value.replaceAll("[\\p{Cntrl}&&[^\\n\\t]]", "").trim();
+        if (cleaned.length() <= max) return cleaned;
+        int end = max;
+        if (Character.isHighSurrogate(cleaned.charAt(end - 1))) end--;   // サロゲートペアを分断しない
+        return cleaned.substring(0, end);
+    }
+
+    private static Long amount(Long value) {
+        return value == null || Math.abs(value) > ValidationRules.MAX_AMOUNT ? null : value;
+    }
+
+    private static BigDecimal validQuantity(BigDecimal value) {
+        return value != null && value.precision() - value.scale() <= 9 && value.scale() <= 3 && value.scale() >= -9 ? value : null;
+    }
+
+    /** 2000年〜明日の範囲外の日時は読み取れなかったものとして扱う。 */
+    private static LocalDateTime plausible(LocalDateTime value) {
+        return value != null && value.getYear() >= 2000 && value.isBefore(LocalDateTime.now().plusDays(1)) ? value : null;
     }
 
     /**

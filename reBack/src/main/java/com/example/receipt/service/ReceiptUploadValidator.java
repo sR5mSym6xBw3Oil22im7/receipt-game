@@ -28,5 +28,16 @@ public class ReceiptUploadValidator {
         if (contentType == null || !ALLOWED_MIME_TYPES.contains(contentType.toLowerCase())) {
             throw new ReceiptException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", "JPEGまたはPNG画像を指定してください。");
         }
+        // 申告されたContent-Typeだけを信用せず、中身（先頭バイトと縦横）も確かめる。公開側と同じ検査
+        byte[] bytes;
+        try {
+            bytes = file.getBytes();
+        } catch (java.io.IOException e) {
+            throw new ReceiptException(HttpStatus.BAD_REQUEST, "FILE_READ_ERROR", "画像ファイルを読み込めませんでした。");
+        }
+        if (ImageInspector.detectType(bytes) == null) {
+            throw new ReceiptException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", "JPEGまたはPNG画像を指定してください。");
+        }
+        ImageInspector.requireWithinPixelLimit(bytes);
     }
 }

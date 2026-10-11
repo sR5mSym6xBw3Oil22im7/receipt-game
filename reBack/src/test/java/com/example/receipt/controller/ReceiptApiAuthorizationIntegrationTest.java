@@ -265,7 +265,7 @@ class ReceiptApiAuthorizationIntegrationTest {
 
     private MockMultipartHttpServletRequestBuilder analyzeRequest() {
         return multipart("/api/receipts/analyze")
-                .file(new MockMultipartFile("file", "sample.jpg", "image/jpeg", new byte[]{1, 2, 3, 4}));
+                .file(new MockMultipartFile("file", "sample.jpg", "image/jpeg", new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0x00}));
     }
 
     private MockHttpServletRequestBuilder saveRequest(String hash) {

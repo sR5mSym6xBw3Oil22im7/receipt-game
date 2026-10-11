@@ -144,6 +144,28 @@ class LoginAttemptLimiterTest {
         assertThat(small.trackedUsernames()).isLessThanOrEqualTo(3);
     }
 
+    @Test
+    void floodOfOtherUsernamesDoesNotEvictAnActiveLock() {
+        LoginAttemptLimiter small = new LoginAttemptLimiter(3, Duration.ofMinutes(15), clock, 10);
+        for (int i = 0; i < 3; i++) small.tryBegin("admin").failed();
+        assertThat(small.isLocked("admin")).isTrue();
+        for (int i = 0; i < 200; i++) {
+            var attempt = small.tryBegin("flood" + i);
+            if (attempt != null) attempt.failed();
+        }
+        assertThat(small.isLocked("admin")).isTrue();
+        assertThat(small.trackedUsernames()).isLessThanOrEqualTo(10);
+    }
+
+    @Test
+    void hugeUsernamesAreNotKeptAsKeys() throws Exception {
+        LoginAttemptLimiter l = new LoginAttemptLimiter(3, Duration.ofMinutes(15), clock, 100);
+        l.tryBegin("a".repeat(5_000_000)).failed();
+        var field = LoginAttemptLimiter.class.getDeclaredField("states");
+        field.setAccessible(true);
+        for (Object key : ((java.util.Map<?, ?>) field.get(l)).keySet()) assertThat(((String) key).length()).isEqualTo(64);
+    }
+
     private void fail(String username) {
         LoginAttemptLimiter.Attempt attempt = limiter.tryBegin(username);
         assertThat(attempt).isNotNull();

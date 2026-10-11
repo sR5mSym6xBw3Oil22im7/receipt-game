@@ -21,6 +21,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 @Configuration
 public class SecurityConfig {
     @Bean
@@ -61,6 +62,16 @@ public class SecurityConfig {
                                              CookieCsrfTokenRepository csrfRepository,
                                              SecurityContextRepository contextRepository) throws Exception {
         http
+                .headers(headers -> headers
+                        // インラインスクリプトは使っていないため script-src は 'self' のみ。
+                        // style は一部のインライン style 属性（config.js の SVG など）のため 'unsafe-inline' を許可する。
+                        // img の data: はカードのSVG（<img src="data:image/svg+xml,...">）に必要。
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                                        + "font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; "
+                                        + "base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'"))
+                        .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER))
+                        .permissionsPolicyHeader(permissions -> permissions.policy("camera=(), microphone=(), geolocation=()")))
                 .csrf(csrf -> csrf.csrfTokenRepository(csrfRepository)
                         .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                         .requireCsrfProtectionMatcher(request -> {

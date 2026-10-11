@@ -384,7 +384,8 @@ public class MonsterRoomService {
     }
 
     private Seat enter(String code, String token) {
-        Room room = lock(normalizeCode(code));
+        // ルームの有無を推測させないため、ルームがない場合も席がない場合と同じ403にする
+        Room room = rooms.lockByCode(normalizeCode(code)).orElseThrow(MonsterRoomService::seatRequired);
         String seat = authorize(room, token);
         Instant now = clock.instant();
         Instant expires = CLOSED.equals(room.status()) ? room.expiresAt() : now.plus(settings.roomTtl());
@@ -560,12 +561,10 @@ public class MonsterRoomService {
         if (image.length > MAX_IMAGE_BYTES) {
             throw new ReceiptException(HttpStatus.PAYLOAD_TOO_LARGE, "FILE_TOO_LARGE", "画像は5 MiB以下にしてください。");
         }
-        if (image.length >= 3 && (image[0] & 0xFF) == 0xFF && (image[1] & 0xFF) == 0xD8 && (image[2] & 0xFF) == 0xFF) {
-            return "image/jpeg";
-        }
-        byte[] png = {(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A};
-        if (image.length >= png.length && java.util.Arrays.equals(java.util.Arrays.copyOf(image, png.length), png)) {
-            return "image/png";
+        String type = com.example.receipt.service.ImageInspector.detectType(image);
+        if (type != null) {
+            com.example.receipt.service.ImageInspector.requireWithinPixelLimit(image);
+            return type;
         }
         throw new ReceiptException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "UNSUPPORTED_MEDIA_TYPE", "JPEGまたはPNGの画像を選んでください。");
     }
@@ -588,7 +587,11 @@ public class MonsterRoomService {
             if (room.p2TokenHash() != null
                     && MessageDigest.isEqual(given, room.p2TokenHash().getBytes(StandardCharsets.US_ASCII))) return "P2";
         }
-        throw new ReceiptException(HttpStatus.FORBIDDEN, "SEAT_REQUIRED", "このルームの席がありません。ロビーからやり直してください。");
+        throw seatRequired();
+    }
+
+    private static ReceiptException seatRequired() {
+        return new ReceiptException(HttpStatus.FORBIDDEN, "SEAT_REQUIRED", "このルームの席がありません。ロビーからやり直してください。");
     }
 
     static String normalizeCode(String raw) {
