@@ -257,3 +257,43 @@ test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET metho
     child.kill();
   }
 });
+
+// ---- モンスターレシート対戦の演出 ----
+const gameDir = "../../reBack/src/main/resources/static/game/";
+const gameHtml = await readFile(new URL(gameDir + "index.html", import.meta.url), "utf8");
+const gameCss = await readFile(new URL(gameDir + "game.css", import.meta.url), "utf8");
+const gameJs = await readFile(new URL(gameDir + "game.js", import.meta.url), "utf8");
+
+test("game: index.html が game.css と game.js を ?v= 付きで読み込み、演出レイヤーを持つ", () => {
+  assert.match(gameHtml, /<link rel="stylesheet" href="\.\/game\.css\?v=[\w-]+">/);
+  assert.match(gameHtml, /<script src="\.\/game\.js\?v=[\w-]+"><\/script>/);
+  assert.match(gameHtml, /<div id="fx-layer" aria-hidden="true"><\/div>/);
+  assert.match(gameHtml, /id="result-slip"/);
+});
+
+test("game: 演出のCSSは fx- クラスで、prefers-reduced-motion で止まる", () => {
+  assert.match(gameCss, /\.fx-cutin\b/);
+  assert.match(gameCss, /\.fx-slip\b/);
+  const reduce = gameCss.slice(gameCss.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+  // カットインはJS側で、止める設定のときは出さない
+  for (const cls of [".fx-pillar", ".fx-coin", ".fx-ko", ".fx-ch", ".fx-slip-row"]) {
+    assert.ok(reduce.includes(cls), `${cls} が動き止めの対象にありません`);
+  }
+  assert.match(gameJs, /prefers-reduced-motion: reduce/);
+  assert.doesNotMatch(gameCss + gameJs, /<canvas|requestAnimationFrame/);
+});
+
+test("game: カットイン・明細・ダメージ表示はAPIの文字列を textContent で入れる", () => {
+  const body = (name) => {
+    const start = gameJs.indexOf(`function ${name}(`);
+    assert.ok(start >= 0, name);
+    const end = gameJs.indexOf("\n  }\n", start);
+    return gameJs.slice(start, end);
+  };
+  for (const name of ["fxCutIn", "fxSlip", "fxDamage", "fxLucky"]) {
+    assert.doesNotMatch(body(name), /innerHTML|insertAdjacentHTML/, name);
+    assert.match(body(name), /textContent/, name);
+  }
+  assert.match(body("fxCutIn"), /skill\.textContent = e\.skillName/);
+  assert.match(gameJs, /function fxClear\(/);
+});
