@@ -40,7 +40,7 @@ test("analysis reports per-image progress and does not wait forever", () => {
 
 
 test("upload page cache-busts app.js so old upload code is not reused", () => {
-  assert.match(html, /<script src="\.\/app\.js\?v=20261011-zip-limits"><\/script>/);
+  assert.match(html, /<script src="\.\/app\.js\?v=20261013-db-label"><\/script>/);
 });
 
 test("frontend posts multipart data to the receipt endpoint", () => {
@@ -58,12 +58,12 @@ test("frontend keeps each selected receipt result separate", () => {
 
 test("analysis and PostgreSQL save are separate operations", () => {
   assert.match(html, /id="submit-button"[^>]*>解析<\/button>/);
-  assert.match(html, /id="save-button"[^>]*>PostgreSQLへ保存<\/button>/);
+  assert.match(html, /id="save-button"[^>]*>データベースへ保存<\/button>/);
   assert.match(js, /\/api\/receipts\/analyze/);
   assert.match(js, /\/api\/receipts\/save/);
   assert.match(js, /saveButton\.addEventListener\("click"/);
   assert.match(js, /枚の解析が完了しました/);
-  assert.match(js, /PostgreSQLへ保存しました/);
+  assert.match(js, /データベースへ保存しました/);
   assert.doesNotMatch(js, /未保存 \/ /);
   assert.doesNotMatch(js, /PostgreSQL保存済み/);
 });

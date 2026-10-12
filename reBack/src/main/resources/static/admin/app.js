@@ -81,7 +81,7 @@ function resetUploadPage() {
   submitButton.textContent = "解析";
   saveButton.disabled = true;
   saveButton.classList.add("hidden");
-  saveButton.textContent = "PostgreSQLへ保存";
+  saveButton.textContent = "データベースへ保存";
   setStep(0);
 }
 
@@ -128,7 +128,7 @@ function setBusy(mode) {
   submitButton.textContent = mode === "analyze" ? "解析中..." : "解析";
   submitButton.classList.toggle("is-busy", mode === "analyze");
   saveButton.classList.toggle("is-busy", mode === "save");
-  saveButton.textContent = mode === "save" ? "保存中..." : "PostgreSQLへ保存";
+  saveButton.textContent = mode === "save" ? "保存中..." : "データベースへ保存";
   updateSaveButton();
 }
 
@@ -340,7 +340,7 @@ async function fetchSaveApi(url, options) {
   } catch (error) {
     if (error?.name === "AbortError") {
       const timeoutError = new Error(
-        "バックエンドサーバーから応答がありません。通信状態を確認して、再度「PostgreSQLへ保存」を押してください。"
+        "バックエンドサーバーから応答がありません。通信状態を確認して、再度「データベースへ保存」を押してください。"
       );
       timeoutError.code = "BACKEND_TIMEOUT";
       throw timeoutError;
@@ -393,10 +393,10 @@ function buildSaveCompletionMessage(receipts) {
     .map((receipt) => receipt.fileNumber);
 
   if (storedNumbers.length) {
-    return `画像${storedNumbers.join("、")}をPostgreSQLへ保存しました。`;
+    return `画像${storedNumbers.join("、")}をデータベースへ保存しました。`;
   }
 
-  return "PostgreSQLへ保存する対象がありません。";
+  return "データベースへ保存する対象がありません。";
 }
 
 form.addEventListener("submit", async (event) => {
@@ -481,7 +481,7 @@ form.addEventListener("submit", async (event) => {
 saveButton.addEventListener("click", async () => {
   if (busy) return;
   if (!hasPendingReceipts()) {
-    statusElement.textContent = "PostgreSQLへ保存する未保存の解析結果がありません。先に解析してください。";
+    statusElement.textContent = "データベースへ保存する未保存の解析結果がありません。先に解析してください。";
     updateSaveButton();
     return;
   }
@@ -497,7 +497,7 @@ saveButton.addEventListener("click", async () => {
       if (receipt.stored) continue;
 
       try {
-        statusElement.textContent = `画像${receipt.fileNumber}をPostgreSQLへ保存中です。`;
+        statusElement.textContent = `画像${receipt.fileNumber}をデータベースへ保存中です。`;
         const saved = await saveReceipt(receipt.lines, receipt.sha256, receipt.structuredData);
         receipt.tableName = saved.tableName || "";
         receipt.stored = true;
