@@ -9,7 +9,8 @@
   <title>モンスターレシート対戦 デモ</title>
   <!-- 既存画面と同じ金貨テーマ。既存の styles.css は読み込むだけで変更しない。 -->
   <link rel="stylesheet" href="../admin/styles.css">
-  <link rel="stylesheet" href="./demo.css">
+  <link rel="stylesheet" href="./demo.css?v=20261013-fx2">
+  <link rel="stylesheet" href="../game/fx.css?v=20261013-fx2">
   <script src="../theme/theme.js"></script>
 </head>
 <body>
@@ -50,14 +51,17 @@
       <h2>待機ルーム</h2>
       <div class="room-code-box">
         <span class="room-label">ルームコード</span>
-        <strong id="room-code" class="room-code">------</strong>
+        <strong id="room-code" class="room-code" role="img" aria-label="ルームコード">------</strong>
         <button type="button" class="secondary-button small-button" id="btn-copy">コピー</button>
       </div>
       <ul class="seat-list">
-        <li id="seat-p1"><span class="seat-mark">P1</span><span class="seat-name"></span><span class="badge"></span></li>
-        <li id="seat-p2"><span class="seat-mark">P2</span><span class="seat-name"></span><span class="badge"></span></li>
+        <li id="seat-p1"><span class="seat-mark">P1</span><span class="seat-name"></span><span class="fx-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="fx-paperflow" aria-hidden="true"></span><span class="badge"></span></li>
+        <li id="seat-p2"><span class="seat-mark">P2</span><span class="seat-name"></span><span class="fx-dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="fx-paperflow" aria-hidden="true"></span><span class="badge"></span></li>
       </ul>
-      <p class="status" id="wait-status" role="status"></p>
+      <div class="wait-row">
+        <div class="fx-wait-ring" id="wait-ring" aria-hidden="true"><svg viewBox="0 0 44 44"><circle class="fx-wait-ring-bg" cx="22" cy="22" r="18" pathLength="100"/><circle class="fx-wait-ring-bar" cx="22" cy="22" r="18" pathLength="100"/></svg><b></b></div>
+        <p class="status" id="wait-status" role="status"></p>
+      </div>
       <div class="button-row" id="demo-join-row"><button type="button" class="secondary-button small-button" id="btn-demo-join">（デモ用）相手プレイヤーが参加した</button><span class="help-text">押さずに待つと、コンピュータ対戦になります（デモは12秒、本番の既定は90秒）。</span></div>
       <div class="button-row"><button type="button" class="secondary-button" id="btn-leave-wait">ロビーへ戻る</button></div>
     </section>
@@ -107,7 +111,7 @@
         <span class="badge" id="battle-seed"></span>
       </div>
       <p class="note cpu-note hidden" id="cpu-note"></p>
-      <div class="arena">
+      <div class="arena" id="battle-arena">
         <div class="fighter" id="fighter-0"></div>
         <div class="vs" aria-hidden="true">VS</div>
         <div class="fighter" id="fighter-1"></div>
@@ -125,6 +129,7 @@
       <div class="result-banner" id="result-banner"></div>
       <p class="lead" id="result-detail"></p>
       <div class="arena result-arena" id="result-arena"></div>
+      <div class="fx-slip" id="result-slip" aria-label="バトル明細"></div>
       <h3>選ばれた2枚の元レシート（対戦が始まったので、ゲームプレイヤー1・2に公開）</h3>
       <div class="receipt-field" id="result-receipts"></div>
       <div class="button-row">
@@ -136,9 +141,12 @@
     <p class="footer-note">— Monster Receipt Battle · Demo —</p>
   </main>
 
+  <!-- 演出用のレイヤー（画面全体・操作を邪魔しない） -->
+  <div id="fx-layer" aria-hidden="true"></div>
   <script src="../game/back-link.js"></script>
   <script src="./engine.js"></script>
   <script src="./mock-data.js"></script>
-  <script src="./demo.js"></script>
+  <script src="../game/fx.js?v=20261013-fx2"></script>
+  <script src="./demo.js?v=20261013-fx2"></script>
 </body>
 </html>

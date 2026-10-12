@@ -258,42 +258,66 @@ test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET metho
   }
 });
 
-// ---- モンスターレシート対戦の演出 ----
-const gameDir = "../../reBack/src/main/resources/static/game/";
-const gameHtml = await readFile(new URL(gameDir + "index.html", import.meta.url), "utf8");
-const gameCss = await readFile(new URL(gameDir + "game.css", import.meta.url), "utf8");
-const gameJs = await readFile(new URL(gameDir + "game.js", import.meta.url), "utf8");
+// ---- モンスターレシート対戦の演出（本番 /game/ とデモ /demo/ で共通の fx.css・fx.js） ----
+const staticDir = "../../reBack/src/main/resources/static/";
+const readStatic = (p) => readFile(new URL(staticDir + p, import.meta.url), "utf8");
+const gameHtml = await readStatic("game/index.html");
+const demoHtml = await readStatic("demo/index.html");
+const fxCss = await readStatic("game/fx.css");
+const fxJs = await readStatic("game/fx.js");
+const gameJs = await readStatic("game/game.js");
+const demoJs = await readStatic("demo/demo.js");
 
-test("game: index.html が game.css と game.js を ?v= 付きで読み込み、演出レイヤーを持つ", () => {
-  assert.match(gameHtml, /<link rel="stylesheet" href="\.\/game\.css\?v=[\w-]+">/);
-  assert.match(gameHtml, /<script src="\.\/game\.js\?v=[\w-]+"><\/script>/);
-  assert.match(gameHtml, /<div id="fx-layer" aria-hidden="true"><\/div>/);
-  assert.match(gameHtml, /id="result-slip"/);
+test("game / demo: index.html が fx.css と fx.js を ?v= 付きで読み込み、演出レイヤーと明細を持つ", () => {
+  for (const [name, html, fxPrefix] of [["game", gameHtml, "./"], ["demo", demoHtml, "../game/"]]) {
+    assert.match(html, new RegExp(`<link rel="stylesheet" href="${fxPrefix.replace(/[./]/g, "\\$&")}fx\\.css\\?v=[\\w-]+">`), `${name}: fx.css`);
+    assert.match(html, new RegExp(`<script src="${fxPrefix.replace(/[./]/g, "\\$&")}fx\\.js\\?v=[\\w-]+"></script>`), `${name}: fx.js`);
+    assert.match(html, /<script src="\.\/(game|demo)\.js\?v=[\w-]+"><\/script>/, `${name}: 画面のJS`);
+    assert.match(html, /<div id="fx-layer" aria-hidden="true"><\/div>/, `${name}: fx-layer`);
+    assert.match(html, /id="result-slip"/, `${name}: result-slip`);
+    assert.match(html, /id="battle-arena"/, `${name}: battle-arena`);
+    // fx.js は画面のJS（MonsterFx を使う側）より前に読み込む
+    assert.ok(html.indexOf("fx.js") < html.search(/(game|demo)\.js\?v=/), `${name}: 読み込み順`);
+  }
 });
 
-test("game: 演出のCSSは fx- クラスで、prefers-reduced-motion で止まる", () => {
-  assert.match(gameCss, /\.fx-cutin\b/);
-  assert.match(gameCss, /\.fx-slip\b/);
-  const reduce = gameCss.slice(gameCss.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
-  // カットインはJS側で、止める設定のときは出さない
-  for (const cls of [".fx-pillar", ".fx-coin", ".fx-ko", ".fx-ch", ".fx-slip-row"]) {
+test("fx.css: fx- クラスの演出があり、prefers-reduced-motion で止まる", () => {
+  assert.match(fxCss, /\.fx-cutin\b/);
+  assert.match(fxCss, /\.fx-slip\b/);
+  const reduce = fxCss.slice(fxCss.lastIndexOf("@media (prefers-reduced-motion: reduce)"));
+  for (const cls of [".fx-pillar", ".fx-coin", ".fx-ko", ".fx-ch", ".fx-slip-row", ".fx-drum-strip", ".mcard.is-revealed"]) {
     assert.ok(reduce.includes(cls), `${cls} が動き止めの対象にありません`);
   }
-  assert.match(gameJs, /prefers-reduced-motion: reduce/);
-  assert.doesNotMatch(gameCss + gameJs, /<canvas|requestAnimationFrame/);
+  assert.match(fxJs, /prefers-reduced-motion: reduce/);
+  assert.doesNotMatch(fxCss + fxJs, /<canvas|requestAnimationFrame/);
 });
 
-test("game: カットイン・明細・ダメージ表示はAPIの文字列を textContent で入れる", () => {
+test("game.js / demo.js は MonsterFx を呼び、後片付けとカットインの一時停止を行う", () => {
+  for (const [name, js] of [["game.js", gameJs], ["demo.js", demoJs]]) {
+    assert.match(js, /window\.MonsterFx/, name);
+    for (const call of ["FX.roomCode(", "FX.copied(", "FX.waitRing(", "FX.summon(", "FX.battleIntro(", "FX.hit(", "FX.cutIn(", "FX.ko(", "FX.result(", "FX.clear("]) {
+      assert.ok(js.includes(call), `${name} に ${call} がありません`);
+    }
+    assert.match(js, /FX\.seat(Joined|State)\(/, `${name}: 参戦ハンコ`);
+    assert.match(js, /r\.pending/, `${name}: カットイン中の一時停止`);
+  }
+});
+
+test("fx.js: カード名・必殺技名などは textContent で入れ、innerHTML には固定のSVGだけ", () => {
   const body = (name) => {
-    const start = gameJs.indexOf(`function ${name}(`);
+    const start = fxJs.indexOf(`function ${name}(`);
     assert.ok(start >= 0, name);
-    const end = gameJs.indexOf("\n  }\n", start);
-    return gameJs.slice(start, end);
+    return fxJs.slice(start, fxJs.indexOf("\n  }\n", start));
   };
-  for (const name of ["fxCutIn", "fxSlip", "fxDamage", "fxLucky"]) {
+  for (const name of ["cutIn", "slip", "damage", "lucky", "roomCode"]) {
     assert.doesNotMatch(body(name), /innerHTML|insertAdjacentHTML/, name);
     assert.match(body(name), /textContent/, name);
   }
-  assert.match(body("fxCutIn"), /skill\.textContent = e\.skillName/);
-  assert.match(gameJs, /function fxClear\(/);
+  assert.match(body("cutIn"), /skill\.textContent = e\.skillName/);
+  assert.match(body("cutIn"), /who\.textContent = card\.name/);
+  // innerHTML / insertAdjacentHTML に渡すのは定数のSVGだけ
+  for (const m of fxJs.matchAll(/(?:innerHTML\s*=|insertAdjacentHTML\([^,]+,)\s*([^;)]+)/g)) {
+    assert.match(m[1].trim(), /^[A-Z_]+_SVG$/, m[0]);
+  }
+  assert.match(fxJs, /function clear\(/);
 });

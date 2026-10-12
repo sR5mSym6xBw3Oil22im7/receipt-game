@@ -7,7 +7,10 @@
   const M = window.MonsterMock;
   const $ = (id) => document.getElementById(id);
     const CPU_WAIT_SECONDS = 12;   // 本番の既定は90秒（設定で変更可）。デモでは短くしている
-  const SPEEDS = [["ふつう", 1100], ["はやい", 450], ["ゆっくり", 1900]];
+  // [名前, 1手の間隔ms, 必殺技カットインの長さms]
+  const SPEEDS = [["ふつう", 1100, 1200], ["はやい", 450, 600], ["ゆっくり", 1900, 1200]];
+  // 演出は ../game/fx.js（MonsterFx）。本番と共通で、ここでは呼び出しとタイミングの調整だけを行う。
+  const FX = window.MonsterFx;
 
   const state = {
     pool: [], nextId: 1, seat: "P1", roomCode: "", timers: [],
@@ -21,7 +24,7 @@
   }
   const yen = (n) => "¥" + Number(n).toLocaleString("ja-JP");
   const later = (fn, ms) => { const t = setTimeout(fn, ms); state.timers.push(t); return t; };
-  function clearTimers() { state.timers.forEach(clearTimeout); state.timers = []; if (state.replay) { clearInterval(state.replay.timer); state.replay = null; } }
+  function clearTimers() { state.timers.forEach(clearTimeout); state.timers = []; if (state.replay) { clearInterval(state.replay.timer); state.replay = null; } FX.clear(); }
   const cardById = (id) => state.pool.find((c) => c.id === id);
   const randomU32 = () => crypto.getRandomValues(new Uint32Array(1))[0];
 
@@ -32,6 +35,7 @@
   }
 
   function show(view) {
+    FX.clear();
     document.querySelectorAll(".view").forEach((s) => s.classList.toggle("hidden", s.id !== "view-" + view));
     window.scrollTo({ top: 0 });
   }
@@ -82,8 +86,8 @@
     clearTimers();
     state.seat = seat; state.roomCode = code; state.mode = "HUMAN"; state.cpuReason = "";
     state.myId = null; state.myConfirmed = false; state.oppId = null; state.oppConfirmed = false; 
-    $("room-code").textContent = code;
     show("wait");
+    FX.roomCode($("room-code"), code);
     const opp = "相手プレイヤー（自動操作）";
     const mine = seat === "P1" ? "seat-p1" : "seat-p2", theirs = seat === "P1" ? "seat-p2" : "seat-p1";
     setSeatRow(mine, "あなた", "参加済み", false);
@@ -93,6 +97,7 @@
       let left = CPU_WAIT_SECONDS;
       const tick = () => {
         if (left <= 0) { startCpuMode(theirs); return; }
+        FX.waitRing($("wait-ring"), left, CPU_WAIT_SECONDS);
         $("wait-status").textContent = `ルームコードを相手に伝えてください。あと ${left} 秒で、参加がなければコンピュータ（P2）との対戦になります。`;
         left--;
         later(tick, 1000);
@@ -100,6 +105,8 @@
       tick();
     } else {
       setSeatRow(theirs, opp, "参加済み", false);
+      FX.waitRing($("wait-ring"), null);
+      FX.seatJoined($(theirs), { cpu: false });
       $("wait-status").textContent = "ルームに参加しました。カード選択へ進みます…";
       later(enterSelect, 1300);
     }
@@ -108,6 +115,8 @@
   function humanJoined() {
     clearTimers();
     setSeatRow("seat-p2", "相手プレイヤー（自動操作）", "参加済み", false);
+    FX.waitRing($("wait-ring"), null);
+    FX.seatJoined($("seat-p2"), { cpu: false });
     $("wait-status").textContent = "2人そろいました。カード選択へ進みます…";
     $("demo-join-row").classList.add("hidden");
     later(enterSelect, 1300);
@@ -117,6 +126,8 @@
   function startCpuMode(theirs) {
     state.mode = "CPU";
     setSeatRow(theirs, "コンピュータ（自動）", "CPU", false);
+    FX.waitRing($("wait-ring"), null);
+    FX.seatJoined($(theirs), { cpu: true });
     $("demo-join-row").classList.add("hidden");
     $("wait-status").textContent = "相手が参加しなかったため、コンピュータ対戦になりました。カード選択へ進みます…";
     later(enterSelect, 1500);
@@ -208,6 +219,9 @@
     </article>`;
   }
 
+  // ポップアップに入れるカードの要素（手札のカードとは別に作る）
+  const popupCard = (card) => { const t = document.createElement("template"); t.innerHTML = cardHtml(card).trim(); return t.content.firstElementChild; };
+
   function renderSelect() {
     $("flip-info").textContent = `最初のレシートは1枚です。レシートを選ぶと、モンスターカードが現れます。手札は最大${HAND_LIMIT}枚です。手札の中から1枚を決めて対戦します。`;
     $("receipt-field").innerHTML = state.myField.map((c, i) => receiptTileHtml(c, i)).join("");
@@ -240,8 +254,8 @@
     setGenStatus("", false);
     renderSelect();
     updateChosen();
-    const el = $("hand-grid").querySelector(`[data-card="${card.id}"]`);
-    if (el) el.classList.add("is-revealed");
+    FX.summon(popupCard(card), card,
+      { tileEl: () => { const b = $("receipt-field").querySelector(`[data-flip="${index}"]`); return b ? b.closest(".receipt-tile") : null; } });
   }
 
   function updateChosen() {
@@ -336,11 +350,12 @@
     $("gen-preview").innerHTML = `<div class="card-grid">${cardHtml(card, { selected: true })}</div>`;
     updateChosen();
     renderSelect();
+    FX.summon(popupCard(card), card);
   }
 
   // ---------- M05 対戦 ----------
   function fighterHtml(card, slot) {
-    return `<div class="hp-box"><div class="hp-label"><span>${slot === 0 ? "あなた" : state.mode === "CPU" ? "コンピュータ" : "相手"}</span><span class="hp-num">${card.hp} / ${card.hp}</span></div><div class="hp-bar"><i></i></div></div>${cardHtml(card)}`;
+    return `<div class="hp-box"><div class="hp-label"><span>${slot === 0 ? "あなた" : state.mode === "CPU" ? "コンピュータ" : "相手"}</span><span class="hp-num">${card.hp} / ${card.hp}</span></div><div class="hp-bar"><i class="hp-ghost"></i><i class="hp-main"></i></div></div>${cardHtml(card)}`;
   }
 
   function startBattle() {
@@ -360,12 +375,23 @@
     $("fighter-0").innerHTML = fighterHtml(my, 0);
     $("fighter-1").innerHTML = fighterHtml(opp, 1);
     ["fighter-0", "fighter-1"].forEach((id) => $(id).className = "fighter");
-    $("fighter-0").style.setProperty("--lunge", "24px");
-    $("fighter-1").style.setProperty("--lunge", "-24px");
+    $("fighter-0").style.setProperty("--lunge", "40px");
+    $("fighter-1").style.setProperty("--lunge", "-40px");
+    $("fighter-0").style.setProperty("--tilt", "3deg");
+    $("fighter-1").style.setProperty("--tilt", "-3deg");
     $("battle-log").innerHTML = "";
     const first = slotOf(result.first);
     appendLog(`先攻：${slotCards[first].name}（素早さ ${slotCards[first].spd}）`);
-    state.replay.timer = setInterval(playStep, SPEEDS[state.speedIndex][1]);
+    // 登場の演出が終わってから最初の playStep を始める
+    const r = state.replay;
+    const begin = () => { r.started = true; startTicker(r); };
+    const wait = FX.battleIntro($("battle-arena"));
+    if (wait > 0) later(begin, wait); else begin();
+  }
+
+  function startTicker(r) {
+    clearInterval(r.timer);
+    r.timer = setInterval(() => playStep(), SPEEDS[state.speedIndex][1]);
   }
 
   function appendLog(text, who, tags) {
@@ -380,30 +406,47 @@
   function setHp(slot, hp, max) {
     const box = $("fighter-" + slot);
     box.querySelector(".hp-num").textContent = `${hp} / ${max}`;
-    const bar = box.querySelector(".hp-bar > i");
+    const bar = box.querySelector(".hp-bar > i.hp-main");
     const ratio = hp / max;
     bar.style.width = (ratio * 100) + "%";
-    bar.className = ratio <= 0.25 ? "is-low" : ratio <= 0.5 ? "is-mid" : "";
+    box.querySelector(".hp-bar > i.hp-ghost").style.width = (ratio * 100) + "%";   // 赤い残像は遅れて追いつく
+    bar.className = "hp-main " + (ratio <= 0.25 ? "is-low" : ratio <= 0.5 ? "is-mid" : "");
   }
 
   function playStep(instant) {
     const r = state.replay;
-    if (!r) return;
-    if (r.step >= r.result.log.length) { finishBattle(); return; }
-    const e = r.result.log[r.step++];
+    if (!r || r.pending) return;   // 必殺技カットインの間は進めない
+    const log = r.result.log;
+    if (r.step >= log.length) { finishBattle(); return; }
+    const e = log[r.step++];
+    const fast = instant === true;
+    if (!fast && e.skill && !FX.reducedMotion()) {
+      // カットインの間はタイマーを止め、終わってからダメージを表示して再開する
+      clearInterval(r.timer);
+      FX.cutIn($("battle-arena"), r.slotCards[r.slotOf(e.actor)], e, SPEEDS[state.speedIndex][2]);
+      const run = (skip) => {
+        if (r.pending !== run) return;
+        r.pending = null;
+        applyStep(r, e, skip === true);
+        if (skip !== true && state.replay === r && r.step < log.length) startTicker(r);
+      };
+      r.pending = run;
+      later(() => run(), SPEEDS[state.speedIndex][2]);
+      return;
+    }
+    applyStep(r, e, fast);
+  }
+
+  function applyStep(r, e, fast) {
     const att = r.slotOf(e.actor), def = r.slotOf(e.target);
     r.hp[def] = e.hpAfter;
     setHp(def, e.hpAfter, r.slotCards[def].hp);
     const attBox = $("fighter-" + att), defBox = $("fighter-" + def);
-    if (!instant) {
+    if (!fast) {
       attBox.classList.remove("is-attacking"); defBox.classList.remove("is-hit");
       void attBox.offsetWidth;
       attBox.classList.add("is-attacking"); defBox.classList.add("is-hit");
-      const f = document.createElement("div");
-      f.className = "float-dmg" + (e.crit ? " is-crit" : e.elem < 1 ? " is-weak" : "");
-      f.textContent = e.damage;
-      defBox.append(f);
-      setTimeout(() => f.remove(), 1000);
+      FX.hit(defBox, r.slotCards[att], e);
     }
     const tags = [];
     if (e.skill) tags.push("必殺技");
@@ -411,15 +454,16 @@
     if (e.elem < 1) tags.push("属性不利");
     if (e.crit) tags.push("会心！");
     appendLog(`${r.slotCards[att].name}の${e.skillName}！ ${e.damage}ダメージ`, att, tags);
-    if (e.hpAfter === 0) defBox.classList.add("is-defeated");
-    if (r.step >= r.result.log.length) { clearInterval(r.timer); if (!instant) later(finishBattle, 1300); }
+    if (e.hpAfter === 0) { defBox.classList.add("is-defeated"); if (!fast) FX.ko(defBox); }
+    if (r.step >= r.result.log.length) { clearInterval(r.timer); if (!fast) later(finishBattle, 1300); }
   }
 
   function skipBattle() {
     const r = state.replay;
     if (!r) return;
     clearInterval(r.timer);
-    while (r && r.step < r.result.log.length) playStep(true);
+    if (r.pending) r.pending(true);   // カットイン待ちの1手は演出なしで反映する
+    while (r.step < r.result.log.length) playStep(true);
     finishBattle();
   }
 
@@ -435,14 +479,18 @@
     const draw = result.winner === "DRAW";
     const iWon = !draw && result.winner === meIndex;
     const banner = $("result-banner");
-    banner.textContent = draw ? "DRAW" : iWon ? "YOU WIN!" : "YOU LOSE…";
-    banner.classList.toggle("is-lose", !iWon);
+    const bannerText = draw ? "DRAW" : iWon ? "YOU WIN!" : "YOU LOSE…";
+    banner.className = "result-banner " + (draw ? "is-draw" : iWon ? "is-win" : "is-lose");
     const winnerName = draw ? "" : slotCards[iWon ? 0 : 1].name;
     $("result-detail").textContent = (state.mode === "CPU" ? "【コンピュータ対戦】" : "") + (draw ? "引き分けです。" : `${winnerName}の勝利！`) +
       (result.reason === "KO" ? `（KO決着・${result.log.length}回の行動）` : "（20ラウンド終了：残りHP割合で判定）") +
       ` 同じ battleSeed（${result.battleSeed}）で再計算すると、必ず同じ結果になります。`;
-    $("result-arena").innerHTML = `<div class="fighter ${iWon ? "is-winner" : draw ? "" : "is-defeated"}">${cardHtml(slotCards[0])}</div><div class="vs" aria-hidden="true">VS</div><div class="fighter ${!iWon && !draw ? "is-winner" : draw ? "" : "is-defeated"}">${cardHtml(slotCards[1])}</div>`;
+    const mineCls = draw ? "is-draw" : iWon ? "is-winner" : "is-defeated";
+    const oppCls = draw ? "is-draw" : iWon ? "is-defeated" : "is-winner";
+    $("result-arena").innerHTML = `<div class="fighter ${mineCls}">${cardHtml(slotCards[0])}</div><div class="vs" aria-hidden="true">VS</div><div class="fighter ${oppCls}">${cardHtml(slotCards[1])}</div>`;
     $("result-receipts").innerHTML = slotCards.map((c, i) => `<article class="receipt-tile"><h3>${i === 0 ? "あなた" : state.mode === "CPU" ? "コンピュータ" : "相手"}のカードの元レシート</h3>${receiptHtml(c)}</article>`).join("");
+    FX.result($("view-result"), { outcome: draw ? "DRAW" : iWon ? "WIN" : "LOSE", letters: bannerText,
+      slip: { log: result.log, reason: result.reason, mine: (e) => r.slotOf(e.actor) === 0 } });
   }
 
   // ---------- 初期化 ----------
@@ -461,7 +509,7 @@
     });
     $("join-code").addEventListener("input", () => $("join-code").setCustomValidity(""));
     $("btn-copy").addEventListener("click", async () => {
-      try { await navigator.clipboard.writeText(state.roomCode); $("btn-copy").textContent = "コピー済み"; } catch (_) { $("btn-copy").textContent = "コピーできません"; }
+      try { await navigator.clipboard.writeText(state.roomCode); $("btn-copy").textContent = "コピー済み"; FX.copied($("btn-copy")); } catch (_) { $("btn-copy").textContent = "コピーできません"; }
       setTimeout(() => { $("btn-copy").textContent = "コピー"; }, 1500);
     });
     $("btn-leave-wait").addEventListener("click", resetRoom);
@@ -490,10 +538,8 @@
     $("btn-speed").addEventListener("click", () => {
       state.speedIndex = (state.speedIndex + 1) % SPEEDS.length;
       $("btn-speed").textContent = "速度：" + SPEEDS[state.speedIndex][0];
-      if (state.replay && state.replay.step < state.replay.result.log.length) {
-        clearInterval(state.replay.timer);
-        state.replay.timer = setInterval(playStep, SPEEDS[state.speedIndex][1]);
-      }
+      const r = state.replay;
+      if (r && r.started && !r.pending && r.step < r.result.log.length) startTicker(r);
     });
     $("btn-skip").addEventListener("click", skipBattle);
     $("btn-rematch").addEventListener("click", enterSelect);
