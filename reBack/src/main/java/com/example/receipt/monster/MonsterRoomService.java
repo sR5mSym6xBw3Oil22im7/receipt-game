@@ -19,6 +19,7 @@ import com.example.receipt.monster.MonsterViews.RoomView;
 import com.example.receipt.monster.MonsterViews.SeatResponse;
 import com.example.receipt.monster.engine.MonsterBattleEngine;
 import com.example.receipt.monster.engine.MonsterCard;
+import com.example.receipt.monster.engine.MonsterCardGenerator;
 import com.example.receipt.monster.engine.PersonalInfoSanitizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -329,9 +330,9 @@ public class MonsterRoomService {
         // 1. 自分に配られたレシートから、1〜3枚（乱数）を手札にする
         List<Long> handIds = inTx(() -> {
             Room room = lock(code);
-            if (!SELECTING.equals(room.status()) || room.round() != round) return List.<Long>of();
+            if (!SELECTING.equals(room.status()) || room.round() != round) return null;
             Play cpu = rooms.play(room.id(), "P2");
-            if (cpu.confirmed()) return List.<Long>of();
+            if (cpu.confirmed()) return null;
             Play human = rooms.play(room.id(), "P1");
             int want = 1 + random.nextInt(HAND_LIMIT);
             List<FieldEntry> field = new ArrayList<>(cpu.field());
@@ -349,18 +350,29 @@ public class MonsterRoomService {
             rooms.savePlay(cpu.withField(field, cpu.flipped()).withHand(new ArrayList<>(hand), new ArrayList<>()));
             return hand;
         });
+        if (handIds == null) return;
         List<MonsterCard> hand = handIds.stream().map(cards::findById).flatMap(Optional::stream).map(StoredCard::card).toList();
-        if (hand.isEmpty()) {
-            if (!handIds.isEmpty()) LOGGER.warn("CPU hand cards were removed before choosing.");
+        if (hand.isEmpty() && !handIds.isEmpty()) {
+            LOGGER.warn("CPU hand cards were removed before choosing.");
             return;
         }
 
-        // 2. 手札から1枚を選ぶ（Geminiが使えないときは POWER 最大）
-        Optional<MonsterAi.CpuChoice> choice = limiter.tryAcquireGemini("PLAYER2")
-                ? ai.chooseCard(hand, keys.player2()) : Optional.empty();
-        MonsterCard pick = choice.flatMap(c -> hand.stream().filter(h -> h.id() == c.cardId()).findFirst())
-                .orElseGet(() -> hand.stream().max(Comparator.comparingInt(MonsterCard::power)).orElseThrow());
-        String reason = choice.filter(c -> c.cardId() == pick.id()).map(MonsterAi.CpuChoice::reason).orElse(CPU_FALLBACK_REASON);
+        // 2. 手札から1枚を選ぶ（Geminiが使えないときは POWER 最大）。
+        //    レシートが0件で手札がないときは、DBに保存しないその場限りのカードで対戦する。
+        MonsterCard pick;
+        String reason;
+        if (hand.isEmpty()) {
+            String sha = HexFormat.of().formatHex(random.generateSeed(32));
+            pick = MonsterCardGenerator.generate(null, sha, 0, "CPU").withId(-1L);
+            reason = CPU_FALLBACK_REASON;
+        } else {
+            Optional<MonsterAi.CpuChoice> choice = limiter.tryAcquireGemini("PLAYER2")
+                    ? ai.chooseCard(hand, keys.player2()) : Optional.empty();
+            MonsterCard best = choice.flatMap(c -> hand.stream().filter(h -> h.id() == c.cardId()).findFirst())
+                    .orElseGet(() -> hand.stream().max(Comparator.comparingInt(MonsterCard::power)).orElseThrow());
+            pick = best;
+            reason = choice.filter(c -> c.cardId() == best.id()).map(MonsterAi.CpuChoice::reason).orElse(CPU_FALLBACK_REASON);
+        }
 
         // 3. 決定する。P1が決定済みなら対戦を始める
         inTx(() -> {
@@ -416,15 +428,14 @@ public class MonsterRoomService {
     private Room startRound(Room room) {
         rooms.deleteBattles(room.id());
         List<Long> active = new ArrayList<>(cards.activeCardIds());
-        if (active.size() < 2) {
-            return close(room, null, "対戦できるカードが足りません（有効なカードが2枚以上必要です）。ロビーへ戻ります。");
-        }
+        // レシートが0件でも対戦できる（画像から作ったカードで対戦する）
         Collections.shuffle(active, random);
         List<Long> p1, p2;
         if ("CPU".equals(room.mode())) {
             // コンピュータに1枚、あなたに最大9枚（コンピュータは決定時に追加で引く）
-            p2 = active.subList(0, 1);
-            p1 = active.subList(1, Math.min(1 + FIELD_SIZE, active.size()));
+            int cpuCount = Math.min(1, active.size());
+            p2 = active.subList(0, cpuCount);
+            p1 = active.subList(cpuCount, Math.min(cpuCount + FIELD_SIZE, active.size()));
         } else {
             int first = Math.min(FIELD_SIZE, (active.size() + 1) / 2);
             p1 = active.subList(0, first);

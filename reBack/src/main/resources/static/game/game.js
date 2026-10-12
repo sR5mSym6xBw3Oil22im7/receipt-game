@@ -297,6 +297,11 @@
   function renderSelect() {
     const f = state.field;
     if (!f) return;
+    // レシートが1件もないときは「レシートを選ぶ」を出さず、「レシート画像から作る」だけにする
+    const noReceipts = f.receipts.length === 0 && f.hand.length === 0;
+    const poolTab = document.querySelector('.subtab[data-sub="pool"]');
+    poolTab.classList.toggle("hidden", noReceipts);
+    if (noReceipts && state.sub !== "image") switchSub("image");
     $("receipt-field").innerHTML = f.receipts.map(receiptTileHtml).join("");
     $("btn-shuffle").classList.toggle("hidden", !f.shuffleVisible);
     $("btn-shuffle").disabled = !f.canShuffle || state.busy;
@@ -304,6 +309,7 @@
     $("image-input").disabled = imageLocked;
     $("drop-zone").classList.toggle("is-disabled", imageLocked);
     document.querySelectorAll(".subtab").forEach((b) => { b.disabled = imageLocked; });
+    $("select-title").textContent = noReceipts ? "レシート画像からカードを作る" : "レシートを選んでカードを呼び出す";
     $("draw-info").textContent = `保存済みのレシートからランダムに${f.receipts.length}枚を表示しています。`;
     $("hand-title").textContent = `手札（${f.hand.length} / ${f.handLimit}枚）— この中から1枚を選びます`;
     if (f.confirmed && f.selectedCardId) state.myId = f.selectedCardId;
@@ -332,7 +338,8 @@
       return;
     }
     $("chosen-info").textContent = c ? `選択中：${c.name}（${c.element}・${c.rarity}・POWER ${c.power}）`
-      : f && f.hand.length ? "手札から、対戦に使う1枚を選んでください。" : "レシートを選んで、モンスターを呼び出してください。";
+      : f && f.hand.length ? "手札から、対戦に使う1枚を選んでください。"
+        : f && f.receipts.length === 0 ? "レシート画像からカードを作ってください。" : "レシートを選んで、モンスターを呼び出してください。";
     $("btn-confirm").disabled = !c || state.busy;
   }
 

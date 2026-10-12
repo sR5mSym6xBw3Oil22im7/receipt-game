@@ -298,14 +298,15 @@ class MonsterRoomIntegrationTest {
     }
 
     @Test
-    void notEnoughCardsClosesTheRoom() throws Exception {
-        seed(1);
+    void roomStartsEvenWithoutAnyReceipt() throws Exception {
         JsonObject p1 = create();
         String code = p1.get("code").getAsString();
         expireWait(code);
         JsonObject state = getJson("/api/monster/rooms/" + code, p1.get("token").getAsString());
-        assertThat(state.get("status").getAsString()).isEqualTo("CLOSED");
-        assertThat(state.get("notice").getAsString()).contains("2枚以上");
+        assertThat(state.get("status").getAsString()).isEqualTo("SELECTING");
+        JsonObject field = getJson("/api/monster/rooms/" + code + "/field", p1.get("token").getAsString());
+        assertThat(field.getAsJsonArray("receipts")).isEmpty();
+        assertThat(field.get("shuffleVisible").getAsBoolean()).isFalse();
     }
 
     // ---------- コンピュータ対戦（8章） ----------
