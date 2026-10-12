@@ -1,6 +1,6 @@
 // モンスターレシート対戦の画面制御。
 // ルーム・配布・勝敗はサーバー（/api/monster/rooms）が管理する。画面は状態を問い合わせて表示するだけ。
-// 席トークンは sessionStorage に置き、ページを再読み込みしても同じ席に戻れるようにする。
+// 席トークンは sessionStorage に置き、ページを再読み込みしても同じ席に戻れるようにする（メニューから開いたときはロビーから始める）。
 (function () {
   "use strict";
   const API = "/api/monster/rooms";
@@ -589,6 +589,9 @@
     const saved = loadSession();
     if (!saved || !saved.token) { show("lobby"); return; }
     state.code = saved.code; state.token = saved.token; state.seat = saved.seat;
+    // メニューのリンクなどから開いたときは、前のルームに戻らず必ずロビーから始める（再読み込みのときだけ席に戻る）
+    const nav = performance.getEntriesByType("navigation")[0];
+    if (!nav || nav.type === "navigate") { await leaveRoom(); return; }
     try { route(await api("/" + state.code)); } catch (e) { backToLobby(""); }
   }
 
