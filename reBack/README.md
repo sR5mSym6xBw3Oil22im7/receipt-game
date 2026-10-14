@@ -108,7 +108,7 @@ mvn test
 
 `Dockerfile` はMavenでJARをビルドし、Java 21のJREイメージで実行します（ポート8081）。
 
-`render.yml` には、Web Service `receipt-analysis-b8po` とPostgreSQL `receipt-analysis-psl-service` が定義されています。DB接続用の環境変数はデータベースから設定され、`ADMIN_USERNAME`、`ADMIN_PASSWORD_HASH`、`GEMINI_API_DEFAULT`、`GEMINI_API_PLAYER1`、`GEMINI_API_PLAYER2`、`GEMINI_API_MONSTER`、`GEMINI_API_ANALYZE` は値を手動で設定する項目（`sync: false`）です。サービス名を変える場合は、`reFront/config.js` の接続先も変更してください。
+`render.yml` には、Web Service `receipt-game` とPostgreSQL `receipt-analysis-psl-service` が定義されています。DB接続用の環境変数はデータベースから設定され、`ADMIN_USERNAME`、`ADMIN_PASSWORD_HASH`、`GEMINI_API_DEFAULT`、`GEMINI_API_PLAYER1`、`GEMINI_API_PLAYER2`、`GEMINI_API_MONSTER`、`GEMINI_API_ANALYZE` は値を手動で設定する項目（`sync: false`）です。サービス名を変える場合は、`reFront/config.js` の接続先も変更してください。
 
 ## 管理画面のスクリプト
 

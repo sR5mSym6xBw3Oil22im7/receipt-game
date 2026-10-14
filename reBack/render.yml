@@ -2,7 +2,7 @@ services:
   - type: web
     # Keep the Render service name aligned with reFront/config.js.
     # Render derives the public onrender.com hostname from this name.
-    name: receipt-analysis-b8po
+    name: receipt-game
     runtime: docker
     rootDir: reBack
     dockerfilePath: ./Dockerfile
