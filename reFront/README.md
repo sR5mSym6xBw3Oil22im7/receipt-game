@@ -17,6 +17,7 @@
 | ファイル | 内容 |
 | --- | --- |
 | `server.mjs` | ローカル確認用の静的ファイルサーバー（`http://localhost:5051`） |
+| `direct-access-guard.js` | メニュー以外のページへ直接アクセス（アドレスバー入力・ブックマーク・外部サイトのリンク）されたら `index.html` へ移動させる。各ページの `<head>` の先頭で読み込む |
 | `config.js` | 接続先URL（`window.APP_CONFIG`）の設定と、背景や見出しの装飾（金貨のSVG）の描画 |
 | `styles.css` | 画面共通のスタイル |
 | `test/smoke.test.mjs` | HTMLとスクリプトの内容を検査するテスト |
@@ -35,6 +36,13 @@
 1. バックエンドとPostgreSQLを起動します（[reBack/README.md](../reBack/README.md) を参照）。
 2. リポジトリ直下で `node reFront/server.mjs` を実行し、`http://localhost:5051/index.html` を開きます。ポートは5051に固定しています（`config.js` の「メニューへ戻る」の移動先と同じ）。
 3. 解析にはログインと、バックエンドの `.env` への `GEMINI_API_KEY` の設定が必要です。
+
+## 直接アクセスの扱い
+
+- メニュー（`index.html`）以外のURLを直接開くと、`index.html` へ移動します。同じサイトの `reFront/` 配下のページからのリンクで開いた場合だけ表示します。
+- `reFront/`（`index.html` を省いたURL）も `index.html` へ移動します。
+- `server.mjs` は、同じサイトからのリンクでないページ移動と、存在しないURLへのページ移動を `/index.html` へ302で転送します。
+- GitHub Pagesでは、存在しないURLはリポジトリ直下の `404.html` が `reFront/index.html` へ転送します。
 
 ## 解析画面の動作（app.js）
 

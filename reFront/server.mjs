@@ -25,6 +25,29 @@ const CONTENT_TYPES = {
 // 許可する Host（DNSリバインディング対策。localhost 以外の名前で来た要求は拒否する）
 const ALLOWED_HOSTS = new Set([`localhost:${PORT}`, `127.0.0.1:${PORT}`, `[::1]:${PORT}`]);
 
+const MENU_PATH = "/index.html";
+
+// ブラウザーのページ移動（アドレスバー入力・リンク）による要求か。Sec-Fetch-Mode のない古いブラウザーは Accept で判断する
+function isNavigation(request) {
+  const mode = request.headers["sec-fetch-mode"];
+  if (mode) return mode === "navigate";
+  return (request.headers.accept ?? "").includes("text/html");
+}
+
+// 同じサイトのページからのリンクか（Referer が同じ Host）
+function cameFromSite(request) {
+  try {
+    return new URL(request.headers.referer ?? "").host === request.headers.host;
+  } catch {
+    return false;
+  }
+}
+
+function redirectToMenu(response) {
+  response.writeHead(302, { Location: MENU_PATH, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" });
+  response.end();
+}
+
 function reject(response, status, message) {
   response.writeHead(status, { "Content-Type": "text/plain; charset=utf-8", "X-Content-Type-Options": "nosniff" });
   response.end(message);
@@ -34,6 +57,11 @@ const server = createServer(async (request, response) => {
   try {
     if (request.method !== "GET" && request.method !== "HEAD") return reject(response, 405, "Method Not Allowed");
     if (!ALLOWED_HOSTS.has(request.headers.host ?? "")) return reject(response, 403, "Forbidden");
+
+    // メニュー以外への直接アクセス（同じサイトのページからのリンク以外のページ移動）はメニューへ移動させる
+    const navigation = isNavigation(request);
+    const requestPath = new URL(request.url, `http://${HOST}`).pathname;
+    if (navigation && requestPath !== MENU_PATH && !cameFromSite(request)) return redirectToMenu(response);
 
     let pathname;
     try {
@@ -57,6 +85,8 @@ const server = createServer(async (request, response) => {
     });
     response.end(request.method === "HEAD" ? undefined : body);
   } catch {
+    // 存在しないページへの移動もメニューへ
+    if (isNavigation(request)) return redirectToMenu(response);
     reject(response, 404, "Not Found");
   }
 });

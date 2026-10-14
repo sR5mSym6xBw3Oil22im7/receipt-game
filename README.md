@@ -47,6 +47,7 @@
 | `reFront/` | メニューの静的ページ（HTML / CSS / JavaScript）。詳細は [reFront/README.md](reFront/README.md) |
 | `reBack/` | Java 21 / Spring Boot のREST API、管理画面（ログイン・解析・一覧）、テスト、Dockerfile、render.yml。詳細は [reBack/README.md](reBack/README.md) |
 | `index.html` | `reFront/index.html` へ転送するページ |
+| `404.html` | GitHub Pagesで存在しないURLを開いたときに `reFront/index.html` へ転送するページ |
 
 管理画面のHTMLはバックエンド（`reBack/src/main/resources/static/admin/`）から配信します。メニューの「レシートを解析」「保存済みレシートを確認する」は、バックエンドのログイン画面へ移動します。
 

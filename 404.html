@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex">
+    <script>
+      // GitHub Pages が存在しないURLに返すページ。メニュー（reFront/index.html）へ移動する。
+      // プロジェクトサイト（<ユーザー>.github.io/<リポジトリ>/）では先頭のパスがリポジトリ名になる
+      (function () {
+        var base = /\.github\.io$/.test(location.hostname) ? "/" + location.pathname.split("/")[1] + "/" : "/";
+        location.replace(base + "reFront/index.html");
+      })();
+    </script>
+    <title>Redirecting…</title>
+  </head>
+  <body></body>
+</html>
