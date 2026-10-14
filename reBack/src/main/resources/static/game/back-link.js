@@ -7,5 +7,5 @@
   const isLocal = window.location.protocol === "file:" || host === "" || host === "localhost" || host === "127.0.0.1";
   link.href = isLocal
     ? "http://localhost:5051/index.html"
-    : "https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html";
+    : "https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html";
 })();

@@ -9,7 +9,7 @@ const backendBaseUrl = isLocalFrontend
 
 const publicBaseUrl = isLocalFrontend
   ? "http://localhost:5051/index.html"
-  : "https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html";
+  : "https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html";
 
 window.APP_CONFIG = {
   API_BASE_URL: backendBaseUrl,

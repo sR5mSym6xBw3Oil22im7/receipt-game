@@ -28,7 +28,7 @@
 | 開き方 | バックエンド | 「メニューへ戻る」の移動先 |
 | --- | --- | --- |
 | ファイルとして開く、またはlocalhost / 127.0.0.1 | `http://localhost:8081` | `http://localhost:5051/index.html` |
-| 上記以外 | `https://receipt-analysis-b8po.onrender.com` | `https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html` |
+| 上記以外 | `https://receipt-analysis-b8po.onrender.com` | `https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html` |
 
 ## ローカルでの利用
 
