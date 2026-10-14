@@ -7,18 +7,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
   <title>レシート解析</title>
-  <link rel="stylesheet" href="./styles.css?v=20261006-no-kinun">
+  <link rel="stylesheet" href="./styles.css?v=20261014-no-coin">
   <script src="../theme/theme.js"></script>
 </head>
 <body>
   <main class="container">
     <p class="page-actions"><a id="back-link" class="back-link" href="/admin/menu.html" data-keep-href>← メニューへ戻る</a><button id="logout-button" class="secondary-button small-button" type="button">ログアウト</button></p>
     <section class="card page-header">
-      <div class="motif" data-motif="small" data-seed="34"></div>
       <div>
         <p class="eyebrow">Analyze</p>
         <h1>レシート解析</h1>
-        <div class="flourish is-left"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
+        <div class="flourish is-left"></div>
         <p class="lead">JPEG / PNG / ZIP のレシート画像を選択してください。ZIPは複数のレシート画像をまとめて解析できます（中身はJPEG/PNGのみ）。</p>
       </div>
     </section>
@@ -33,7 +32,6 @@
       <form id="receipt-form">
         <div class="file-input-list">
           <label class="drop-zone" id="drop-zone" for="receipt-file-1">
-            <svg class="drop-icon" aria-hidden="true"><use href="#gd" width="52" height="52"/></svg>
             <span class="drop-title">ここにレシート画像をドロップ</span>
             <span class="help-text">またはクリックしてファイルを選択（JPEG / PNG / ZIP）</span>
             <input id="receipt-file-1" name="file" type="file" accept="image/jpeg,image/png,.zip,application/zip">
@@ -51,11 +49,11 @@
 
     <section id="result-card" class="card hidden" aria-live="polite">
       <h2>解析結果</h2>
-      <div class="flourish is-left"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
+      <div class="flourish is-left"></div>
       <div id="receipt-results" class="receipt-results"></div>
     </section>
   </main>
-  <script src="./config.js?v=20261014-pages-receipt-game"></script>
+  <script src="./config.js?v=20261014-no-coin"></script>
   <script src="./admin-api.js?v=20261011-keep-href2"></script>
   <script src="./app.js?v=20261013-db-label"></script>
 </body>

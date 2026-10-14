@@ -1,6 +1,5 @@
 /* =========================================================
    レシート解析システム — 見た目デザイン
-   テーマ：降り注ぐ金貨（明るい光の柱と螺旋の光の帯、金貨が舞い落ちる）
    ========================================================= */
 
 :root {
@@ -70,20 +69,6 @@ body {
 a { color: var(--gold-deep); }
 a:hover { color: var(--gold); }
 :focus-visible { outline: 3px solid rgba(201, 151, 31, 0.55); outline-offset: 2px; }
-
-/* ---------- 背景の装飾レイヤー（ornament.js が描く） ---------- */
-.scene {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-.scene svg { display: block; width: 100%; height: 100%; }
-
-/* きらめき */
-.twinkle { animation: twinkle 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes twinkle { 0%, 100% { opacity: 0.25; transform: scale(0.6); } 50% { opacity: 1; transform: scale(1); } }
 
 /* ---------- レイアウト ---------- */
 .container {
@@ -155,7 +140,7 @@ p { margin: 0 0 12px; }
   text-transform: uppercase;
 }
 
-/* 見出しの下の飾り罫（金の線＋モチーフ） */
+/* 見出しの下の飾り罫（金の線） */
 .flourish {
   display: flex;
   align-items: center;
@@ -168,34 +153,27 @@ p { margin: 0 0 12px; }
   height: 1.5px;
   background: linear-gradient(90deg, transparent, var(--gold) 30%, var(--gold-light) 70%, transparent);
 }
-.flourish svg { width: 28px; height: 28px; filter: drop-shadow(0 2px 3px rgba(120, 80, 0, 0.3)); }
 .flourish.is-left::before { display: none; }
 .flourish.is-left::after { background: linear-gradient(90deg, var(--gold), var(--gold-light) 50%, transparent); }
 
 .lead { color: var(--ink-soft); }
 
-/* ---------- モチーフ（見出しやメニューの絵） ---------- */
-.motif { display: block; }
-.motif svg { display: block; width: 100%; height: auto; filter: drop-shadow(0 14px 22px rgba(110, 72, 0, 0.3)); }
-
 .page-header {
   display: grid;
-  grid-template-columns: 112px minmax(0, 1fr);
-  gap: 28px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
   align-items: center;
 }
-.page-header .motif { width: 112px; }
 .page-header .flourish { margin-bottom: 12px; }
 
 /* ---------- トップ（メニュー） ---------- */
 .hero {
   display: grid;
-  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
-  gap: 44px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
   align-items: center;
   padding: 44px;
 }
-.hero .motif { max-width: 320px; justify-self: center; width: 100%; }
 .hero-title { font-size: clamp(1.9rem, 4vw, 2.6rem); }
 .hero-sub { font-family: var(--font-latin); font-weight: 600; color: var(--gold-deep); font-size: 1.1rem; letter-spacing: 0.3em; text-transform: uppercase; margin: 0; }
 
@@ -203,7 +181,7 @@ p { margin: 0 0 12px; }
 .menu-link {
   position: relative;
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
   padding: 16px 18px 16px 14px;
@@ -220,8 +198,6 @@ p { margin: 0 0 12px; }
   border-color: var(--gold);
   box-shadow: 0 12px 24px -14px rgba(138, 95, 11, 0.6);
 }
-.menu-link .motif { width: 54px; }
-.menu-link .motif svg { filter: drop-shadow(0 4px 6px rgba(110, 72, 0, 0.25)); }
 .menu-title { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-family: var(--font-head); font-size: 1.12rem; font-weight: 700; }
 .menu-desc { display: block; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.6; margin-top: 2px; }
 .menu-arrow { color: var(--gold); font-family: var(--font-latin); font-size: 1.6rem; transition: transform 0.2s ease; }
@@ -334,7 +310,6 @@ form { display: grid; gap: 18px; margin-top: 8px; }
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 .drop-zone:hover, .drop-zone.is-over { border-color: var(--gold); background-color: var(--gold-mist); }
-.drop-zone svg.drop-icon { width: 56px; height: 56px; filter: drop-shadow(0 4px 6px rgba(110, 72, 0, 0.3)); }
 .drop-zone input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .drop-title { font-family: var(--font-head); font-weight: 700; font-size: 1.05rem; }
 .file-chip {
@@ -433,7 +408,7 @@ form { display: grid; gap: 18px; margin-top: 8px; }
 .receipt-list { display: grid; gap: 12px; }
 .receipt-row {
   display: grid;
-  grid-template-columns: auto 44px minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
   padding: 14px 18px;
@@ -446,8 +421,6 @@ form { display: grid; gap: 18px; margin-top: 8px; }
 .receipt-row.is-checked { background: var(--gold-mist); border-color: var(--gold); }
 .receipt-row.is-open { box-shadow: inset 4px 0 0 var(--gold); }
 .receipt-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--gold); cursor: pointer; }
-.row-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--gold-mist); border: 1px solid var(--gold-line); }
-.row-icon svg { width: 34px; height: 34px; }
 .row-info { display: grid; gap: 2px; min-width: 0; }
 .row-info strong { font-family: var(--font-head); overflow-wrap: anywhere; }
 .row-meta { color: var(--ink-soft); font-size: 0.85rem; }
@@ -469,7 +442,6 @@ form { display: grid; gap: 18px; margin-top: 8px; }
 
 /* ---------- ログイン ---------- */
 .login-card { width: min(460px, 100%); justify-self: center; padding: 40px 36px 36px; text-align: center; }
-.login-card .motif { width: 120px; margin: 0 auto 12px; }
 .login-card form { text-align: left; }
 .login-card .primary-button { width: 100%; margin-top: 6px; }
 
@@ -478,7 +450,6 @@ form { display: grid; gap: 18px; margin-top: 8px; }
 /* ---------- スマートフォン ---------- */
 @media (max-width: 760px) {
   .hero { grid-template-columns: 1fr; gap: 24px; padding: 28px 20px; text-align: center; }
-  .hero .motif { max-width: 220px; }
   .hero-title { font-size: clamp(1.45rem, 6.6vw, 2.2rem); letter-spacing: 0.02em; }
   .hero .flourish.is-left::before { display: block; }
   .menu { text-align: left; }
@@ -486,14 +457,10 @@ form { display: grid; gap: 18px; margin-top: 8px; }
 @media (max-width: 560px) {
   .container { margin-top: 24px; gap: 18px; }
   .card { padding: 22px 18px; }
-  .page-header { grid-template-columns: 72px minmax(0, 1fr); gap: 16px; }
-  .page-header .motif { width: 72px; }
-  .menu-link { grid-template-columns: 42px minmax(0, 1fr); padding: 14px; }
-  .menu-link .motif { width: 42px; }
+  .menu-link { grid-template-columns: minmax(0, 1fr); padding: 14px; }
   .menu-arrow { display: none; }
   .menu-title { font-size: 1rem; }
-  .receipt-row { grid-template-columns: auto minmax(0, 1fr) auto; padding: 12px 14px; }
-  .row-icon { display: none; }
+  .receipt-row { padding: 12px 14px; }
   .login-card { padding: 32px 20px 24px; }
 }
 
@@ -501,7 +468,7 @@ form { display: grid; gap: 18px; margin-top: 8px; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
 
-/* ---------- 金貨テーマの調整（カードは白に近い金、丸い金貨のような部品） ---------- */
+/* ---------- 色と形の調整（カードは白に近い金） ---------- */
 :root {
   --bg-top: #fffaea;
   --bg-mid: #f5dc95;
@@ -514,14 +481,11 @@ form { display: grid; gap: 18px; margin-top: 8px; }
   --font-head: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --font-latin: "Cinzel", "Trajan Pro", "Georgia", serif;
 }
-/* 金貨の縁のような点線リング */
+/* 点線のリング */
 .card::before { border: 1.5px dotted rgba(201, 146, 28, 0.55); }
 .eyebrow { font-size: 0.82rem; letter-spacing: 0.3em; }
 .hero-sub { font-size: 0.95rem; }
 .menu-arrow { font-family: var(--font-latin); }
-/* メニューの絵とアイコンを金貨のように丸く浮かせる */
-.menu-link .motif svg, .page-header .motif svg { filter: drop-shadow(0 8px 10px rgba(134, 90, 6, 0.4)); }
-.row-icon { background: radial-gradient(circle at 35% 30%, #fffbe6, #f6dd94); }
 .steps li::before { box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7); }
 .receipt-paper h3::before { content: "●"; }
 .footer-note { font-family: var(--font-latin); font-style: normal; font-size: 0.85rem; }

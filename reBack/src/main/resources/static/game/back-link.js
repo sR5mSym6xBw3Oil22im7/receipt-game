@@ -1,5 +1,5 @@
 // 「メニューへ戻る」のリンク先を admin/config.js の PUBLIC_BASE_URL（login.html と同じ）に合わせる。
-// config.js は金貨の装飾も描画するため、ここでは読み込まず同じ判定だけを行う。
+// config.js は読み込まず、同じ判定だけを行う。
 (() => {
   const link = document.getElementById("back-link");
   if (!link) return;

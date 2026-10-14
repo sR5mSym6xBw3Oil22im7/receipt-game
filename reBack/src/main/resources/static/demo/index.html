@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
   <title>モンスターレシート対戦 デモ</title>
-  <!-- 既存画面と同じ金貨テーマ。既存の styles.css は読み込むだけで変更しない。 -->
-  <link rel="stylesheet" href="../admin/styles.css">
+  <!-- 既存画面と同じ admin/styles.css を読み込み、見た目は日替わりテーマで上書きする。 -->
+  <link rel="stylesheet" href="../admin/styles.css?v=20261014-no-coin">
   <link rel="stylesheet" href="./demo.css?v=20261013-fx2">
   <link rel="stylesheet" href="../game/fx.css?v=20261013-fx2">
   <script src="../theme/theme.js"></script>
@@ -19,7 +19,7 @@
     <section class="card hero-mini">
       <p class="eyebrow">Monster Receipt Battle</p>
       <h1>モンスターレシート対戦</h1>
-      <div class="flourish is-left"><svg aria-hidden="true" viewBox="0 0 28 28"><circle cx="14" cy="14" r="11" fill="#e2b443" stroke="#8a5f0b" stroke-width="2"/><circle cx="14" cy="14" r="6" fill="none" stroke="#8a5f0b" stroke-width="1.5"/></svg></div>
+      <div class="flourish is-left"></div>
       <p class="lead">レシートからモンスターカードを作って、2人で対戦するゲームのデモです。</p>
       <p class="note is-warn" id="demo-note"><b>デモ表示：</b>DB・Gemini APIには接続しません。レシートは架空のデータで、相手プレイヤーは自動で操作されます。本番では、2人が別々のPCから、ログインなしで、サーバー経由で対戦します。</p>
     </section>
@@ -88,7 +88,6 @@
 
       <div id="sub-image" class="hidden">
         <label class="drop-zone" id="drop-zone">
-          <svg class="drop-icon" viewBox="0 0 56 56" aria-hidden="true"><rect x="12" y="6" width="32" height="44" rx="3" fill="#fffcf2" stroke="#c9971f" stroke-width="2"/><path d="M18 16h20M18 24h20M18 32h14" stroke="#c9971f" stroke-width="2" stroke-linecap="round"/></svg>
           <span class="drop-title">レシート画像を選ぶ（JPEG / PNG・5 MiBまで）</span>
           <span class="help-text">クリックして選ぶか、ここへドロップします。デモでは画像のハッシュから架空のレシートを作ります（本番はGeminiが画像を読み取ります）。</span>
           <input type="file" id="image-input" accept="image/jpeg,image/png">

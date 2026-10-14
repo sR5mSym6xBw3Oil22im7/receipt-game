@@ -30,7 +30,7 @@
 
   // 読み込み中（<head> の解析中）は document.write でHTMLとして書き込む。
   // パーサーが作った <link> は描画を止めるので、テーマのCSSが届く前に
-  // 元の金貨デザイン（styles.css だけの状態）が一瞬見えることがない。
+  // テーマが当たる前の状態（styles.css だけの見た目）が一瞬見えることがない。
   const parsing = () => document.readyState === "loading" && typeof document.write === "function";
 
   function link(key, href, blocking) {

@@ -10,8 +10,6 @@ const deleteSelectedButton = document.getElementById("delete-selected");
 const selectedTableNames = new Set();
 let receiptCount = 0;
 let openTableName = "";
-const COIN_ICON = '<svg aria-hidden="true"><use href="#gd" width="34" height="34"/></svg>';
-const EMPTY_ICON = '<svg width="56" height="56" aria-hidden="true"><use href="#gd" width="56" height="56"/></svg>';
 
 function configureBackLink() {
   backLink.href = "/admin/menu.html";
@@ -80,7 +78,9 @@ function renderList(receipts) {
     listStatus.textContent = "保存済みのレシートはありません。";
     const empty = document.createElement("div");
     empty.className = "empty-state";
-    empty.innerHTML = `${EMPTY_ICON}<span>レシートを解析・保存すると、ここに表示されます。</span>`;
+    const emptyMessage = document.createElement("span");
+    emptyMessage.textContent = "レシートを解析・保存すると、ここに表示されます。";
+    empty.append(emptyMessage);
     receiptList.append(empty);
     updateDeleteSelectedButton();
     return;
@@ -105,9 +105,6 @@ function renderList(receipts) {
       row.classList.toggle("is-checked", checkbox.checked);
       updateDeleteSelectedButton();
     });
-    const icon = document.createElement("span");
-    icon.className = "row-icon";
-    icon.innerHTML = COIN_ICON;
     const title = document.createElement("strong");
     title.textContent = receipt.tableName;
     const meta = document.createElement("span");
@@ -125,7 +122,7 @@ function renderList(receipts) {
     referenceButton.className = "secondary-button small-button";
     referenceButton.textContent = "参照";
     referenceButton.addEventListener("click", () => openDetail(receipt.tableName));
-    row.append(checkbox, icon, info, referenceButton);
+    row.append(checkbox, info, referenceButton);
     receiptList.append(row);
   }
   updateDeleteSelectedButton();

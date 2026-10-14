@@ -1,8 +1,6 @@
-/* 全テーマ共通のベース。金貨の装飾を外し、各テーマが色・形・動きを上書きできる土台にする。
+/* 全テーマ共通のベース。各テーマが色・形・動きを上書きできる土台にする。
    各テーマ（t01〜t10.css）は :root[data-theme="tNN"] { ... } の中に CSS ネストで書く。 */
 :root[data-theme] {
-  /* 金貨の絵・背景の金貨・飾りの絵はテーマごとの CSS 装飾に置き換える */
-  & .scene, & .twinkle, & .motif, & .flourish svg, & .row-icon, & .drop-zone svg.drop-icon { display: none !important; }
   & .hero { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   & .page-header, & .login-card .page-header { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   & .menu-link { grid-template-columns: minmax(0, 1fr) auto; background: var(--surface-strong); }

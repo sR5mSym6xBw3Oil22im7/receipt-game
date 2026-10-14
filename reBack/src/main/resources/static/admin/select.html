@@ -7,18 +7,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
   <title>保存済みレシート一覧</title>
-  <link rel="stylesheet" href="./styles.css?v=20261006-no-kinun">
+  <link rel="stylesheet" href="./styles.css?v=20261014-no-coin">
   <script src="../theme/theme.js"></script>
 </head>
 <body>
   <main class="container">
     <p class="page-actions"><a id="back-link" class="back-link" href="/admin/menu.html" data-keep-href>← メニューへ戻る</a><button id="logout-button" class="secondary-button small-button" type="button">ログアウト</button></p>
     <section class="card page-header">
-      <div class="motif" data-motif="small" data-seed="55"></div>
       <div>
         <p class="eyebrow">Saved Receipts</p>
         <h1>保存済みレシート一覧</h1>
-        <div class="flourish is-left"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
+        <div class="flourish is-left"></div>
         <p class="lead">保存されたレシートを参照・削除できます。</p>
       </div>
     </section>
@@ -36,13 +35,13 @@
         <h2>レシート詳細</h2>
         <button id="close-detail" class="secondary-button small-button" type="button">閉じる</button>
       </div>
-      <div class="flourish is-left"><svg aria-hidden="true"><use href="#gd" width="28" height="28"/></svg></div>
+      <div class="flourish is-left"></div>
       <p id="detail-meta" class="detail-meta"></p>
       <div id="detail-bubble" class="detail-body"></div>
     </section>
   </main>
-  <script src="./config.js?v=20261014-pages-receipt-game"></script>
+  <script src="./config.js?v=20261014-no-coin"></script>
   <script src="./admin-api.js?v=20261011-keep-href2"></script>
-  <script src="./select.js?v=20261006-gold-coin"></script>
+  <script src="./select.js?v=20261014-no-coin"></script>
 </body>
 </html>
