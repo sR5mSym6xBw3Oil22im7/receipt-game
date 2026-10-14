@@ -7,7 +7,7 @@
 | ファイル | 内容 |
 | --- | --- |
 | `index.html` / `index.js` | メニュー。レシート解析、保存済みレシートの確認への入口です。 |
-| `video/doc/guide6min.html` / `guide3min.html` | 操作ガイド動画（`video/manual/` の6分版・3分版）の視聴ページです。 |
+| `video/doc/guide6min.html` / `guide3min.html` | 操作ガイド動画（`video/manual/` の標準版・簡易版）の視聴ページです。 |
 | `video/doc/pv1.html` / `pv2.html` | プロモーション映像（`video/pv/pv01.mp4`・`pv02.mp4`）の視聴ページです。 |
 
 ログイン、レシート解析、保存済みレシート一覧の画面は、バックエンドの `reBack/src/main/resources/static/admin/` から配信します。メニューの「レシートを解析」と「保存済みレシートを確認する」は、バックエンドのログイン画面へ移動します。
