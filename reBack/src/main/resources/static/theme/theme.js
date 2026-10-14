@@ -28,8 +28,17 @@
   const base = script ? script.src.replace(/[^/]*$/, "") : "/theme/";
   const root = document.documentElement;
 
-  function link(key, href) {
+  // 読み込み中（<head> の解析中）は document.write でHTMLとして書き込む。
+  // パーサーが作った <link> は描画を止めるので、テーマのCSSが届く前に
+  // 元の金貨デザイン（styles.css だけの状態）が一瞬見えることがない。
+  const parsing = () => document.readyState === "loading" && typeof document.write === "function";
+
+  function link(key, href, blocking) {
     let el = document.head.querySelector(`link[data-theme-${key}]`);
+    if (!el && blocking && parsing()) {
+      document.write(`<link rel="stylesheet" data-theme-${key} href="${href}">`);
+      return;
+    }
     if (!el) {
       el = document.createElement("link");
       el.rel = "stylesheet";
@@ -63,8 +72,8 @@
     const t = THEMES[index];
     root.setAttribute("data-theme", t.id);
     link("fonts", `https://fonts.googleapis.com/css2?family=${t.fonts}&display=swap`);
-    link("base", `${base}base.css`);
-    link("css", `${base}${t.id}.css`);
+    link("base", `${base}base.css`, true);
+    link("css", `${base}${t.id}.css`, true);
     label(index);
   }
 
