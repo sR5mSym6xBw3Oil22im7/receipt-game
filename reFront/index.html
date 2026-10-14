@@ -9,6 +9,11 @@
   <title>モンスターレシート対戦</title>
   <link rel="stylesheet" href="./styles.css?v=20261006-no-kinun">
   <script src="./theme/theme.js"></script>
+  <style>
+    /* 動画の4項目は2行2列。styles.css は変更しない方針なので、ここで指定する */
+    .video-menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    @media (max-width: 560px) { .video-menu { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
   <main class="container is-wide">
@@ -44,6 +49,40 @@
             </span>
             <span class="menu-arrow" aria-hidden="true">→</span>
           </a>
+          <div class="video-menu">
+            <a id="guide6min-link" class="menu-link" href="./video/doc/guide6min.html">
+              <span class="motif" data-motif="tile" data-seed="55"></span>
+              <span>
+                <span class="menu-title">操作ガイド（6分版）</span>
+                <span class="menu-desc">モンスターレシート対戦の遊び方を詳しく紹介する動画です。</span>
+              </span>
+              <span class="menu-arrow" aria-hidden="true">→</span>
+            </a>
+            <a id="guide3min-link" class="menu-link" href="./video/doc/guide3min.html">
+              <span class="motif" data-motif="tile" data-seed="89"></span>
+              <span>
+                <span class="menu-title">操作ガイド（3分版）</span>
+                <span class="menu-desc">モンスターレシート対戦の遊び方の要点を短くまとめた動画です。</span>
+              </span>
+              <span class="menu-arrow" aria-hidden="true">→</span>
+            </a>
+            <a id="pv1-link" class="menu-link" href="./video/doc/pv1.html">
+              <span class="motif" data-motif="tile" data-seed="144"></span>
+              <span>
+                <span class="menu-title">プロモーション映像 1</span>
+                <span class="menu-desc">モンスターレシート対戦を紹介する約1分の映像です。</span>
+              </span>
+              <span class="menu-arrow" aria-hidden="true">→</span>
+            </a>
+            <a id="pv2-link" class="menu-link" href="./video/doc/pv2.html">
+              <span class="motif" data-motif="tile" data-seed="233"></span>
+              <span>
+                <span class="menu-title">プロモーション映像 2</span>
+                <span class="menu-desc">モンスターレシート対戦を紹介する約1分の映像です。</span>
+              </span>
+              <span class="menu-arrow" aria-hidden="true">→</span>
+            </a>
+          </div>
         </nav>
       </div>
     </section>
