@@ -18,7 +18,8 @@ const CONTENT_TYPES = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
-  ".ico": "image/x-icon"
+  ".ico": "image/x-icon",
+  ".mp4": "video/mp4"
 };
 
 // 許可する Host（DNSリバインディング対策。localhost 以外の名前で来た要求は拒否する）
