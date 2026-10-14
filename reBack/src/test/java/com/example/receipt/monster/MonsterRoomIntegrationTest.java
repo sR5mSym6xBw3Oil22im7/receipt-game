@@ -353,7 +353,7 @@ class MonsterRoomIntegrationTest {
         assertThat(cpuPower).isEqualTo(ai.lastCpuHandMaxPower);
     }
 
-    // ---------- 画像カード（MR-10・MR-11） ----------
+    // ---------- 画像カード（doc/04_function_list.html F-24） ----------
 
     @Test
     void imageCardIsCreatedOnceAndCanBeSelected() throws Exception {

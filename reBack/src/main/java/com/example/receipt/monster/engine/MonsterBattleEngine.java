@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 対戦・勝敗判定（要件定義書 6章）。同じ battleSeed と同じ2枚のカードなら必ず同じ結果になる。
+ * 対戦・勝敗判定（doc/31_detailed_design.html 5章）。同じ battleSeed と同じ2枚のカードなら必ず同じ結果になる。
  * 0 が P1、1 が P2。
  */
 public final class MonsterBattleEngine {

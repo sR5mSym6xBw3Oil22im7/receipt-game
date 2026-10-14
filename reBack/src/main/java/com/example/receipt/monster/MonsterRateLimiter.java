@@ -22,7 +22,7 @@ import java.util.HexFormat;
 import java.util.Map;
 
 /**
- * IPごとの回数制限と、Gemini呼び出しのキーごとの1日の上限（要件定義書 13章）。
+ * IPごとの回数制限と、Gemini呼び出しのキーごとの1日の上限（doc/19_security_design.html）。
  * IPはプロセスごとの乱数を混ぜたハッシュだけを、メモリ内に保持する。
  */
 @Component

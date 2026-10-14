@@ -23,7 +23,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
- * レシート解析・保存・削除とカードの連動（要件定義書 9章・10章）。
+ * レシート解析・保存・削除とカードの連動（doc/14_backend_design.html 2章・3章）。
  * 解析：別スレッドで下書きを作る。保存：個人情報を取り除いてから保存し、カードを有効にする。
  */
 @Service
@@ -150,7 +150,7 @@ public class MonsterCardService {
     }
 
     /**
-     * 機能追加前に保存されたレシートの再点検（要件定義書 9.4）。
+     * 機能追加前に保存されたレシートの再点検（doc/04_function_list.html F-17）。
      * 個人情報を取り除いて書き戻し、カードを作る。取り除けないものはカードを作らない（ゲームに出さない）。
      * レシートそのものは自動では削除しない。
      */

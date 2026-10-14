@@ -50,7 +50,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
- * ルーム・カード選択・対戦の進行（要件定義書 3章・7章・8章・12章）。
+ * ルーム・カード選択・対戦の進行（doc/31_detailed_design.html 6章）。
  * 勝敗はサーバーで計算し、対戦開始まで相手のカード・レシートは応答に含めない。
  */
 @Service

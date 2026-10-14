@@ -42,7 +42,7 @@ app:
   # /admin/ 以外のページへの直接アクセスの転送先（reFront/index.html）。このURLのオリジンからのリンクは許可する
   frontend:
     menu-url: https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html
-  # モンスターレシート対戦（doc/34_monster_receipt_battle_requirements.html）
+  # モンスターレシート対戦（doc/03_requirements_definition.html、doc/31_detailed_design.html）
   monster:
     wait-seconds: ${MONSTER_WAIT_SECONDS:90}
     room-ttl-minutes: ${MONSTER_ROOM_TTL_MINUTES:120}

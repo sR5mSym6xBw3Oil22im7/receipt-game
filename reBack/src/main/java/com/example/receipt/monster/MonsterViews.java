@@ -30,7 +30,7 @@ public final class MonsterViews {
     public record ItemView(String name, BigDecimal quantity, Long unitPrice, Long amount) {
     }
 
-    /** レシートの表示項目（MR-18）。 */
+    /** レシートの表示項目（doc/15_api_specification.html 6章 ReceiptView）。 */
     public record ReceiptView(String storeCategory, String storeName, String branchName, String purchasedAt,
                               String receiptNumber, List<ItemView> items, Long totalAmount, String paymentMethod) {
         public static ReceiptView of(ReceiptStructuredData d) {

@@ -26,7 +26,7 @@ import org.springframework.http.HttpStatus;
 import java.io.IOException;
 
 /**
- * モンスターレシート対戦のAPI（要件定義書 12.2）。ログイン不要で、席トークン（X-Seat-Token）で操作する。
+ * モンスターレシート対戦のAPI（doc/15_api_specification.html 6章）。ログイン不要で、席トークン（X-Seat-Token）で操作する。
  * 応答はすべて Cache-Control: no-store。
  */
 @RestController

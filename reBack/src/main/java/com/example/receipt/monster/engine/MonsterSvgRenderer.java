@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 代替イラスト（要件定義書 5.5）。属性別の体形に、目・角・牙・ほほ紅などを種で変えたSVGを作る。
+ * 代替イラスト（doc/31_detailed_design.html 4章）。属性別の体形に、目・角・牙・ほほ紅などを種で変えたSVGを作る。
  * 生成AIのSVGが検証を通らない場合や、AIを使わない設定のときに使う。デモの fallbackSvg と同じ絵になる。
  */
 public final class MonsterSvgRenderer {

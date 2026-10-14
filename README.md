@@ -1,98 +1,79 @@
-# レシート解析システム
+# モンスターレシート対戦
 
-レシート画像をGoogle Gemini APIで解析し、読み取った文字列を確認してからPostgreSQLへ保存するWebシステムです。
+レシート画像をGoogle Geminiで解析してPostgreSQLに保存し、保存したレシートからモンスターカードを作って対戦するWebシステムです。管理者がレシートを登録し、プレイヤーはログインせずに、ルームコードを共有して2人で対戦します。相手が来なければコンピュータと対戦します。
+
+- メニュー：https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html
+- バックエンド：https://receipt-game.onrender.com
 
 ## 機能
 
 | 機能 | 利用者 | 内容 |
 | --- | --- | --- |
-| ログイン | 管理者 | ユーザーIDとパスワードでログインします。 |
-| レシート解析 | 管理者 | JPEG / PNG画像をGeminiで解析し、行ごとの文字列と構造化データ（店舗名、購入日時、合計金額、商品など）を返します。JPEG / PNGだけを含むZIPは、ブラウザーで展開して1枚ずつ解析します。 |
-| 保存 | 管理者 | 解析結果をPostgreSQLへ保存します。同じ画像（SHA-256が一致）は再登録できません。 |
-| 一覧・詳細・削除 | 管理者 | 保存済みレシートの一覧、行ごとの文字列の表示、削除を行います。 |
+| モンスターレシート対戦 | だれでも | ルームを作る（P1）か、6桁のコードで参加する（P2）。配られたレシートをめくってカードを手札にし（最大3枚）、1枚を決めて対戦する。自分のレシート画像からカードを作ることもできる。勝敗はサーバーで計算する |
+| デモ | だれでも | 架空のレシートで、カード作成から対戦までを体験する。Gemini API・バックエンドのAPI・DBは使わない |
+| 操作ガイド・プロモーション映像 | だれでも | メニューから動画を再生する |
+| レシート解析 | 管理者 | JPEG / PNG画像を解析し、行ごとの文字列と構造化データ（店舗名、購入日時、合計金額、商品など）を得る。JPEG / PNGだけのZIPは、ブラウザーで展開して1枚ずつ解析する |
+| 保存 | 管理者 | 解析結果を確認してから保存する。保存前に個人情報を「（非表示）」に置き換え、モンスターカードを有効にする |
+| 一覧・詳細・削除 | 管理者 | 保存済みレシートを確認・削除する。削除するとカードも消える |
+| 日替わりデザイン | だれでも | 10種類のテーマが、毎日3:00（日本時間）に順番に切り替わる |
 
-「解析」だけではDBに登録しません。結果を確認して「PostgreSQLへ保存」を押したときに保存します。
-
-## モンスターレシート対戦
-
-保存済みレシートからモンスターカードを作り、2人（または相手が来なければコンピュータ）と対戦するゲームです。要件は [doc/34_monster_receipt_battle_requirements.html](doc/34_monster_receipt_battle_requirements.html)。
-
-- 画面：バックエンドの `/game/index.html`（ログイン不要）。デモ画面は `/demo/index.html`。
-- API：`/api/monster/rooms`（席トークン `X-Seat-Token` で操作。勝敗はサーバーで計算）。
-- 連動：解析で下書き、保存で有効、削除でカードも削除。保存前に個人情報（氏名・電話番号・会員番号・住所・メール・カード番号）を検出して「（非表示）」に置換し、取り除けなければ保存しません。
-- 起動時に、カードを持たない保存済みレシートを再点検してカードを作ります（`MONSTER_BACKFILL_ON_STARTUP`）。レシートを自動で削除はしません。
-- 主な環境変数：`MONSTER_WAIT_SECONDS`（待機秒数、既定90）、`MONSTER_AI_ILLUSTRATION`（レシートをDBに登録するとき、カードのパラメータとSVGイラストを GEMINI_API_MONSTER → GEMINI_API_DEFAULT の順に試して作り、どちらでも作れなければ計算式の値と代替イラストを使う。既定で有効）、`MONSTER_TRUST_FORWARDED_FOR`（Renderなどプロキシの背後で true）、`MONSTER_GEMINI_DAILY_LIMIT`（キーごとの1日の上限、既定200）。
-- 対戦には有効なカードが2枚以上必要です。
-
-## 日替わりデザイン
-
-画面の見た目は10種類のテーマ（案01 葡萄サロン／02 トッピング注文／03 白磁と洋紅／04 トラットリア図鑑／05 純喫茶ナイト／06 黄昏ゾーン／07 モノクロ索引／08 食券機／09 泡のパフェ／10 レシート路線図）があり、**毎日3:00（日本時間）に順番に切り替わります**。日付だけで決まるため、どの端末・どの画面でも同じ日は同じテーマです。開いたままの画面も、3:00になると自動で切り替わります。
-
-- 仕組み：各ページの `theme/theme.js` が日付からテーマを選び、`theme/base.css` と `theme/tNN.css` を読み込みます（既存の `styles.css` は変更しません）。
-- 確認：URLに `?theme=1`〜`?theme=10` を付けると、そのテーマで表示します（保存はしません）。
-- 配置：`reBack/src/main/resources/static/theme/` が元で、`reFront/theme/` に同じ内容のコピーを置きます（テストで一致を確認）。
-- 動き：CSSのtransition／animationのみ。`prefers-reduced-motion` の環境では止まります。
-- モックは [doc/design-mock/index.html](doc/design-mock/index.html) にあります。
+「解析」だけではDBに登録しません。結果を確認して「データベースへ保存」を押したときに保存します。
 
 ## データの扱い
 
-- 画像ファイルそのものは保存しません。重複判定に使うSHA-256、読み取った文字列、構造化データを保存します。
-- Gemini APIキーはバックエンドの環境変数 `GEMINI_API_DEFAULT`（必須）と用途別の `GEMINI_API_ANALYZE` など（ローカルでは `reBack/.env`）で設定します。画面での入力やDBへの保存は行いません。
-- 解析・保存・一覧・詳細・削除のAPIは、バックエンドのSpring Securityで管理者（ROLE_ADMIN）だけに制限しています。
+- レシート画像そのものは保存しません。重複判定に使うSHA-256、読み取った文字列、構造化データを保存します。同じ画像は409（`DUPLICATE_RECEIPT_IMAGE`）になります。
+- 保存前に、氏名・電話番号・会員番号・住所・メールアドレス・カード番号を検出して「（非表示）」に置き換えます。取り除けない場合は保存しません。
+- Gemini APIキーはバックエンドの環境変数で設定します。画面から入力させず、DBにも保存しません。
 
 ## 構成
 
 | パス | 内容 |
 | --- | --- |
-| `reFront/` | メニューの静的ページ（HTML / CSS / JavaScript）。詳細は [reFront/README.md](reFront/README.md) |
-| `reBack/` | Java 21 / Spring Boot のREST API、管理画面（ログイン・解析・一覧）、テスト、Dockerfile、render.yml。詳細は [reBack/README.md](reBack/README.md) |
-| `index.html` | `reFront/index.html` へ転送するページ |
-| `404.html` | GitHub Pagesで存在しないURLを開いたときに `reFront/index.html` へ転送するページ |
-
-管理画面のHTMLはバックエンド（`reBack/src/main/resources/static/admin/`）から配信します。メニューの「レシートを解析」「保存済みレシートを確認する」は、バックエンドのログイン画面へ移動します。
+| `reFront/` | メニュー、動画視聴ページ、日替わりテーマ、ローカル用サーバー（`server.mjs`）。GitHub Pagesで配信。詳細は [reFront/README.md](reFront/README.md) |
+| `reBack/` | Java 21 / Spring Boot のREST API、管理画面（`/admin/`）、対戦画面（`/game/`）、デモ（`/demo/`）、テスト、Dockerfile、render.yml。詳細は [reBack/README.md](reBack/README.md) |
+| `doc/` | 開発文書（要件定義〜運用）。[doc/index.html](doc/index.html) から開く |
+| `review/` | セキュリティレビューの記録 |
+| `index.html` / `404.html` | GitHub Pagesで `reFront/index.html` へ転送するページ |
 
 ## ローカルでの起動
 
-必要なもの：Java 21、Maven、PostgreSQL。フロントエンドのテストにはNode.jsも必要です。
+必要なもの：Java 21、Maven、PostgreSQL、Node.js、Gemini APIキー。
 
-1. PostgreSQLにデータベースを用意します（既定値は `localhost:5432/receipt_db`、ユーザー `postgres`）。テーブルはアプリが実行時に作成します。
-2. `reBack/.env.example` を `reBack/.env` にコピーし、値を設定してバックエンドを起動します。`ADMIN_PASSWORD_HASH` にはBCrypt形式のハッシュ、`GEMINI_API_DEFAULT` にはGemini APIキーを設定します。
+1. PostgreSQLにデータベースを用意します（既定は `localhost:5432/receipt_db`、ユーザー `postgres`）。テーブルはアプリが実行時に作ります。
+2. `reBack/.env.example` を `reBack/.env` にコピーし、`DB_PASSWORD`、`ADMIN_USERNAME`、`ADMIN_PASSWORD_HASH`（BCrypt）、`GEMINI_API_DEFAULT` を設定して、バックエンドを起動します（http://localhost:8081）。
 
    ```sh
    cd reBack
-   cp .env.example .env   # DB_PASSWORD、ADMIN_USERNAME、ADMIN_PASSWORD_HASH、GEMINI_API_DEFAULT を編集
+   cp .env.example .env
    mvn spring-boot:run -Dspring-boot.run.profiles=local
    ```
 
-3. 別のターミナルでフロントエンドを起動し、`http://localhost:5051/index.html` を開きます。ポートは5051に固定しています。接続先のバックエンドは `http://localhost:8081` です。
+3. 別のターミナルで、リポジトリ直下からフロントエンドを起動し、http://localhost:5051/index.html を開きます。
 
    ```sh
    node reFront/server.mjs
    ```
 
-環境変数の一覧は [reBack/README.md](reBack/README.md) を参照してください。
+環境変数の一覧は [reBack/README.md](reBack/README.md) にあります。
 
 ## テスト
 
 ```sh
-# バックエンド（テスト用にH2データベースを使用）
+# バックエンド（H2を使うのでPostgreSQLは不要）
 cd reBack
 mvn test
 
-# フロントエンドのスモークテスト（リポジトリ直下で実行）
+# フロントエンド（リポジトリ直下で実行。ポート5051を使うので、起動中の server.mjs は止めておく）
 node --test reFront/test/smoke.test.mjs
 ```
 
 ## 公開環境
 
-`reFront/config.js` は、localhost以外で開かれた場合に次の接続先を使います。
-
-- バックエンド：`https://receipt-analysis-b8po.onrender.com`
-- フロントエンド：`https://sr5msym6xbw3oil22im7.github.io/receipt-analysis/reFront/index.html`
-
-バックエンドとPostgreSQLのRender向け構成は `reBack/render.yml` に定義されています。
+- フロントエンドはGitHub Pages、バックエンドとPostgreSQLはRender（`reBack/render.yml`）で動かします。
+- `reFront/config.js` は、localhost以外で開かれたときに本番の接続先を使います。Renderのサービス名を変えた場合は、接続先も変えてください。
 
 ## 注意事項
 
-- 本番ではHTTPSを使い、`SESSION_COOKIE_SECURE` を有効にしてください（既定値は `true`）。
-- Gemini APIキー、管理者のパスワードハッシュ、DB接続情報をリポジトリに含めないでください。`.env` はGitの管理対象外です。
+- Gemini APIキー、管理者のパスワードハッシュ、DB接続情報をリポジトリに含めないでください。`reBack/.env` はGitの管理外です。
+- 本番はHTTPSで動かし、`SESSION_COOKIE_SECURE` を有効にしてください（既定値は `true`）。
+- RenderのFreeプランは、停止からの起動に時間がかかります。
