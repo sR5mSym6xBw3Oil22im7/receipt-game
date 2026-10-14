@@ -87,6 +87,15 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 - 同じユーザーIDでログインに続けて失敗し、回数が `LOGIN_MAX_FAILURES` に達すると、`LOGIN_LOCK_MINUTES` の間はHTTP 429で拒否します。照合中の要求も回数に含めます。記録はアプリのメモリ上にだけ保持します。
 - 管理画面（ログイン画面と、その画面が使うファイルを除く `/admin/` 配下）は、未ログインの場合ログイン画面へリダイレクトします。
 
+## 直接アクセスの転送
+
+- `/admin/` 以外のパス（`/game/`、`/demo/`、`/`、存在しないURLなど）へ直接アクセスすると、`app.frontend.menu-url`（`reFront/index.html`）へ302で転送します。処理は `DirectAccessRedirectFilter` で、Spring Securityより前に動きます。
+- 「直接アクセス」は、アドレスバーへの入力、ブックマーク、メニュー以外のサイトのリンクによるページ移動（`Sec-Fetch-Mode: navigate`）です。同じサイトからの移動（`Sec-Fetch-Site: same-origin`）と、`Referer` のオリジンがメニューと同じ場合は表示します。
+- `Sec-Fetch-Mode` を送らない古いブラウザーは、`Accept` に `text/html` を含む要求をページ移動とみなし、`Referer` で判定します。
+- fetchによるAPI呼び出し、CSS・スクリプト・画像の読み込み、Renderのヘルスチェック（`/api/health`）は対象外です。
+- `/admin/` 配下は対象外で、これまでどおり未ログインならログイン画面へ移動します。
+- 転送先は本番が `https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html`、`local` プロファイルが `http://localhost:5051/index.html` です。
+
 ## 解析と保存
 
 - 解析できる画像はJPEG / PNGで、最大5,242,880バイト（5 MiB）です。

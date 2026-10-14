@@ -39,6 +39,9 @@ app:
     cookie-secure: ${SESSION_COOKIE_SECURE:true}
     login-max-failures: ${LOGIN_MAX_FAILURES:5}
     login-lock-minutes: ${LOGIN_LOCK_MINUTES:15}
+  # /admin/ 以外のページへの直接アクセスの転送先（reFront/index.html）。このURLのオリジンからのリンクは許可する
+  frontend:
+    menu-url: https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html
   # モンスターレシート対戦（doc/34_monster_receipt_battle_requirements.html）
   monster:
     wait-seconds: ${MONSTER_WAIT_SECONDS:90}
