@@ -5,7 +5,7 @@ const isLocalFrontend = window.location.protocol === "file:"
 
 const backendBaseUrl = isLocalFrontend
   ? "http://localhost:8081"
-  : "https://receipt-analysis-b8po.onrender.com";
+  : "https://receipt-game.onrender.com";
 
 const publicBaseUrl = isLocalFrontend
   ? "http://localhost:5051/index.html"

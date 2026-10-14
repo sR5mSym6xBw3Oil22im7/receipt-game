@@ -85,7 +85,7 @@ test("frontend has a configurable Render backend URL", () => {
   assert.match(config, /API_BASE_URL/);
   assert.match(config, /onrender\.com/);
   assert.doesNotMatch(config, /YOUR-RENDER-SERVICE/);
-  assert.match(config, /receipt-analysis-b8po\.onrender\.com/);
+  assert.match(config, /receipt-game\.onrender\.com/);
 });
 
 test("upload page has no Gemini API key input", () => {
@@ -113,7 +113,7 @@ test("index links to game, demo and admin login in that order", () => {
   assert.doesNotMatch(index, /admin-upload-link|id="select-link"|レシートを解析|保存済みレシートを確認する/);
   const order = ["id=\"game-link\"", "id=\"demo-link\"", "id=\"admin-login-link\""].map((key) => index.indexOf(key));
   assert.ok(order[0] > 0 && order[0] < order[1] && order[1] < order[2]);
-  assert.match(index, /id="admin-login-link"[^>]*href="https:\/\/receipt-analysis-b8po\.onrender\.com\/admin\/login\.html"/);
+  assert.match(index, /id="admin-login-link"[^>]*href="https:\/\/receipt-game\.onrender\.com\/admin\/login\.html"/);
 });
 
 test("public index routes admin login to Backend", () => {
