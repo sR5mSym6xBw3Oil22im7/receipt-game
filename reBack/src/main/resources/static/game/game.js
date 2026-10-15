@@ -179,7 +179,7 @@
     try {
       const res = await api("/" + raw + "/join", { method: "POST" });
       adoptSeat(res);
-      route(res.room);
+      if (res.room.status === "SELECTING") enterWaitJoined(res.room); else route(res.room);
     } catch (e) {
       input.setAttribute("aria-invalid", "true");
       $("join-error").textContent = e.message;
@@ -231,6 +231,15 @@
       : room.mode === "CPU" ? "相手が参加しなかったため、コンピュータ対戦になりました。カード選択へ進みます…" : "2人そろいました。カード選択へ進みます…";
   }
 
+  // 参加した側（P2）も待機画面で「参戦」の演出を見せてから、カード選択へ進む
+  function enterWaitJoined(room) {
+    show("wait");
+    state.waitTotal = null;
+    renderWait(Object.assign({}, room, { seat: room.seat || state.seat }));
+    FX.seatJoined($(state.seat === "P1" ? "seat-p2" : "seat-p1"), { cpu: false });
+    setTimeout(() => { if (state.view === "wait" && state.code === room.code) route(room); }, 1300);
+  }
+
   function enterWait(room) {
     show("wait");
     state.waitTotal = null;
@@ -238,7 +247,7 @@
     poll(async () => {
       const r = await api("/" + state.code);
       renderWait(r);
-      if (r.status !== "WAITING") { stopPolling(); setTimeout(() => route(r), 1200); }
+      if (r.status !== "WAITING") { stopPolling(); setTimeout(() => route(r), r.mode === "CPU" ? 1500 : 1300); }
     }, 1000);
   }
 
@@ -267,7 +276,7 @@
     if (r.status === "CLOSED") { backToLobby(r.notice); return; }
     if (state.field && r.round !== state.field.round) { enterSelect(); return; }   // 相手が再戦を始めた
     updateOpponent(r);
-    if (r.battleReady) { stopPolling(); $("chosen-info").textContent = "両者のカードが決まりました。対戦開始！"; setTimeout(startBattle, 1000); }
+    if (r.battleReady) { stopPolling(); $("chosen-info").textContent = "両者のカードが決まりました。対戦開始！"; setTimeout(startBattle, 1200); }
   }
 
   function updateOpponent(r) {
@@ -408,7 +417,7 @@
       const r = await api("/" + state.code + "/select", { method: "POST", body: { cardId: id } });
       state.field = await api("/" + state.code + "/field");
       updateOpponent(r);
-      if (r.battleReady) { stopPolling(); setTimeout(startBattle, 1000); }
+      if (r.battleReady) { stopPolling(); setTimeout(startBattle, 1200); }
     }, $("pool-status"));
   }
 
