@@ -6,6 +6,15 @@
 - 保存されたレシートが、世界に一枚のモンスターカードになります（同じレシート画像からは、必ず同じ名前・能力値のカード）。
 - プレイヤーはログイン不要。ルームコードで2人対戦、90秒で相手が来なければコンピューターと対戦します。勝敗はサーバーで計算します。
 
+## この作品について
+
+卒業ポートフォリオとして個人で制作した作品で、就職活動の応募用に公開しています（開発期間：2026-10-07〜2026-10-15）。企画・要件定義から設計、実装、テスト、公開、運用の文書化までを一通り行いました。
+
+- 見てほしい点：サーバーで完結する対戦ロジック、AI（Gemini）が使えないときの計算式への切り替え、認可・CSRF・個人情報除去などのセキュリティ設計、自動テスト（バックエンド180件・フロント31件）。
+- 短時間で見る場合：このREADME → [企画書](doc/01_project_concept.html) → [技術選定・アピールポイント](doc/02_proposal.html) → [基本設計書](doc/09_basic_design.html) → [テスト結果報告書](doc/29_test_result_report.html)。
+- すぐ試す：デモ画面（`/demo/index.html`）はログイン不要で、架空のレシートによるカード生成と対戦を体験できます。
+- 実装の補助にAIコーディング支援（Claude Code）を併用しました。要件の決定と結果の確認は本人が行っています（[体制・AI活用方針](doc/07_organization.html)）。
+
 | 項目 | 内容 |
 | --- | --- |
 | バージョン | 0.0.1-SNAPSHOT |
@@ -20,7 +29,7 @@
 | --- | --- |
 | [reBack/](reBack/README.md) | REST API、管理画面（`static/admin/`）、対戦（`static/game/`）、デモ（`static/demo/`）、テスト、`Dockerfile`、`render.yml` |
 | [reFront/](reFront/README.md) | メニューの静的ページ、`server.mjs`（ローカル用、ポート5051固定）、`theme/`、`video/` |
-| [doc/](doc/index.html) | 開発文書（HTML、55点。目次は `doc/index.html`） |
+| [doc/](doc/index.html) | 開発ドキュメント（HTML、55点。目次は `doc/index.html`） |
 | `review/` | セキュリティレビューの記録とPoC |
 | `index.html` / `404.html` | GitHub Pages用。メニュー（`reFront/index.html`）へ転送します |
 | `CLAUDE.md` | 開発時の作業ルール |
@@ -96,6 +105,6 @@ node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行（
 | 仕様を知る | [要件定義書](doc/04_requirements_definition.html)、[ゲーム仕様書](doc/05_game_design_document.html)、[API仕様書](doc/15_api_specification.html)、[DB設計書](doc/14_database_design.html) |
 | 開発する | [開発環境構築](doc/21_dev_environment.html)、[コーディング規約](doc/20_coding_standards.html)、[詳細設計書](doc/10_detailed_design.html) |
 | 運用する | [運用設計書](doc/44_operations_design.html)、[障害対応](doc/46_incident_response.html)、[環境変数一覧](doc/39_env_secrets.html) |
-| 納品物を探す | [納品ドキュメント対応表](doc/55_document_map.html) |
+| 全体を探す | [ドキュメント一覧と成果物の対応表](doc/55_document_map.html) |
 
-契約・金額・体制・署名など、リポジトリから確認できない事項は、各文書で「要記入」または「未実施」と明記しています。
+実施していない事項（負荷試験・第三者診断・実機ブラウザー確認など）は、各文書で「未実施」と明記しています。個人開発のため、契約・金額・署名などは扱いません。
