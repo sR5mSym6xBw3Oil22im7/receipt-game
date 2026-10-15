@@ -9,8 +9,8 @@
 | ファイル | 内容 |
 | --- | --- |
 | `index.html` / `index.js` | メニュー。モンスターレシート対戦・デモ・管理者ログイン（この順）と、動画4本へのリンク |
-| `video/doc/guide6min.html` / `guide3min.html` | 操作ガイド（標準版・簡易版。`video/manual/` の mp4） |
-| `video/doc/pv1.html` / `pv2.html` | プロモーション映像（`video/pv/pv01.mp4`・`pv02.mp4`） |
+| `video/show/guide6min.html` / `guide3min.html` | 操作ガイド（標準版・簡易版。`video/manual/` の mp4） |
+| `video/show/pv1.html` / `pv2.html` | プロモーション映像（`video/pv/pv01.mp4`・`pv02.mp4`） |
 
 ## ファイル
 

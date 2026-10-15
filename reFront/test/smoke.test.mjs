@@ -257,13 +257,13 @@ test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET metho
     // メニュー以外へのページ移動は、同じサイトからのリンクでなければメニューへ戻す
     const nav = (path, headers = {}) => fetch(`http://localhost:5051${path}`, { redirect: "manual", headers: { "Sec-Fetch-Mode": "navigate", ...headers } });
     assert.equal((await nav("/index.html")).status, 200);
-    for (const path of ["/", "/video/doc/pv1.html", "/video/pv/pv01.mp4", "/styles.css", "/no-such-page.html", "/.gitignore"]) {
+    for (const path of ["/", "/video/show/pv1.html", "/video/pv/pv01.mp4", "/styles.css", "/no-such-page.html", "/.gitignore"]) {
       const r = await nav(path);
       assert.equal(r.status, 302, path);
       assert.equal(r.headers.get("location"), "/index.html", path);
     }
-    assert.equal((await nav("/video/doc/pv1.html", { Referer: "http://localhost:5051/index.html" })).status, 200);
-    assert.equal((await nav("/video/doc/pv1.html", { Referer: "https://evil.example/" })).status, 302);
+    assert.equal((await nav("/video/show/pv1.html", { Referer: "http://localhost:5051/index.html" })).status, 200);
+    assert.equal((await nav("/video/show/pv1.html", { Referer: "https://evil.example/" })).status, 302);
     assert.equal((await nav("/no-such-page.html", { Referer: "http://localhost:5051/index.html" })).status, 302);
     assert.equal(await get("/styles.css"), 200);   // ページが読み込むCSS・スクリプト・動画はそのまま配信する
   } finally {
@@ -336,7 +336,7 @@ test("fx.js: カード名・必殺技名などは textContent で入れ、innerH
 });
 
 test("direct-access-guard: メニュー以外のページが先頭で読み込み、404.html がメニューへ移動する", async () => {
-  const pages = ["../index.html", ...["guide6min", "guide3min", "pv1", "pv2"].map((p) => `../video/doc/${p}.html`)];
+  const pages = ["../index.html", ...["guide6min", "guide3min", "pv1", "pv2"].map((p) => `../video/show/${p}.html`)];
   for (const page of pages) {
     const pageHtml = await readFile(new URL(page, import.meta.url), "utf8");
     assert.match(pageHtml, /<meta name="viewport"[^>]*>\n  <script src="(\.|\.\.\/\.\.)\/direct-access-guard\.js\?v=[^"]+"><\/script>/, page);
