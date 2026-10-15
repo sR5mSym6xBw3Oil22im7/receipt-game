@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * カード生成（doc/31_detailed_design.html 4章、アルゴリズム版数 2）。
+ * カード生成（doc/05_game_design_document.html 2〜3章、アルゴリズム版数 2）。
  * 画像ハッシュの先頭32ビットを種にし、同じ入力からは必ず同じカードを作る。
  * ただしイラスト（SVG）だけは、種にカードを作った時刻を混ぜるので、作るたびに変わる。
  * 入力の構造化データは {@link PersonalInfoSanitizer} を通したものを渡すこと。

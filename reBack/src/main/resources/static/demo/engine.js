@@ -1,5 +1,5 @@
 // モンスターレシート対戦ゲーム デモ用エンジン
-// doc/31_detailed_design.html の4章（カード生成）と5章（対戦）を再現する。
+// doc/05_game_design_document.html の2〜3章（カード生成）と5章（対戦）を再現する。
 // DOM・DB・Gemini に依存しない純粋な関数だけで構成する（本番でも同じ分け方にする）。
 (function (root) {
   "use strict";
@@ -59,7 +59,7 @@
     return out.slice(0, 64);
   }
 
-  // ---- 個人情報の除外（保存前の検出と除去。doc/19_security_design.html）----
+  // ---- 個人情報の除外（保存前の検出と除去。doc/17_security_design.html 5章）----
   // 対象は自由記述の項目（店名・支店名・商品名・支払方法・行テキスト）。レシート番号は残す。
   const MASK = "（非表示）";
   const PII_RULES = [

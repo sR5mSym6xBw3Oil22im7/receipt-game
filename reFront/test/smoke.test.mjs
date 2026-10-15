@@ -255,7 +255,16 @@ test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET metho
     assert.equal(res, 403);
 
     // メニュー以外へのページ移動は、同じサイトからのリンクでなければメニューへ戻す
-    const nav = (path, headers = {}) => fetch(`http://localhost:5051${path}`, { redirect: "manual", headers: { "Sec-Fetch-Mode": "navigate", ...headers } });
+    // Node の fetch は Sec-Fetch-Mode を自分で上書きして navigate を送れないため、node:http で送る
+    const { request } = await import("node:http");
+    const nav = (path, headers = {}) => new Promise((resolve, reject) => {
+      const r = request({ host: "localhost", port: 5051, path, headers: { "Sec-Fetch-Mode": "navigate", ...headers } }, (m) => {
+        m.resume();
+        resolve({ status: m.statusCode, headers: { get: (name) => m.headers[name.toLowerCase()] ?? null } });
+      });
+      r.on("error", reject);
+      r.end();
+    });
     assert.equal((await nav("/index.html")).status, 200);
     for (const path of ["/", "/video/show/pv1.html", "/video/pv/pv01.mp4", "/styles.css", "/no-such-page.html", "/.gitignore"]) {
       const r = await nav(path);

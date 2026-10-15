@@ -65,7 +65,7 @@ cd reBack && mvn test                        # H2を使うのでPostgreSQL不要
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行（31件）
 ```
 
-2026-10-15時点の結果：バックエンド180件すべて成功。フロントは31件中30件成功、1件失敗（`server.mjs` のテスト。詳細は [doc/29](doc/29_test_result_report.html)・[doc/30](doc/30_defect_list.html)）。
+2026-10-15時点の結果：バックエンド180件、フロント31件ともすべて成功（フロントは初回に1件失敗したが、原因はテストの書き方で、修正済み。詳細は [doc/29](doc/29_test_result_report.html)・[doc/30](doc/30_defect_list.html)）。
 
 ## 同期が必要なファイル（片方だけ直さない）
 
