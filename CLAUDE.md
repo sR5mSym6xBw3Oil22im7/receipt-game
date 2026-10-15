@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-レシート画像をGoogle Geminiで解析してPostgreSQLに保存し、保存済みレシートからモンスターカードを作って対戦するWebシステム。詳細は [README.md](README.md)、[reBack/README.md](reBack/README.md)、[reFront/README.md](reFront/README.md)、`doc/`（特に `doc/20_coding_standards.html` と `doc/21_dev_environment.html`）を参照。
+レシート画像をGoogle Geminiで解析してPostgreSQLに保存し、保存済みレシートからモンスターカードを作って対戦するWebシステム。詳細は [README.md](README.md)、[reBack/README.md](reBack/README.md)、[reFront/README.md](reFront/README.md)、`doc/`（特に `doc/32_coding_and_development_guide.html` と `doc/21_environment_configuration.html`）を参照。
 
 ## 作業ルール
 
@@ -18,7 +18,7 @@
 | --- | --- |
 | `reBack/` | Java 21 / Spring Boot 4.1.0 のREST API、管理画面（`static/admin/`）、モンスター対戦（`/game/`）、テスト、Dockerfile、render.yml |
 | `reFront/` | メニューの静的ページ（ビルド不要）、`server.mjs`（ローカル用、ポート5051固定）、`theme/` |
-| `doc/` | 開発文書（HTML、01〜55。目次は `doc/index.html`） |
+| `doc/` | 開発文書（HTML、01〜34。目次は `doc/index.html`） |
 | `review/` | セキュリティレビューなどの記録 |
 
 ## コマンド
@@ -75,7 +75,7 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 
 ### モンスターレシート対戦
 
-- 要件は `doc/04_requirements_definition.html`、カード生成・対戦の計算は `doc/05_game_design_document.html`、ルームの進行は `doc/10_detailed_design.html` と `doc/16_sequence_state.html`。対戦画面は `/game/index.html`（ログイン不要）、APIは `/api/monster/rooms`（席トークン `X-Seat-Token`）。勝敗はサーバーで計算する。
+- 要件は `doc/03_requirements_definition.html`、カード生成の計算は `doc/17_ai_receipt_analysis_specification.html`、ルームの進行と戦闘ルールは `doc/31_detailed_design.html`。対戦画面は `/game/index.html`（ログイン不要）、APIは `/api/monster/rooms`（席トークン `X-Seat-Token`）。勝敗はサーバーで計算する。
 - 連動：解析で下書き、保存で有効、削除でカードも削除。
 - 保存前に個人情報（氏名・電話番号・会員番号・住所・メール・カード番号）を検出して「（非表示）」に置換し、取り除けなければ保存しない。
 - 起動時にカードのない保存済みレシートへカードを作る（`MONSTER_BACKFILL_ON_STARTUP`）。レシートの自動削除はしない。

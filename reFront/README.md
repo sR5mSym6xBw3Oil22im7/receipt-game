@@ -53,7 +53,7 @@ node reFront/server.mjs        # リポジトリ直下で実行。http://localho
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 ```
 
-管理画面JS・HTMLの整合、テーマ、演出（`prefers-reduced-motion`）、直接アクセス転送、`server.mjs` の拒否動作などを検査します。2026-10-15時点で31件すべて成功です（`server.mjs` のテストは、Node 24 の `fetch` が `Sec-Fetch-Mode` を上書きするため `node:http` で送る形に修正）。詳細は [../doc/29_test_result_report.html](../doc/29_test_result_report.html)。
+管理画面JS・HTMLの整合、テーマ、演出（`prefers-reduced-motion`）、直接アクセス転送、`server.mjs` の拒否動作などを検査します。2026-10-15時点で31件すべて成功しています。詳細は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
 
 ## デプロイ
 

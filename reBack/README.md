@@ -115,7 +115,7 @@ src/test/            JUnit（H2を使用）
 - `receipt_structured_summary`、`receipt_structured_item`、`receipt_image_hash_registry`
 - `monster_card`、`monster_room`、`monster_play`、`monster_battle`
 
-画像ファイルそのものは保存しません。SHA-256（重複判定）、行ごとの文字列、構造化データ、カードを保存します。同じ画像は409（`DUPLICATE_RECEIPT_IMAGE`）。詳細は [../doc/14_database_design.html](../doc/14_database_design.html)。
+画像ファイルそのものは保存しません。SHA-256（重複判定）、行ごとの文字列、構造化データ、カードを保存します。同じ画像は409（`DUPLICATE_RECEIPT_IMAGE`）。詳細は [../doc/16_database_design.html](../doc/16_database_design.html)。
 
 ## テスト
 
@@ -123,7 +123,7 @@ src/test/            JUnit（H2を使用）
 mvn test     # 180件。H2を使うのでPostgreSQL不要。Geminiは呼ばない設定
 ```
 
-認可・CSRF・入力検証・ルーム進行・エンジン（デモ画面 `engine.js` との一致）・個人情報除去・SVG検証などを含みます。結果は [../doc/29_test_result_report.html](../doc/29_test_result_report.html)。
+認可・CSRF・入力検証・ルーム進行・エンジン（デモ画面 `engine.js` との一致）・個人情報除去・SVG検証などを含みます。結果は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
 
 ## Dockerとデプロイ
 
