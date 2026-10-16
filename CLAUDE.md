@@ -86,6 +86,15 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 
 - 10種類のテーマが毎日3:00（JST）に順番に切り替わる。日付だけで決まる。`?theme=1`〜`?theme=10` で確認用に固定できる（保存しない）。
 
+### 検索エンジン対策（Googleの検索対象から外す）
+
+- このシステムはGoogleなどの検索結果に出さない。新しいページ・機能を足すときは、検索対象から外す処理も一緒に追加する。
+- 新しいHTMLページ（`reFront/`、`doc/`、`reBack/src/main/resources/static/` 配下）には `<meta name="robots" content="noindex, nofollow">` を入れる。`reFront/` と `reBack/.../static/` のページは `<meta name="viewport">` の直後（`direct-access-guard.js` がある場合はその直後。スモークテストが並びを検査する）、`doc/` は1行目の viewport の直後に置く。
+- バックエンド（Render）は `SecurityConfig` で全レスポンスに `X-Robots-Tag: noindex, nofollow` を付ける。外さない。新しいAPIや静的ファイルを足しても対象になる。
+- `robots.txt`（`User-agent: *` / `Disallow: /`）は `reBack/src/main/resources/static/robots.txt` に置く。GitHub Pages側はプロジェクトページ（`/receipt-game/`）なので、リポジトリ直下の `robots.txt` はクローラーに読まれない。ドメイン直下に効かせるには別リポジトリ `<ユーザー名>.github.io` が必要。
+- `Disallow: /` は、クローラーに `noindex` を読ませない場合がある。すでに索引にあるページを消したいときは `noindex` を先に反映し、急ぐなら Search Console の「一時的な削除」を使う。
+- 確認：`curl -I` で `X-Robots-Tag` を、`/robots.txt` が200で返ることを見る。`HardeningIntegrationTest` が両方を検査している。
+
 ## デプロイ
 
 - バックエンドとPostgreSQLはRender（`reBack/render.yml`）。`sync: false` の環境変数は手動で設定する。サービス名を変えたら `reFront/config.js` の接続先も変える。
