@@ -31,12 +31,20 @@ class HardeningIntegrationTest {
     @Autowired MockMvc mockMvc;
 
     @Test
+    void robotsTxtDisallowsAllCrawlers() throws Exception {
+        mockMvc.perform(get("/robots.txt"))
+                .andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content().string(org.hamcrest.Matchers.containsString("Disallow: /")));
+    }
+
+    @Test
     void securityHeadersAreSent() throws Exception {
         mockMvc.perform(get("/api/health"))
                 .andExpect(header().string("Content-Security-Policy", org.hamcrest.Matchers.containsString("script-src 'self'")))
                 .andExpect(header().string("Content-Security-Policy", org.hamcrest.Matchers.containsString("frame-ancestors 'none'")))
                 .andExpect(header().string("Referrer-Policy", "no-referrer"))
                 .andExpect(header().exists("Permissions-Policy"))
+                .andExpect(header().string("X-Robots-Tag", "noindex, nofollow"))
                 .andExpect(header().string("X-Content-Type-Options", "nosniff"));
     }
 
