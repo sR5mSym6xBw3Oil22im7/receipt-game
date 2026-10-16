@@ -10,7 +10,7 @@
 
 職業訓練校の卒業ポートフォリオとして、一人で制作した作品です。企画・要件定義から設計、実装、テスト、公開、運用の文書化までを一通り行いました。企画から文書作成まで、AI（Claude Code、モデルはClaude Opus・Claude Sonnet）と相談しながら進めました。企画の決定と結果の確認は自分で行いました。
 
-- 見てほしい点：サーバーで完結する対戦ロジック、AI（Gemini）が使えないときの計算式への切り替え、認可・CSRF・個人情報の置換などのセキュリティ設計、自動テスト（バックエンド180件・フロント31件）。
+- 見てほしい点：サーバーで完結する対戦ロジック、AI（Gemini）が使えないときの計算式への切り替え、認可・CSRF・個人情報の置換などのセキュリティ設計、自動テスト（バックエンド181件・フロント31件）。
 - 短時間で見る場合：このREADME → [プロジェクト概要書](doc/01_project_overview.html) → [技術選定書](doc/02_technology_selection.html) → [システム構成図](doc/12_system_architecture.html) → [テスト結果報告書](doc/26_test_result_report.html) → [要確認事項・検討課題事項](doc/34_open_issues.html)。
 - すぐ試す：デモ画面（`/demo/index.html`）はログイン不要で、架空のレシートによるカード生成と対戦を体験できます。
 
@@ -64,16 +64,16 @@ node reFront/server.mjs
 | デモ（架空のレシート） | `http://localhost:8081/demo/index.html` | 不要 |
 | 管理者ログイン → レシート解析・保存・一覧 | `http://localhost:8081/admin/login.html` | 管理者 |
 
-メニュー以外のページを直接開くと、メニューへ転送されます（`/admin/` を除く）。
+メニュー以外のページを直接開くと、メニューへ転送されます（`/admin/` と動画ページを除く）。
 
 ## テスト
 
 ```sh
-cd reBack && mvn test                        # H2を使うのでPostgreSQL不要（180件）
+cd reBack && mvn test                        # H2を使うのでPostgreSQL不要（181件）
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行（31件）
 ```
 
-2026-10-15時点で、バックエンド180件、フロント31件ともすべて成功しています（[テスト結果報告書](doc/26_test_result_report.html)）。
+2026-10-16時点で、バックエンド181件、フロント31件ともすべて成功しています（[テスト結果報告書](doc/26_test_result_report.html)）。
 
 ## 同期が必要なファイル（片方だけ直さない）
 

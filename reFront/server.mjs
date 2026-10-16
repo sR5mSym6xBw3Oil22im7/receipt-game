@@ -61,7 +61,9 @@ const server = createServer(async (request, response) => {
     // メニュー以外への直接アクセス（同じサイトのページからのリンク以外のページ移動）はメニューへ移動させる
     const navigation = isNavigation(request);
     const requestPath = new URL(request.url, `http://${HOST}`).pathname;
-    if (navigation && requestPath !== MENU_PATH && !cameFromSite(request)) return redirectToMenu(response);
+    // 動画ページ（/video/show/）は直接開いてもよいので転送しない
+    const isVideoPage = requestPath.startsWith("/video/show/") && requestPath.endsWith(".html");
+    if (navigation && requestPath !== MENU_PATH && !isVideoPage && !cameFromSite(request)) return redirectToMenu(response);
 
     let pathname;
     try {

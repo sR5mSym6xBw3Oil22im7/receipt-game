@@ -6,7 +6,7 @@
 
 - ビルド不要の静的ページだけで、日替わりテーマ（毎日3:00 JSTに切り替わる10種）、動画ページ、直接アクセスの転送を実現している。
 - 演出はCSSのtransition/animationのみで、`prefers-reduced-motion` で止まる。
-- メニュー以外のページを直接開くとメニューへ転送する（`direct-access-guard.js`）。
+- メニュー以外のページを直接開くとメニューへ転送する（`direct-access-guard.js`）。動画ページは対象外で、直接開ける。
 - 管理画面JSとテーマは `reBack` 側と内容が一致することをスモークテスト（31件）で検査している。
 
 ## 内容
@@ -15,7 +15,7 @@
 | --- | --- |
 | `index.html` / `index.js` / `styles.css` | メニュー（対戦・デモ・管理者ログイン・動画4本へのリンク） |
 | `config.js` | 接続先の切替。localhost（`file:` 含む）ではバックエンド `http://localhost:8081`、それ以外では本番 `https://receipt-game.onrender.com` |
-| `direct-access-guard.js` | メニュー以外のページを直接開いたらメニューへ移動させる |
+| `direct-access-guard.js` | メニューが読み込み、メニュー以外のページを直接開いたらメニューへ移動させる（動画ページは読み込まない） |
 | `theme/` | 日替わりテーマ（`theme.js`、`base.css`、`t01.css`〜`t10.css`） |
 | `video/manual/` | 操作ガイド動画（標準版 `guide6min.mp4`、簡易版 `guide3min.mp4`） |
 | `video/pv/` | プロモーション映像（`pv01.mp4`、`pv02.mp4`） |
@@ -35,7 +35,7 @@ node reFront/server.mjs        # リポジトリ直下で実行。http://localho
 
 - ポートは5051固定です（バックエンドの「メニューへ戻る」の移動先と合わせています）。既に5051で別のプロセスが動いていると、起動できず、テストにも影響します。
 - 許可するHostは `localhost`・`127.0.0.1`・`[::1]`（5051）だけです（DNSリバインディング対策）。GET/HEAD以外は405、`.` で始まるファイルは配信しません。
-- メニュー以外へのページ移動（アドレスバー入力など）は、同じサイトのページからのリンクでなければメニューへ302転送します。
+- メニュー以外へのページ移動（アドレスバー入力など）は、同じサイトのページからのリンクでなければメニューへ302転送します（`/video/show/*.html` は転送しません）。
 
 ## 日替わりデザイン
 
@@ -55,7 +55,7 @@ node reFront/server.mjs        # リポジトリ直下で実行。http://localho
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 ```
 
-管理画面JS・HTMLの整合、テーマ、演出（`prefers-reduced-motion`）、直接アクセス転送、`server.mjs` の拒否動作などを検査します。2026-10-15時点で31件すべて成功しています。詳細は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
+管理画面JS・HTMLの整合、テーマ、演出（`prefers-reduced-motion`）、直接アクセス転送、`server.mjs` の拒否動作などを検査します。2026-10-16時点で31件すべて成功しています。詳細は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
 
 ## デプロイ
 

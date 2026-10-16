@@ -82,6 +82,12 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 - 対戦には有効なカードが2枚以上必要。
 - 環境変数：`MONSTER_WAIT_SECONDS`（既定90）、`MONSTER_AI_ILLUSTRATION`、`MONSTER_TRUST_FORWARDED_FOR`（プロキシ背後で true）、`MONSTER_GEMINI_DAILY_LIMIT`（既定200）。
 
+### 直接アクセスの転送
+
+- メニュー以外のページを直接開く（アドレスバー入力・ブックマーク・外部リンク）とメニューへ転送する。`reFront/direct-access-guard.js`（メニューが読み込む）、`404.html`、`reFront/server.mjs`（ローカル）、`DirectAccessRedirectFilter`（Render側）が担う。
+- 動画ページ（`reFront/video/show/*.html` の4つ）は対象外で、直接開ける。`direct-access-guard.js` を読み込まず、`server.mjs` も転送しない。
+- 仕様を変えたら `doc/`（03、04、08、13、25、33）と各README、スモークテストを同時に直す。
+
 ### 日替わりデザイン
 
 - 10種類のテーマが毎日3:00（JST）に順番に切り替わる。日付だけで決まる。`?theme=1`〜`?theme=10` で確認用に固定できる（保存しない）。
@@ -89,7 +95,7 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 ### 検索エンジン対策（Googleの検索対象から外す）
 
 - このシステムはGoogleなどの検索結果に出さない。新しいページ・機能を足すときは、検索対象から外す処理も一緒に追加する。
-- 新しいHTMLページ（`reFront/`、`doc/`、`reBack/src/main/resources/static/` 配下）には `<meta name="robots" content="noindex, nofollow">` を入れる。`reFront/` と `reBack/.../static/` のページは `<meta name="viewport">` の直後（`direct-access-guard.js` がある場合はその直後。スモークテストが並びを検査する）、`doc/` は1行目の viewport の直後に置く。
+- 新しいHTMLページ（`reFront/`、`doc/`、`reBack/src/main/resources/static/` 配下）には `<meta name="robots" content="noindex, nofollow">` を入れる。`reFront/` と `reBack/.../static/` のページは `<meta name="viewport">` の直後（メニュー `reFront/index.html` は `direct-access-guard.js` の読み込みがあるので、その直後。スモークテストが並びを検査する）、`doc/` は1行目の viewport の直後に置く。
 - バックエンド（Render）は `SecurityConfig` で全レスポンスに `X-Robots-Tag: noindex, nofollow` を付ける。外さない。新しいAPIや静的ファイルを足しても対象になる。
 - `robots.txt`（`User-agent: *` / `Disallow: /`）は `reBack/src/main/resources/static/robots.txt` に置く。GitHub Pages側はプロジェクトページ（`/receipt-game/`）なので、リポジトリ直下の `robots.txt` はクローラーに読まれない。ドメイン直下に効かせるには別リポジトリ `<ユーザー名>.github.io` が必要。
 - `Disallow: /` は、クローラーに `noindex` を読ませない場合がある。すでに索引にあるページを消したいときは `noindex` を先に反映し、急ぐなら Search Console の「一時的な削除」を使う。
