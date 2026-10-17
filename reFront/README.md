@@ -7,7 +7,7 @@
 - ビルド不要の静的ページだけで、日替わりテーマ（毎日3:00 JSTに切り替わる10種）、動画ページ、直接アクセスの転送を実現している。
 - 演出はCSSのtransition/animationのみで、`prefers-reduced-motion` で止まる。
 - メニュー以外のページを直接開くとメニューへ転送する（`direct-access-guard.js`）。動画ページは対象外で、直接開ける。
-- 管理画面JSとテーマは `reBack` 側と内容が一致することをスモークテスト（31件）で検査している。
+- 管理画面JSとテーマは `reBack` 側と内容が一致することをスモークテストで検査している。
 
 ## 内容
 
@@ -21,7 +21,7 @@
 | `video/pv/` | プロモーション映像（`pv01.mp4`、`pv02.mp4`） |
 | `video/show/` | 動画再生ページ（`guide6min.html`、`guide3min.html`、`pv1.html`、`pv2.html`） |
 | `server.mjs` | ローカル用の静的サーバー（`http://localhost:5051`、ポート固定） |
-| `test/smoke.test.mjs` | スモークテスト（`node:test`、31件） |
+| `test/smoke.test.mjs` | スモークテスト（`node:test`） |
 
 対戦（`/game/`）・デモ（`/demo/`）・管理画面（`/admin/`）はバックエンド（`reBack/`）が配信します。メニューのリンクは `config.js` の接続先を使います。
 
@@ -55,7 +55,7 @@ node reFront/server.mjs        # リポジトリ直下で実行。http://localho
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 ```
 
-管理画面JS・HTMLの整合、テーマ、演出（`prefers-reduced-motion`）、直接アクセス転送、`server.mjs` の拒否動作などを検査します。2026-10-16時点で31件すべて成功しています。詳細は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
+管理画面JS・HTMLの整合、テーマ、演出（`prefers-reduced-motion`）、直接アクセス転送、`server.mjs` の拒否動作などを検査します。すべて成功しています。詳細は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
 
 ## デプロイ
 

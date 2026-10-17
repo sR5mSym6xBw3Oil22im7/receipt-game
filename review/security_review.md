@@ -10,7 +10,7 @@
 
 ## 0. 修正の対応状況（2026-10-11 追記）
 
-本文（第1章以降）は **修正前** のレビュー結果。その後、次のとおりコードを修正した。修正後の `mvn test` は **168件すべて成功**、`node --test "reFront/test/*.test.mjs"` は **23件すべて成功**。同じPoCを修正後のコードで再実行した結果は `review/poc/results_poc_after_fix.txt`（修正前は `results_poc_output.txt`）。
+本文（第1章以降）は **修正前** のレビュー結果。その後、次のとおりコードを修正した。修正後の `mvn test` は **168件すべて成功**、`node --test "reFront/test/*.test.mjs"` は **23件すべて成功**（いずれも修正直後の当時の件数。現在の件数は [テスト結果報告書](../doc/26_test_result_report.html) を参照）。同じPoCを修正後のコードで再実行した結果は `review/poc/results_poc_after_fix.txt`（修正前は `results_poc_output.txt`）。
 
 | ID | 状況 | 修正内容 | PoCの結果（修正前 → 後） |
 | --- | --- | --- | --- |

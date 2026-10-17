@@ -16,7 +16,7 @@
 - Geminiが使えない・応答が不正なときは、計算式の値と代替イラストへ自動で切り替える。SVGは許可リストで検証する。
 - `/api/**` は既定で拒否し、認可を書いたものだけ公開する（`SecurityConfig`）。CSRF、ログイン失敗ロック、アップロードの型・画素数検査、IP別のレート制限を備える。
 - 保存前に個人情報を除去し、画像そのものは保存しない。
-- テスト181件はH2で動き、Geminiを呼ばない。
+- テストはH2で動き、Geminiを呼ばない。
 
 ## 起動
 
@@ -120,7 +120,7 @@ src/test/            JUnit（H2を使用）
 ## テスト
 
 ```sh
-mvn test     # 181件。H2を使うのでPostgreSQL不要。Geminiは呼ばない設定
+mvn test     # H2を使うのでPostgreSQL不要。Geminiは呼ばない設定
 ```
 
 認可・CSRF・入力検証・ルーム進行・エンジン（デモ画面 `engine.js` との一致）・個人情報除去・SVG検証などを含みます。結果は [../doc/26_test_result_report.html](../doc/26_test_result_report.html)。
