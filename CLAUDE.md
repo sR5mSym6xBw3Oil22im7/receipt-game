@@ -18,8 +18,10 @@
 | --- | --- |
 | `reBack/` | Java 21 / Spring Boot 4.1.0 のREST API、管理画面（`static/admin/`）、モンスター対戦（`/game/`）、テスト、Dockerfile、render.yml |
 | `reFront/` | メニューの静的ページ（ビルド不要）、`server.mjs`（ローカル用、ポート5051固定）、`theme/` |
-| `doc/` | 開発文書（HTML、01〜34。目次は `doc/index.html`） |
+| `doc/` | 開発文書（HTML、01〜35。目次は `doc/index.html`） |
 | `review/` | セキュリティレビューなどの記録 |
+| `.github/` | GitHub Actions（`workflows/ci.yml`、`workflows/auto-loop.yml`、`actions/loop-round/`） |
+| `scripts/` | 検査スクリプト（`check_readme.mjs`、`check_doc.mjs`）と自動ループの守衛（`guard.sh`） |
 
 ## コマンド
 
@@ -33,6 +35,8 @@ node reFront/server.mjs
 # テスト（バックエンドはH2を使うのでPostgreSQL不要）
 cd reBack && mvn test
 node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
+node scripts/check_readme.mjs             # README 3ファイルのリンク切れ・秘密情報（リポジトリ直下）
+node scripts/check_doc.mjs                # doc/ の noindex・目次・リンク切れ・秘密情報（リポジトリ直下）
 ```
 
 ## 同期が必要なファイル（片方だけ直さない）
@@ -100,6 +104,17 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 - `robots.txt`（`User-agent: *` / `Disallow: /`）は `reBack/src/main/resources/static/robots.txt` に置く。GitHub Pages側はプロジェクトページ（`/receipt-game/`）なので、リポジトリ直下の `robots.txt` はクローラーに読まれない。ドメイン直下に効かせるには別リポジトリ `<ユーザー名>.github.io` が必要。
 - `Disallow: /` は、クローラーに `noindex` を読ませない場合がある。すでに索引にあるページを消したいときは `noindex` を先に反映し、急ぐなら Search Console の「一時的な削除」を使う。
 - 確認：`curl -I` で `X-Robots-Tag` を、`/robots.txt` が200で返ることを見る。`HardeningIntegrationTest` が両方を検査している。
+
+### 自動検査・自動ループ（GitHub Actions）
+
+- `.github/workflows/ci.yml`：`main`・`sub01` へのpushとPRで、`backend`（`mvn test`）→ `frontend`（スモークテスト）→ `readme`（`scripts/check_readme.mjs`）→ `doc`（`scripts/check_doc.mjs`）の順に直列で実行する。前が失敗したら後は動かない。
+- `.github/workflows/auto-loop.yml` と `.github/actions/loop-round/`：同一リポジトリのPRにラベル `auto-loop` を付けると、検証 → Claudeのレビュー → Claudeの修正 → 守衛（`scripts/guard.sh`）を最大3周、その後に最終確認を1回行う。成功して修正があるときだけ `auto-fix/<PR番号>` へpushし、そのPRのベースブランチ宛てに修正PRを作る。`sub01`・`main` へは自動でpushしない。マージは人が行う。
+- 守衛が不合格にするもの：既存テストの削除・書き換え、テストの無効化（`@Disabled`・`.skip(` など）、`.github/`・`scripts/`・`.env` の変更、合格テスト数の減少。人の確認（終了コード2）にするもの：`SecurityConfig.java`・`pom.xml`・`render.yml`・`Dockerfile` の変更、差分500行超、README・`doc/` の1ファイル50行超の削除。
+- `.github/` と `scripts/` は人が直す（自動修正は触れない）。直したら `ci.yml` と、`sub01` 宛ての試験用PR（マージしない）で確認する。
+- 認証は Secret `CLAUDE_CODE_OAUTH_TOKEN`（Pro契約の `claude setup-token`。有効期間1年で、2027年10月ごろに再発行）。APIキーへは切り替えない。Gemini系のキーはActionsに置かない。
+- 公式Action `claude-code-action` には `github_token` を明示して渡す（既定ブランチ `main` にワークフローがなくても動かすため）。リポジトリ設定「Allow GitHub Actions to create and approve pull requests」は有効にしてある（修正PRの自動作成に必要）。
+- 自動ループが作ったPRと、`GITHUB_TOKEN` によるpushでは `ci.yml` が自動起動しない（ループ内で同じ4検査を実行済み）。ブランチ保護で `ci` の成功を必須にする場合は、先に `ci.yml` へ `workflow_dispatch` を足す。
+- 新しい `doc/*.html` は `check_doc.mjs` を通す（noindexが viewport の直後、`doc/index.html` の目次に載せる、リンク切れなし）。READMEのリンクは `check_readme.mjs` が検査する。
 
 ## デプロイ
 

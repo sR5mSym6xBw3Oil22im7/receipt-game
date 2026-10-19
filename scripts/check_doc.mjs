@@ -36,7 +36,7 @@ for (const page of pages) {
   }
 }
 
-// 目次が 01〜34 の全文書を網羅していること
+// 目次が 01〜35 の全文書を網羅していること
 const index = readFileSync(`${dir}/index.html`, 'utf8');
 for (const page of pages.filter((f) => /^\d\d_/.test(f))) {
   if (!index.includes(`href="${page}"`)) {

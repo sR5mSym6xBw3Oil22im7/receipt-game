@@ -28,8 +28,10 @@
 | --- | --- |
 | [reBack/](reBack/README.md) | REST API、管理画面（`static/admin/`）、対戦（`static/game/`）、デモ（`static/demo/`）、テスト、`Dockerfile`、`render.yml` |
 | [reFront/](reFront/README.md) | メニューの静的ページ、`server.mjs`（ローカル用、ポート5051固定）、`theme/`、`video/` |
-| [doc/](doc/index.html) | 開発文書（HTML、34点。目次は `doc/index.html`） |
+| [doc/](doc/index.html) | 開発文書（HTML、35点。目次は `doc/index.html`） |
 | `review/` | セキュリティレビューの記録とPoC |
+| `.github/` | GitHub Actions（`ci.yml` による自動検査、`auto-loop.yml` による自動レビュー・修正） |
+| `scripts/` | 検査スクリプト（`check_readme.mjs`、`check_doc.mjs`）と自動ループの守衛（`guard.sh`） |
 | `index.html` / `404.html` | GitHub Pages用。メニュー（`reFront/index.html`）へ転送します |
 | `CLAUDE.md` | 開発時の作業ルール |
 
@@ -71,9 +73,17 @@ node reFront/server.mjs
 ```sh
 cd reBack && mvn test                        # H2を使うのでPostgreSQL不要
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
+node scripts/check_readme.mjs                # README 3ファイルのリンク切れ・秘密情報
+node scripts/check_doc.mjs                   # doc/ の noindex・目次・リンク切れ・秘密情報
 ```
 
 バックエンド、フロントともすべて成功しています（[テスト結果報告書](doc/26_test_result_report.html)）。
+
+### 自動検査と自動ループ（GitHub Actions）
+
+- `ci.yml`：`main`・`sub01` へのpushとPRで、バックエンド → フロントエンド → README → doc/ の順に直列で検査します。
+- `auto-loop.yml`：同一リポジトリのPRにラベル `auto-loop` を付けると、Claude（Pro契約）が検証・レビュー・修正を最大3周行います。デグレードの守衛（`scripts/guard.sh`）に合格し、修正があるときだけ `auto-fix/<PR番号>` へ push して修正PRを作ります。`sub01`・`main` へは自動では入らず、マージは人が行います。
+- 詳細は [コーディング規約・開発手順書](doc/32_coding_and_development_guide.html) の第6章を参照してください。
 
 ## 同期が必要なファイル（片方だけ直さない）
 
