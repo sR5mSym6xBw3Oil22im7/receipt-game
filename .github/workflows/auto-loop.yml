@@ -55,6 +55,8 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # 既定ブランチ(main)にこのファイルがなくても動くよう、GitHub App経由ではなくGITHUB_TOKENで動かす
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             このPRの変更（git diff origin/${{ github.event.pull_request.base.ref }}...HEAD）をレビューしてください。
             観点は CLAUDE.md の規約です。例：innerHTML を使っていないか、POST・DELETE にCSRFトークンがあるか、
@@ -78,6 +80,11 @@ jobs:
           VERIFY_OK: ${{ steps.verify.outputs.ok }}
           REVIEW_JSON: ${{ steps.review.outputs.structured_output }}
         run: |
+          # レビューが実行されなかった（結果が空）場合は、合格と誤認しないよう失敗にする
+          if [ -z "$REVIEW_JSON" ]; then
+            gh pr comment "$PR" --body "## auto-loop（dry-run）"$'\n\n'"レビューが実行されませんでした。実行ログを確認してください: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            exit 1
+          fi
           {
             echo "## auto-loop（dry-run）"
             echo
