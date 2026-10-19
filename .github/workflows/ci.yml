@@ -1,0 +1,66 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main, sub01]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# バックエンド → フロントエンド → README → doc/ の順に直列で実行する。
+# 前のジョブが失敗したら、後続は実行しない。
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: バックエンドのテスト（H2を使うためPostgreSQL不要）
+        working-directory: reBack
+        run: mvn -B test
+
+  frontend:
+    needs: backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: フロントエンドのスモークテスト
+        run: node --test reFront/test/smoke.test.mjs
+
+  readme:
+    needs: frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: README（3ファイル）の検査
+        run: node scripts/check_readme.mjs
+
+  doc:
+    needs: readme
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: doc/ の検査
+        run: node scripts/check_doc.mjs
