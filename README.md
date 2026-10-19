@@ -105,5 +105,3 @@ node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 | 開発する | [環境構成書](doc/21_environment_configuration.html)、[コーディング規約・開発手順書](doc/32_coding_and_development_guide.html)、[詳細設計書](doc/31_detailed_design.html) |
 | 運用する | [操作マニュアル・運用保守手順書](doc/33_user_and_operations_manual.html)、[データ保持方針書](doc/28_data_retention_policy.html)、[環境変数一覧](doc/22_environment_variables.html) |
 | 残課題を知る | [要確認事項・検討課題事項](doc/34_open_issues.html) |
-
-詳しくは[移行手順](doc/zzz_missing.html)を参照。
