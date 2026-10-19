@@ -36,6 +36,7 @@ runs:
       env:
         ROUND: ${{ inputs.round }}
         BASELINE: ${{ runner.temp }}/baseline.txt
+        NODE_TEST_OUTPUT: .auto-loop/node-test.txt
       run: |
         ok=true
         {
@@ -46,7 +47,7 @@ runs:
           node scripts/check_doc.mjs || ok=false
         } > .auto-loop/verify.log 2>&1
         tail -n 40 .auto-loop/verify.log
-        NODE_TEST_OUTPUT=.auto-loop/node-test.txt scripts/guard.sh counts | tee .auto-loop/counts-now.txt
+        scripts/guard.sh counts | tee .auto-loop/counts-now.txt
         count_ng=false
         if [ "$ROUND" = 1 ]; then
           cp .auto-loop/counts-now.txt "$BASELINE"
