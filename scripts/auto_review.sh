@@ -10,8 +10,8 @@
 # 終了コード: 0=High・Mediumがなくなった / 1=修正できず停止 / 2=エラー
 set -uo pipefail
 
-REVIEW_MODEL=${REVIEW_MODEL:-claude-opus-5-5}   # ソースレビュー
-FIX_MODEL=${FIX_MODEL:-claude-haiku-5-5}       # ソースレビュー修正
+REVIEW_MODEL=${REVIEW_MODEL:-sonnet}   # ソースレビュー（Sonnetの最新版。別名は最新版を指す。現在は 5.5）
+FIX_MODEL=${FIX_MODEL:-haiku}       # ソースレビュー修正（Haikuの最新版。現在は 5.5）
 WORKROOT=.auto-review-work
 FIRST_TS=$(TZ=Asia/Tokyo date +%Y%m%d%H%M%S)
 GIT=(git -c user.name="auto-review[bot]" -c user.email="auto-review@users.noreply.github.com")
