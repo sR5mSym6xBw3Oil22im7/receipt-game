@@ -81,7 +81,7 @@ node scripts/check_doc.mjs                   # doc/ の noindex・目次・リ�
 ### 自動検査と自動ループ（GitHub Actions）
 
 - `ci.yml`：`main`・`sub01` へのpushとPRで、バックエンド → フロントエンド → README → doc/ の順に直列で検査します。
-- `auto-review.yml`：同一リポジトリのPRにラベル `auto-review` を付けると、Claude（Pro契約）がリポジトリ全体（`auto-review/` は除く）の「ソースレビュー → 修正（High・Mediumのみ）→ 動作確認 → デグレードなし確認」を、High・Mediumの指摘がなくなるまで繰り返します（回数の上限は設けません。修正が採用されなかったときとエラーのときは停止します）。各ラウンドの結果は `auto-review/YYYYMMDDHHMMSS/` に集めてZIP圧縮し、全ラウンドのZIPと修正を、最初のラウンドの日時の `auto-review/YYYYMMDDHHMMSS` ブランチへ1回 push します。PRの作成やコメントはせず、マージは人が行います。
+- `auto-review.yml`：同一リポジトリのPRにラベル `auto-review` を付けると、Claude（Pro契約）がリポジトリ全体（`auto-review/` は除く）の「ソースレビュー → 修正（High・Mediumのみ）→ 動作確認 → デグレードなし確認」を、High・Mediumの指摘がなくなるまで繰り返します（レビューは対象を分割し、全ファイルを読んだことを確認します）（回数の上限は設けません。修正が採用されなかったときとエラーのときは停止します）。各ラウンドの結果は `auto-review/YYYYMMDDHHMMSS/` に集めてZIP圧縮し、全ラウンドのZIPと修正を、最初のラウンドの日時の `auto-review/YYYYMMDDHHMMSS` ブランチへ1回 push します。PRの作成やコメントはせず、マージは人が行います。
 - 詳細は [コーディング規約・開発手順書](doc/32_coding_and_development_guide.html) の第6章を参照してください。
 
 ## 同期が必要なファイル（片方だけ直さない）

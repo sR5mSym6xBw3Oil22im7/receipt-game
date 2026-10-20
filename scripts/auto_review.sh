@@ -15,10 +15,11 @@ WORKROOT=.auto-review-work
 FIRST_TS=$(TZ=Asia/Tokyo date +%Y%m%d%H%M%S)
 GIT=(git -c user.name="auto-review[bot]" -c user.email="auto-review@users.noreply.github.com")
 
-SCHEMA='{"type":"object","properties":{"summary":{"type":"string"},"findings":{"type":"array","items":{"type":"object","properties":{"severity":{"type":"string","enum":["high","medium","low"]},"file":{"type":"string"},"line":{"type":"integer"},"title":{"type":"string"},"detail":{"type":"string"}},"required":["severity","file","title","detail"]}}},"required":["summary","findings"]}'
+SCHEMA='{"type":"object","properties":{"summary":{"type":"string"},"reviewed_files":{"type":"array","items":{"type":"string"}},"findings":{"type":"array","items":{"type":"object","properties":{"severity":{"type":"string","enum":["high","medium","low"]},"file":{"type":"string"},"line":{"type":"integer"},"title":{"type":"string"},"detail":{"type":"string"}},"required":["severity","file","title","detail"]}}},"required":["summary","reviewed_files","findings"]}'
 
-REVIEW_PROMPT='このリポジトリ全体をレビューしてください。対象は WORK/target-files.txt に列挙したファイルです
-（auto-review/ は対象外。動画などのバイナリは読まなくてよい）。
+REVIEW_PROMPT='WORK/CHUNK に列挙したファイルを、すべて開いて最後まで読み、レビューしてください。
+（リポジトリ全体を分割してレビューしており、これはその一部です。他のファイルとの整合は Grep・Read で確認してかまいません。）
+読んだファイルは、すべて reviewed_files にパスで列挙してください。読んでいないファイルは列挙しないでください。
 観点は CLAUDE.md の規約と、一般的な不具合・セキュリティ上の問題です。例：
 innerHTML を使っていないか、POST・DELETE にCSRFトークンがあるか、新しいAPIに認可設定とREADMEの更新があるか、
 新しいHTMLに noindex があるか、同期が必要なファイルの片側だけの差異がないか、
@@ -57,32 +58,71 @@ finish() {
   case $status in clean) exit 0 ;; stalled) exit 1 ;; *) exit 2 ;; esac
 }
 
+# レビュー対象（auto-review/ を除くテキストファイル）を、約150KB・40ファイルごとの塊に分ける
+make_chunks() {
+  local work=$1 n=0 size=0 f s
+  git grep -I --name-only -e '' -- . ':(exclude)auto-review' | sort > "$work/target-files.txt"
+  rm -f "$work"/chunk-*.txt
+  while IFS= read -r f; do
+    s=$(stat -c%s "$f")
+    if [ -f "$work/chunk-$n.txt" ] && { [ $((size + s)) -gt 153600 ] || [ "$(wc -l < "$work/chunk-$n.txt")" -ge 40 ]; }; then
+      n=$((n + 1)); size=0
+    fi
+    echo "$f" >> "$work/chunk-$n.txt"
+    size=$((size + s))
+  done < "$work/target-files.txt"
+}
+
+# 塊ごとにレビューし、列挙された全ファイルを読んだと報告されるまで、読み残しだけを再依頼する
+review_all() {
+  local work=$1 chunk base missing tries out
+  for chunk in "$work"/chunk-*.txt; do
+    base=${chunk%.txt}
+    cp "$chunk" "$base.todo"
+    echo '{"summary":"","reviewed_files":[],"findings":[]}' > "$base.review.json"
+    tries=0
+    while [ -s "$base.todo" ]; do
+      tries=$((tries + 1))
+      [ "$tries" -le 3 ] || { echo "読み残し: $(cat "$base.todo" | tr '\n' ' ')"; return 1; }
+      out="$base.try$tries.json"
+      claude -p "${REVIEW_PROMPT//WORK\/CHUNK/$base.todo}" --model "$MODEL" --max-turns 60 \
+        --allowedTools "Read,Grep,Glob,Bash(git ls-files:*),Bash(git log:*),Bash(git show:*)" \
+        --output-format json --json-schema "$SCHEMA" > "$out" 2> "$base.try$tries.err" || true
+      jq -e '.structured_output' "$out" > "$base.part.json" 2>/dev/null || continue
+      # 今回の結果を、これまでの結果に足す
+      jq -s '{summary: ([.[].summary] | map(select(. != "")) | join("\n")),
+              reviewed_files: (map(.reviewed_files) | add | unique),
+              findings: (map(.findings) | add)}' "$base.review.json" "$base.part.json" > "$base.merged.json" \
+        && mv "$base.merged.json" "$base.review.json"
+      # 読んだと報告されたファイルを、未読の一覧から外す
+      jq -r '.reviewed_files[]' "$base.review.json" | sort > "$base.read"
+      sort "$chunk" | comm -23 - "$base.read" > "$base.todo"
+    done
+  done
+}
+
 # 1ラウンドを実行し、結果を $status に入れる（clean / continue / stalled / error）
 run_round() {
-  local ts work start before_ok=false fix_count="" fix_result="" reason="" json n rc
+  local ts work start before_ok=false fix_count="" fix_result="" reason="" rc
   ts=$(TZ=Asia/Tokyo date +%Y%m%d%H%M%S)
   work="$WORKROOT/r$round"
   mkdir -p "$work"
   start=$(git rev-parse HEAD)
-  git ls-files | grep -v '^auto-review/' > "$work/target-files.txt"
+  make_chunks "$work"
 
   # ① 動作確認（修正前）：このラウンド開始時の状態と合格テスト数を記録する
   if scripts/verify.sh "$work/01_verify_before.log" "$work/node-before.txt"; then before_ok=true; fi
   NODE_TEST_OUTPUT="$work/node-before.txt" scripts/guard.sh counts | tee "$work/counts-before.txt"
 
-  # ② ソースレビュー：Claudeは読み取り専用
-  claude -p "${REVIEW_PROMPT//WORK/$work}" --model "$MODEL" --max-turns 40 \
-    --allowedTools "Read,Grep,Glob,Bash(git ls-files:*),Bash(git log:*),Bash(git show:*)" \
-    --output-format json --json-schema "$SCHEMA" > "$work/review-raw.json" 2> "$work/review-err.txt"
-  json=$(jq -c '.structured_output // empty' "$work/review-raw.json" 2>/dev/null || true)
-  if [ -z "$json" ]; then
-    echo "レビューの結果が得られませんでした" > "$work/02_review.md"
-    status=error
-  else
-    echo "$json" > "$work/02_review.json"
-    jq -r '"# ソースレビュー結果\n\n\(.summary)\n\n" +
+  # ② ソースレビュー：Claudeは読み取り専用。対象を分割し、全ファイルを読んだことを確認する
+  if review_all "$work"; then
+    jq -s '{summary: (map(.summary) | join("\n\n")),
+            reviewed_files: (map(.reviewed_files) | add),
+            findings: (map(.findings) | add)}' "$work"/chunk-*.review.json > "$work/02_review.json"
+    jq -r '"# ソースレビュー結果\n\n対象 \(.reviewed_files | length) ファイルをすべて読みました。\n\n\(.summary)\n\n" +
       ([.findings[]? | "- [\(.severity)] \(.file):\(.line // "-") \(.title)\n  \(.detail)"] | join("\n"))' \
       "$work/02_review.json" > "$work/02_review.md"
+    jq -r '.reviewed_files[]' "$work/02_review.json" > "$work/02_reviewed-files.txt"
     # 修正するのは High / Medium だけ（Low は記録のみ）
     jq -r '.findings[]? | select(.severity=="high" or .severity=="medium")
       | "- [\(.severity)] \(.file):\(.line // "-") \(.title)\n  \(.detail)"' \
@@ -135,12 +175,15 @@ run_round() {
         if [ "$fix_result" = keep ]; then echo "- 結果: 採用（コミットしました）"; else echo "- 結果: 破棄（$reason）"; fi
       } > "$work/03_fix_result.md"
     fi
+  else
+    echo "レビューを完了できませんでした（読めなかったファイルがあります）" > "$work/02_review.md"
+    status=error
   fi
 
   # ⑤ このラウンドの結果をZIP圧縮してコミットする
   local dir="auto-review/$ts" f
   mkdir -p "$dir"
-  for f in 01_verify_before.log 02_review.json 02_review.md 03_fix.diff 03_fix_result.md \
+  for f in 01_verify_before.log 02_review.json 02_review.md 02_reviewed-files.txt 03_fix.diff 03_fix_result.md \
            04_verify_after.log 04_degrade_check.md counts-before.txt; do
     if [ -f "$work/$f" ]; then cp "$work/$f" "$dir/$f"; fi
   done
