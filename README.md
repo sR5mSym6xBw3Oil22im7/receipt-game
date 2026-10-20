@@ -29,7 +29,6 @@
 | [reBack/](reBack/README.md) | REST API、管理画面（`static/admin/`）、対戦（`static/game/`）、デモ（`static/demo/`）、テスト、`Dockerfile`、`render.yml` |
 | [reFront/](reFront/README.md) | メニューの静的ページ、`server.mjs`（ローカル用、ポート5051固定）、`theme/`、`video/` |
 | [doc/](doc/index.html) | 開発文書（HTML、35点。目次は `doc/index.html`） |
-| `review/` | セキュリティレビューの記録とPoC |
 | `.github/` | GitHub Actions（`ci.yml` による自動検査、`auto-loop.yml` による自動レビュー・修正） |
 | `scripts/` | 検査スクリプト（`check_readme.mjs`、`check_doc.mjs`）と自動ループの守衛（`guard.sh`） |
 | `index.html` / `404.html` | GitHub Pages用。メニュー（`reFront/index.html`）へ転送します |

@@ -1,7 +1,0 @@
-POC|PG|NUL(\u0000)を含む行 -> DataIntegrityViolationException: PreparedStatementCallback; SQL [INSERT INTO receipt_daccea3a85254850ac28a947a329f878 (line_no, text) VALUES (?, ?)]; ERROR: invalid byte sequence for encoding "UTF8": 0x00
-POC|PG|孤立サロゲート(\uD800)を含む行 -> 保存成功 receipt_81edca0ea05b468e9679558ffd0bd1c5
-POC|PG|絵文字 -> 保存成功 receipt_340ac19a23964f76b1083e7e03f67eb2
-POC|PG|storeName 300文字 -> DataIntegrityViolationException: PreparedStatementCallback; SQL [INSERT INTO receipt_structured_summary (receipt_table_name,image_sha256,store_name,branch_name,store_category,purchased_at,total_amount,payment_method,receipt_number) VALUES (?,?,?,?,?,?,?,?,?)]; ERROR: value too long for type character varying(255)
-POC|PG|NULを含むstoreName -> DataIntegrityViolationException: PreparedStatementCallback; SQL [INSERT INTO receipt_structured_summary (receipt_table_name,image_sha256,store_name,branch_name,store_category,purchased_at,total_amount,payment_method,receipt_number) VALUES (?,?,?,?,?,?,?,?,?)]; ERROR: invalid byte sequence for encoding "UTF8": 0x00
-POC|PG|年99999の購入日時 -> 保存成功 receipt_38cae699b6c14f02ad2df83d74d354b1
-POC|PG|totalAmount=Long.MAX -> 保存成功 receipt_20368ff17977409a9dd2238be388fd16
