@@ -10,7 +10,8 @@
 # 終了コード: 0=High・Mediumがなくなった / 1=修正できず停止 / 2=エラー
 set -uo pipefail
 
-MODEL=${MODEL:-claude-haiku-5-5}
+REVIEW_MODEL=${REVIEW_MODEL:-claude-opus-5-5}   # ソースレビュー
+FIX_MODEL=${FIX_MODEL:-claude-haiku-5-5}       # ソースレビュー修正
 WORKROOT=.auto-review-work
 FIRST_TS=$(TZ=Asia/Tokyo date +%Y%m%d%H%M%S)
 GIT=(git -c user.name="auto-review[bot]" -c user.email="auto-review@users.noreply.github.com")
@@ -85,7 +86,7 @@ review_all() {
       tries=$((tries + 1))
       [ "$tries" -le 3 ] || { echo "読み残し: $(cat "$base.todo" | tr '\n' ' ')"; return 1; }
       out="$base.try$tries.json"
-      claude -p "${REVIEW_PROMPT//WORK\/CHUNK/$base.todo}" --model "$MODEL" --max-turns 60 \
+      claude -p "${REVIEW_PROMPT//WORK\/CHUNK/$base.todo}" --model "$REVIEW_MODEL" --max-turns 60 \
         --allowedTools "Read,Grep,Glob,Bash(git ls-files:*),Bash(git log:*),Bash(git show:*)" \
         --output-format json --json-schema "$SCHEMA" > "$out" 2> "$base.try$tries.err" || true
       jq -e '.structured_output' "$out" > "$base.part.json" 2>/dev/null || continue
@@ -133,7 +134,7 @@ run_round() {
       status=clean
     else
       # ③ 修正：Claudeは編集できるが、commit・pushはできない
-      claude -p "${FIX_PROMPT//WORK/$work}" --model "$MODEL" --max-turns 40 \
+      claude -p "${FIX_PROMPT//WORK/$work}" --model "$FIX_MODEL" --max-turns 40 \
         --allowedTools "Read,Grep,Glob,Edit,Write,Bash(mvn:*),Bash(node:*),Bash(git diff:*),Bash(git status:*)" \
         --disallowedTools "Bash(git push:*),Bash(git commit:*),Bash(gh:*)" \
         > "$work/fix-out.txt" 2>&1 || true
