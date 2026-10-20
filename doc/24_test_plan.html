@@ -13,5 +13,7 @@
 reFront/test/smoke.test.mjs
 scripts/check_readme.mjs   README 3ファイルのリンク切れ・秘密情報の検査
 scripts/check_doc.mjs      doc/ の noindex・目次・リンク切れ・秘密情報の検査
-scripts/guard.sh           自動ループの守衛（テスト数・差分の検査）</code></pre></section>
+scripts/guard.sh           デグレード守衛（テスト数・差分の検査）
+scripts/verify.sh          動作確認（4つの検査を直列に実行）</code></pre></section>
+scripts/auto_review.sh     auto-review 本体（ラウンドの繰り返し）
 <section><h2>6. 不具合管理</h2><p>不具合は発見した時点で原因を特定して修正し、再テストで全件成功を確認する。修正内容はコミット履歴に残す。残っている懸念は第34章に記載する。</p></section><section><h2>7. 自動実行（GitHub Actions）</h2><div class="table-wrap"><table class=""><thead><tr><th>順序</th><th>ジョブ</th><th>内容</th></tr></thead><tbody><tr><td>1</td><td>backend</td><td><code>cd reBack &amp;&amp; mvn -B test</code></td></tr><tr><td>2</td><td>frontend</td><td><code>node --test reFront/test/smoke.test.mjs</code></td></tr><tr><td>3</td><td>readme</td><td><code>node scripts/check_readme.mjs</code></td></tr><tr><td>4</td><td>doc</td><td><code>node scripts/check_doc.mjs</code></td></tr></tbody></table></div><ul><li>実行契機は、<code>main</code>・<code>sub01</code> へのpushとプルリクエスト。ジョブは直列で、前のジョブが失敗したら後は実行しない。</li><li>Gemini APIキーは使わない（テストはH2とモックで動く）。</li><li>自動ループ（<code>auto-loop.yml</code>）の手順と守衛は、第32章（コーディング規約・開発手順書）の6を参照。</li></ul></section><div class="nav-links"><a href="23_deployment_design.html">← デプロイ設計書</a><a href="25_test_cases.html">テスト仕様書・テストケース一覧 →</a></div></article></main></div><footer class="footer">モンスターレシート対戦 開発文書 / Version 1.0</footer><script src="js/script.js"></script></body></html>

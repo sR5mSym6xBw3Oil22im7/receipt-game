@@ -13,7 +13,7 @@ MAX_DIFF_LINES=${MAX_DIFF_LINES:-500}   # 差分の総行数の上限
 MAX_DOC_DELETED=${MAX_DOC_DELETED:-50}  # README・docの1ファイルあたりの削除行数の上限
 
 # Claudeが変更してはならないパス（検査そのもの、ワークフロー、秘密情報）
-FORBIDDEN='^\.github/|^scripts/|(^|/)\.env|\.(pem|key)$'
+FORBIDDEN='^\.github/|^scripts/|^auto-review/|(^|/)\.env|\.(pem|key)$'
 # 変更があれば人が確認するパス（認可、依存、デプロイ）
 REVIEW='SecurityConfig\.java$|(^|/)pom\.xml$|(^|/)render\.yml$|(^|/)Dockerfile$'
 TESTS='^reBack/src/test/|^reFront/test/'

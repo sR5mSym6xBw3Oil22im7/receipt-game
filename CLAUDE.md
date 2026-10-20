@@ -107,12 +107,13 @@ node scripts/check_doc.mjs                # doc/ の noindex・目次・リン�
 ### 自動検査・自動ループ（GitHub Actions）
 
 - `.github/workflows/ci.yml`：`main`・`sub01` へのpushとPRで、`backend`（`mvn test`）→ `frontend`（スモークテスト）→ `readme`（`scripts/check_readme.mjs`）→ `doc`（`scripts/check_doc.mjs`）の順に直列で実行する。前が失敗したら後は動かない。
-- `.github/workflows/auto-loop.yml` と `.github/actions/loop-round/`：同一リポジトリのPRにラベル `auto-loop` を付けると、検証 → Claudeのレビュー → Claudeの修正 → 守衛（`scripts/guard.sh`）を最大3周、その後に最終確認を1回行う。成功して修正があるときだけ `auto-fix/<PR番号>` へpushし、そのPRのベースブランチ宛てに修正PRを作る。`sub01`・`main` へは自動でpushしない。マージは人が行う。
-- 守衛が不合格にするもの：既存テストの削除・書き換え、テストの無効化（`@Disabled`・`.skip(` など）、`.github/`・`scripts/`・`.env` の変更、合格テスト数の減少。人の確認（終了コード2）にするもの：`SecurityConfig.java`・`pom.xml`・`render.yml`・`Dockerfile` の変更、差分500行超、README・`doc/` の1ファイル50行超の削除。
+- `.github/workflows/auto-review.yml`：同一リポジトリのPRにラベル `auto-review` を付けると、リポジトリ全体（`auto-review/` は除く）に対して「ソースレビュー → 修正 → 動作確認 → デグレードなし確認」を、High・Mediumの指摘がなくなるまで繰り返す（本体は `scripts/auto_review.sh`。ラウンド数の上限は設けない。修正が採用されない／エラーのときは停止。ジョブはGitHubの上限360分で打ち切られる）。修正するのは重大度 High・Medium だけで、Low は記録のみ。Claudeの修正は、守衛（`scripts/guard.sh`）の差分検査、修正後の動作確認（`scripts/verify.sh`）、合格テスト数の比較にすべて合格したときだけ採用し、不合格なら破棄する。
+- 各ラウンドの結果は `auto-review/YYYYMMDDHHMMSS/`（JST）に集めてZIP圧縮し、`auto-review/YYYYMMDDHHMMSS.zip` だけをコミットする。全ラウンド終了後、最初のラウンドの日時の `auto-review/YYYYMMDDHHMMSS` ブランチへ1回 push する。PRの作成・コメント・`sub01`/`main` への push はしない。マージは人が行う。上記以外の自動処理は足さない。
+- 守衛が不合格にするもの：既存テストの削除・書き換え、テストの無効化（`@Disabled`・`.skip(` など）、`.github/`・`scripts/`・`auto-review/`・`.env` の変更。人の確認（修正は破棄して停止）にするもの：`SecurityConfig.java`・`pom.xml`・`render.yml`・`Dockerfile` の変更、差分500行超、README・`doc/` の1ファイル50行超の削除。
 - `.github/` と `scripts/` は人が直す（自動修正は触れない）。直したら `ci.yml` と、`sub01` 宛ての試験用PR（マージしない）で確認する。
 - 認証は Secret `CLAUDE_CODE_OAUTH_TOKEN`（Pro契約の `claude setup-token`。有効期間1年で、2027年10月ごろに再発行）。APIキーへは切り替えない。Gemini系のキーはActionsに置かない。
 - 公式Action `claude-code-action` には `github_token` を明示して渡す（既定ブランチ `main` にワークフローがなくても動かすため）。リポジトリ設定「Allow GitHub Actions to create and approve pull requests」は有効にしてある（修正PRの自動作成に必要）。
-- 自動ループが作ったPRと、`GITHUB_TOKEN` によるpushでは `ci.yml` が自動起動しない（ループ内で同じ4検査を実行済み）。ブランチ保護で `ci` の成功を必須にする場合は、先に `ci.yml` へ `workflow_dispatch` を足す。
+- `GITHUB_TOKEN` によるpushでは `ci.yml` が自動起動しない（auto-review内で同じ4検査を実行済み）。ブランチ保護で `ci` の成功を必須にする場合は、先に `ci.yml` へ `workflow_dispatch` を足す。
 - 新しい `doc/*.html` は `check_doc.mjs` を通す（noindexが viewport の直後、`doc/index.html` の目次に載せる、リンク切れなし）。READMEのリンクは `check_readme.mjs` が検査する。
 
 ## デプロイ
