@@ -10,7 +10,7 @@
 # 終了コード: 0=High・Mediumがなくなった / 1=修正できず停止 / 2=エラー
 set -uo pipefail
 
-MODEL=${MODEL:-claude-sonnet-5-5}
+MODEL=${MODEL:-claude-haiku-5-5}
 WORKROOT=.auto-review-work
 FIRST_TS=$(TZ=Asia/Tokyo date +%Y%m%d%H%M%S)
 GIT=(git -c user.name="auto-review[bot]" -c user.email="auto-review@users.noreply.github.com")
