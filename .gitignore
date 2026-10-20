@@ -35,3 +35,4 @@
 
 # Local environment variables
 .env
+/auto-review/

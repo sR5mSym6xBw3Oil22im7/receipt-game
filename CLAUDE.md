@@ -107,8 +107,10 @@ node scripts/check_doc.mjs                # doc/ の noindex・目次・リン�
 ### 自動検査・自動ループ（GitHub Actions）
 
 - `.github/workflows/ci.yml`：`main`・`sub01` へのpushとPRで、`backend`（`mvn test`）→ `frontend`（スモークテスト）→ `readme`（`scripts/check_readme.mjs`）→ `doc`（`scripts/check_doc.mjs`）の順に直列で実行する。前が失敗したら後は動かない。
-- `.github/workflows/auto-review.yml`：同一リポジトリのPRにラベル `auto-review` を付けると、リポジトリ全体（`auto-review/` は除く）に対して「ソースレビュー → 修正 → 動作確認 → デグレードなし確認」を、High・Mediumの指摘がなくなるまで繰り返す（本体は `scripts/auto_review.sh`。ラウンド数の上限は設けない。修正が採用されない／エラーのときは停止。ジョブはGitHubの上限360分で打ち切られる）。レビューは対象のテキストファイルを約150KB・40ファイルごとに分けて行い、Claudeが「読んだ」と報告したファイルが全対象に揃うまで読み残しだけを再依頼する（3回で揃わなければエラー）。修正するのは重大度 High・Medium だけで、Low は記録のみ。Claudeの修正は、守衛（`scripts/guard.sh`）の差分検査、修正後の動作確認（`scripts/verify.sh`）、合格テスト数の比較にすべて合格したときだけ採用し、不合格なら破棄する。 使うモデルは、ソースレビューが Claude Sonnet、修正が Claude Haiku（どちらも別名で最新版を指す。現在は 5.5。`scripts/auto_review.sh` の `REVIEW_MODEL`・`FIX_MODEL`）。動作確認とデグレードなし確認はClaudeを使わない。
-- 各ラウンドの結果は `auto-review/YYYYMMDDHHMMSS/`（JST）に集めてZIP圧縮し、`auto-review/YYYYMMDDHHMMSS.zip` だけをコミットする。全ラウンド終了後、最初のラウンドの日時の `auto-review/YYYYMMDDHHMMSS` ブランチへ1回 push する。PRの作成・コメント・`sub01`/`main` への push はしない。マージは人が行う。上記以外の自動処理は足さない。
+- `scripts/auto_review.sh`（このPCで実行。GitHub Actionsでは動かさない）：リポジトリ全体（`auto-review/` は除く）に対して「ソースレビュー → 修正 → 動作確認 → デグレードなし確認」を、High・Mediumの指摘がなくなるまで繰り返す。ラウンド数の上限は設けない。修正が採用されない／エラーのときは停止。現在のコミットを一時的なgit worktreeにチェックアウトして処理するので、作業中の内容は変わらない。Claudeは `claude` コマンドにログイン済みのPro契約を使う。
+- レビューは対象のテキストファイルを約150KB・40ファイルごとに分けて行い、Claudeが「読んだ」と報告したファイルが全対象に揃うまで読み残しだけを再依頼する（3回で揃わなければエラー）。修正するのは重大度 High・Medium だけで、Low は記録のみ。Claudeの修正は、守衛（`scripts/guard.sh`）の差分検査、修正後の動作確認（`scripts/verify.sh`）、合格テスト数の比較にすべて合格したときだけ採用し、不合格なら破棄する。
+- 使うモデルは、ソースレビューが Claude Sonnet、修正が Claude Haiku（どちらも別名で最新版を指す。現在は 5.5。`scripts/auto_review.sh` の `REVIEW_MODEL`・`FIX_MODEL`）。動作確認とデグレードなし確認はClaudeを使わない。
+- 各ラウンドの結果は `auto-review/YYYYMMDDHHMMSS/`（JST）に集めてZIP圧縮し、**このPCのリポジトリの `auto-review/YYYYMMDDHHMMSS.zip` に保存する**（コミット・pushはしない）。採用した修正はローカルのブランチ `auto-review/<最初のラウンドの日時>` に残る。PRの作成・コメント・push はしない。マージは人が行う。上記以外の自動処理は足さない。
 - 守衛が不合格にするもの：既存テストの削除・書き換え、テストの無効化（`@Disabled`・`.skip(` など）、`.github/`・`scripts/`・`auto-review/`・`.env` の変更。人の確認（修正は破棄して停止）にするもの：`SecurityConfig.java`・`pom.xml`・`render.yml`・`Dockerfile` の変更、差分500行超、README・`doc/` の1ファイル50行超の削除。
 - `.github/` と `scripts/` は人が直す（自動修正は触れない）。直したら `ci.yml` と、`sub01` 宛ての試験用PR（マージしない）で確認する。
 - 認証は Secret `CLAUDE_CODE_OAUTH_TOKEN`（Pro契約の `claude setup-token`。有効期間1年で、2027年10月ごろに再発行）。APIキーへは切り替えない。Gemini系のキーはActionsに置かない。
