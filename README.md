@@ -73,7 +73,7 @@ cd reBack && mvn test                        # H2を使うのでPostgreSQL不要
 node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 ```
 
-バックエンド、フロントともすべて成功しています（[テスト結果報告書](doc/26_test_result_report.html)）。
+バックエンド、フロントともすべて成功しています。実機ブラウザー（PC・スマートフォン）、実Gemini、PostgreSQL実機での動作も確認済みです（[テスト結果報告書](doc/26_test_result_report.html)）。
 
 ## 同期が必要なファイル（片方だけ直さない）
 
