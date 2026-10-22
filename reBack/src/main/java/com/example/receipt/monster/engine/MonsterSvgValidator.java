@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * 生成AIが返したSVGを許可リスト方式で検証する（doc/10_detailed_design.html 4章）。
+ * 生成AIが返したSVGを許可リスト方式で検証する（doc/17_ai_receipt_analysis_specification.html 7章）。
  * スクリプト・外部参照・イベント属性・スタイル要素・文字要素は拒否する。通らなければ代替イラストを使う。
  */
 public final class MonsterSvgValidator {

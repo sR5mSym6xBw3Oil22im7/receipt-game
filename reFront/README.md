@@ -44,9 +44,9 @@ node reFront/server.mjs        # リポジトリ直下で実行。http://localho
 ## 開発ルール
 
 - HTMLから読み込むCSS・スクリプトのURLには `?v=` でバージョンを付け、内容を変えたら更新します。
-- APIから受け取った文字列は `textContent` で表示します（`innerHTML` を使わない）。
+- APIから受け取った文字列は `textContent` で表示します（`innerHTML` を使わない）。HTML文字列を組み立てる場合は、属性値・数値を含むすべての値をエスケープします。
 - 画面の動きはCSSのtransition/animationのみ。`prefers-reduced-motion` で止まるようにします。
-- 同期が必要なファイル：`theme/` は `reBack/src/main/resources/static/theme/` と同内容にします（元は `reBack` 側）。管理画面JS（`app.js` `select.js` `login.js` `admin-api.js`）も `reBack/…/static/admin/` と同期が必要です。
+- 同期が必要なファイル：`theme/` は `reBack/src/main/resources/static/theme/` と同内容にします（元は `reBack` 側）。`config.js` は `reBack/…/static/admin/config.js` と、メニュー用の `DEMO_URL`・`GAME_URL` 以外を同じにします。管理画面JS（`app.js` `select.js` `login.js` `admin-api.js`）は `reBack/…/static/admin/` にだけあります。
 - 動画（`video/` のmp4）のエンコードは、必ず1ファイルずつ順番に実行します。ffmpegなどを複数同時に走らせないでください。
 
 ## テスト

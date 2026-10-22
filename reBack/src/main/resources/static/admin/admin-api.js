@@ -4,6 +4,10 @@ async function adminFetch(input, options = {}) {
   const apiBaseUrl = window.APP_CONFIG?.API_BASE_URL ?? window.location.origin;
   const requestUrl = new URL(input, apiBaseUrl).toString();
   if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+    // CSRFトークンは管理APIのオリジン以外へ送らない
+    if (new URL(requestUrl).origin !== new URL(apiBaseUrl).origin) {
+      throw new Error("CSRF token is only sent to the admin API origin.");
+    }
     const response = await fetch(`${apiBaseUrl}/api/auth/csrf`, { credentials: "same-origin", cache: "no-store" });
     if (!response.ok) throw new Error(`CSRF token request failed (HTTP ${response.status})`);
     const { token } = await response.json();

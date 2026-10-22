@@ -102,17 +102,18 @@
   }
 
   // ---------- カード・レシートの表示 ----------
+  // HTML文字列に入れるAPIの値は、文字列・数値を問わずすべて esc() を通す（属性値を含む）
   function cardHtml(card, opt) {
     opt = opt || {};
     const art = `<div class="mc-art"><span class="mc-elem" title="属性">${esc(card.element)}</span>${card.lucky ? '<span class="mc-zoro">ラッキー</span>' : ""}<img alt="${esc(card.name)}のイラスト" src="${svgDataUri(card.svg)}"></div>`;
     const tag = opt.clickable ? "button" : "div";
     const cls = ["mcard", "e-" + card.element, "r-" + card.rarity, opt.selected ? "is-selected" : "", opt.clickable ? "is-clickable" : "", opt.revealed ? "is-revealed" : ""].join(" ");
-    const attrs = opt.clickable ? ` type="button" data-card="${card.id}" aria-pressed="${opt.selected ? "true" : "false"}"` : "";
+    const attrs = opt.clickable ? ` type="button" data-card="${esc(card.id)}" aria-pressed="${opt.selected ? "true" : "false"}"` : "";
     const src = { ANALYZE: "保存済みレシート", PLAYER1: "P1が画像から生成", PLAYER2: "P2が画像から生成" }[card.source] || card.source;
-    return `<${tag} class="${cls}"${attrs}>
+    return `<${tag} class="${esc(cls)}"${attrs}>
       <div class="mc-head"><span class="mc-name">${esc(card.name)}</span><span class="mc-rarity">${esc(card.rarity)}</span></div>
       ${art}
-      <dl class="mc-stats"><div><dt>HP</dt><dd>${card.hp}</dd></div><div><dt>ATK</dt><dd>${card.atk}</dd></div><div><dt>DEF</dt><dd>${card.def}</dd></div><div><dt>SPD</dt><dd>${card.spd}</dd></div><div><dt>LUCK</dt><dd>${card.luck}</dd></div></dl>
+      <dl class="mc-stats"><div><dt>HP</dt><dd>${esc(card.hp)}</dd></div><div><dt>ATK</dt><dd>${esc(card.atk)}</dd></div><div><dt>DEF</dt><dd>${esc(card.def)}</dd></div><div><dt>SPD</dt><dd>${esc(card.spd)}</dd></div><div><dt>LUCK</dt><dd>${esc(card.luck)}</dd></div></dl>
       <div class="mc-skill">必殺技：${esc(card.skillName)} ×${Number(card.skillPower).toFixed(2)}</div>
       <p class="mc-flavor">${esc(card.flavor)}</p>
       <div class="mc-foot">${esc(card.storeCategory)}のレシート<span class="src">${esc(src)}</span></div>
@@ -297,9 +298,9 @@
     const f = state.field;
     const flipped = entry.selected;
     const disabled = flipped || f.confirmed || handFull() || state.busy;
-    return `<article class="receipt-tile ${flipped ? "is-flipped" : ""}" aria-label="レシート ${entry.index + 1}">
+    return `<article class="receipt-tile ${flipped ? "is-flipped" : ""}" aria-label="レシート ${esc(entry.index + 1)}">
       ${receiptHtml(entry.receipt, "レシート No." + (entry.index + 1))}
-      <button type="button" class="${flipped ? "secondary-button" : "primary-button"} small-button" data-flip="${entry.index}" ${disabled ? "disabled" : ""}>${flipped ? "モンスターを呼び出しました" : "▶ このレシートを選ぶ"}</button>
+      <button type="button" class="${flipped ? "secondary-button" : "primary-button"} small-button" data-flip="${esc(entry.index)}" ${disabled ? "disabled" : ""}>${flipped ? "モンスターを呼び出しました" : "▶ このレシートを選ぶ"}</button>
     </article>`;
   }
 
@@ -423,7 +424,7 @@
 
   // ---------- M05 対戦 ----------
   function fighterHtml(card, label) {
-    return `<div class="hp-box"><div class="hp-label"><span>${esc(label)}</span><span class="hp-num">${card.hp} / ${card.hp}</span></div><div class="hp-bar"><i class="hp-ghost"></i><i class="hp-main"></i></div></div>${cardHtml(card)}`;
+    return `<div class="hp-box"><div class="hp-label"><span>${esc(label)}</span><span class="hp-num">${esc(card.hp)} / ${esc(card.hp)}</span></div><div class="hp-bar"><i class="hp-ghost"></i><i class="hp-main"></i></div></div>${cardHtml(card)}`;
   }
 
   async function startBattle() {

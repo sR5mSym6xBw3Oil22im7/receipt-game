@@ -50,7 +50,7 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 /**
- * ルーム・カード選択・対戦の進行（doc/10_detailed_design.html 5章）。
+ * ルーム・カード選択・対戦の進行（doc/31_detailed_design.html 4章）。
  * 勝敗はサーバーで計算し、対戦開始まで相手のカード・レシートは応答に含めない。
  */
 @Service
@@ -362,7 +362,10 @@ public class MonsterRoomService {
         MonsterCard pick;
         String reason;
         if (hand.isEmpty()) {
-            String sha = HexFormat.of().formatHex(random.generateSeed(32));
+            // generateSeed はエントロピー源を待って止まることがあるため、乱数の取得には nextBytes を使う
+            byte[] seed = new byte[32];
+            random.nextBytes(seed);
+            String sha = HexFormat.of().formatHex(seed);
             pick = MonsterCardGenerator.generate(null, sha, 0, "CPU").withId(-1L);
             reason = CPU_FALLBACK_REASON;
         } else {

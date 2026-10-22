@@ -22,12 +22,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.core.AuthenticationException;
 import com.example.receipt.service.LoginAttemptLimiter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+    // 認証の成否を記録する（不正なログインの試行に気づけるようにする）。ユーザー名・パスワードはログに出さない
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
     private final AuthenticationManager authenticationManager;
     private final SecurityContextRepository securityContextRepository;
     private final CsrfTokenRepository csrfTokenRepository;
@@ -69,6 +73,7 @@ public class AuthController {
         // 照合前に試行枠を確保する。ロック中や同時試行が上限に達している場合は、正しいパスワードでも照合しない
         LoginAttemptLimiter.Attempt attempt = loginAttemptLimiter.tryBegin(login.username());
         if (attempt == null) {
+            LOGGER.warn("Admin login rejected: too many failed attempts (locked).");
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
                     .body(Map.of("message", "ログインの失敗が続いたため、しばらくしてから再度お試しください。"));
         }
@@ -80,10 +85,12 @@ public class AuthController {
                         UsernamePasswordAuthenticationToken.unauthenticated(login.username(), login.password()));
             } catch (AuthenticationException exception) {
                 attempt.failed();
+                LOGGER.warn("Admin login failed.");
                 SecurityContextHolder.clearContext();
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("message", "ユーザーIDまたはパスワードが正しくありません。"));
             }
             attempt.succeeded();
+            LOGGER.info("Admin login succeeded.");
             request.getSession(true);
             request.changeSessionId();
             SecurityContext context = SecurityContextHolder.createEmptyContext();

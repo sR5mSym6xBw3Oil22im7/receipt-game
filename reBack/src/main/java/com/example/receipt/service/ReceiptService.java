@@ -42,9 +42,10 @@ public class ReceiptService {
         validator.validate(file);
         byte[] imageBytes = file.getBytes();
         String sha256 = sha256(imageBytes);
+        // 利用者が申告したContent-Typeではなく、先頭バイトで判定した種別をGeminiへ渡す
         ReceiptText analyzed = receiptAnalyzer.analyze(
                 imageBytes,
-                file.getContentType()
+                ImageInspector.detectType(imageBytes)
         );
         repository.reserveImageHash(sha256);
         // モンスターカードの下書きは応答を返した後に別スレッドで作る（応答は変えない）

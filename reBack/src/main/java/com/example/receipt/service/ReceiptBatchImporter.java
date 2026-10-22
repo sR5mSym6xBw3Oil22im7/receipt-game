@@ -115,13 +115,16 @@ public class ReceiptBatchImporter implements ApplicationRunner {
         } catch (IOException e) {
             return new Result("FAILED", "READ_ERROR", null, 0);
         }
+        // 拡張子だけを信用せず、先頭バイトでJPEG/PNGか確かめる（管理画面のアップロードと同じ判定）
+        String detectedType = ImageInspector.detectType(bytes);
+        if (detectedType == null) return new Result("FAILED", "UNSUPPORTED_MEDIA_TYPE", null, 0);
         String sha256 = ReceiptService.sha256(bytes);
         if (repository.isImageSaved(sha256)) return new Result("SKIPPED", "ALREADY_SAVED", null, 0);
 
         String lastCode = null;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                ReceiptText analyzed = analyzer.analyze(bytes, mimeType(image));
+                ReceiptText analyzed = analyzer.analyze(bytes, detectedType);
                 repository.reserveImageHash(sha256);
                 ReceiptUploadResponse response = receiptService.store(analyzed.lines(), sha256, analyzed.structuredData());
                 return new Result("SAVED", "attempt=" + attempt, response.tableName(), response.lineCount());

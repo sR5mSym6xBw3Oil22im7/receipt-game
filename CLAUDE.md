@@ -39,14 +39,16 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 
 テストが内容の一致を検査する。
 
-- `reBack/src/main/resources/static/admin/` の `app.js`、`select.js`、`login.js`、`admin-api.js` ⇔ `reFront/` の同名ファイル
 - `reBack/src/main/resources/static/theme/` ⇔ `reFront/theme/`（元は `reBack` 側）
+- `reBack/src/main/resources/static/admin/config.js` ⇔ `reFront/config.js`（メニュー用の `DEMO_URL`・`GAME_URL` 以外）
+- 管理画面JS（`app.js`、`select.js`、`login.js`、`admin-api.js`）は `reBack/src/main/resources/static/admin/` にだけある。
 
 ## コーディング規約
 
 - `.editorconfig`：UTF-8、改行LF、ファイル末尾に改行。
 - HTMLから読み込むCSS・スクリプトのURLには `?v=` でバージョン文字列を付けている。内容を変えたら更新する（スモークテストが `upload.html` の `app.js` のバージョンを検査）。
-- APIから受け取った文字列は `textContent` で表示する（`innerHTML` を使わない）。
+- APIから受け取った文字列は `textContent` で表示する（`innerHTML` を使わない）。対戦画面・デモのようにHTML文字列を組み立てる場合は、属性値・数値を含むすべての値を `esc()` でエスケープする。
+- ログにAPIキー・パスワード・ユーザー名・画像本文・個人情報を出さない。外部（Gemini）由来の文字列は制御文字を除いてから出す。
 - 管理APIの呼び出しは `admin-api.js` の `adminFetch` を使い、POST・DELETEにはCSRFトークン（`X-XSRF-TOKEN`）を付ける。
 - 画面の動きはCSSのtransition／animationのみ。`prefers-reduced-motion` で止まるようにする。
 - `styles.css` は日替わりテーマ導入後も変更しない方針。テーマは `theme/base.css` と `theme/tNN.css` で上書きする。

@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 個人情報の除外（保存前の検出と除去。doc/17_security_design.html 5章）。
+ * 個人情報の除外（保存前の検出と除去。doc/19_security_design.html 2章）。
  * 自由記述の項目（店名・支店名・商品名・支払方法・行テキスト）から、
  * 会員番号・氏名・メールアドレス・カード番号・電話番号・郵便番号・住所を「（非表示）」に置き換える。
  * 取り除けなかった場合は {@link PersonalInfoException} を投げる（安全側に倒す）。

@@ -40,6 +40,30 @@ class GeminiReceiptAnalyzerTest {
     }
 
     @Test
+    void normalizesLinesToTheSaveApiLimits() {
+        java.util.List<String> raw = new java.util.ArrayList<>();
+        raw.add("  SAMPLE\u0000 STORE  ");
+        raw.add(null);
+        raw.add("   ");
+        raw.add("あ".repeat(600));
+        for (int i = 0; i < 1100; i++) raw.add("ITEM " + i);
+
+        java.util.List<String> lines = GeminiReceiptAnalyzer.normalizeLines(raw);
+
+        assertThat(lines).hasSize(com.example.receipt.dto.ValidationRules.MAX_LINES);
+        assertThat(lines.get(0)).isEqualTo("SAMPLE STORE");
+        assertThat(lines.get(1)).hasSize(com.example.receipt.dto.ValidationRules.MAX_LINE_LENGTH);
+        assertThat(lines).allSatisfy(line -> assertThat(line).doesNotContain("\u0000"));
+    }
+
+    @Test
+    void forLogRemovesLineBreaksAndLimitsLength() {
+        assertThat(GeminiReceiptAnalyzer.forLog("bad\r\nINFO forged entry")).isEqualTo("bad  INFO forged entry");
+        assertThat(GeminiReceiptAnalyzer.forLog("x".repeat(400))).hasSize(303);
+        assertThat(GeminiReceiptAnalyzer.forLog(null)).isEmpty();
+    }
+
+    @Test
     void rotatesImageClockwise() throws Exception {
         // 横3×縦2の画像。左上だけ赤くし、時計回り90度で右上へ移ることを確かめる
         BufferedImage image = new BufferedImage(3, 2, BufferedImage.TYPE_INT_RGB);

@@ -41,6 +41,7 @@
   }
 
   // ---------- カード表示 ----------
+  // HTML文字列に入れる値は、文字列・数値を問わずすべて esc() を通す（属性値を含む。本番の game.js と同じ）
   function cardHtml(card, opt) {
     opt = opt || {};
     const art = opt.hidden
@@ -49,12 +50,12 @@
     if (opt.hidden) return `<div class="mcard"><div class="mc-head"><span class="mc-name">？？？</span></div>${art}<div class="mc-foot">対戦が始まるまで非公開</div></div>`;
     const tag = opt.clickable ? "button" : "div";
     const cls = ["mcard", "e-" + card.element, "r-" + card.rarity, opt.selected ? "is-selected" : "", opt.clickable ? "is-clickable" : ""].join(" ");
-    const attrs = opt.clickable ? ` type="button" data-card="${card.id}"` : "";
+    const attrs = opt.clickable ? ` type="button" data-card="${esc(card.id)}"` : "";
     const src = { ANALYZE: "解析で生成", PLAYER1: "P1が生成", PLAYER2: "P2が生成" }[card.source] || card.source;
-    return `<${tag} class="${cls}"${attrs}>
-      <div class="mc-head"><span class="mc-name">${esc(card.name)}</span><span class="mc-rarity">${card.rarity}</span></div>
+    return `<${tag} class="${esc(cls)}"${attrs}>
+      <div class="mc-head"><span class="mc-name">${esc(card.name)}</span><span class="mc-rarity">${esc(card.rarity)}</span></div>
       ${art}
-      <dl class="mc-stats"><div><dt>HP</dt><dd>${card.hp}</dd></div><div><dt>ATK</dt><dd>${card.atk}</dd></div><div><dt>DEF</dt><dd>${card.def}</dd></div><div><dt>SPD</dt><dd>${card.spd}</dd></div><div><dt>LUCK</dt><dd>${card.luck}</dd></div></dl>
+      <dl class="mc-stats"><div><dt>HP</dt><dd>${esc(card.hp)}</dd></div><div><dt>ATK</dt><dd>${esc(card.atk)}</dd></div><div><dt>DEF</dt><dd>${esc(card.def)}</dd></div><div><dt>SPD</dt><dd>${esc(card.spd)}</dd></div><div><dt>LUCK</dt><dd>${esc(card.luck)}</dd></div></dl>
       <div class="mc-skill">必殺技：${esc(card.skillName)} ×${card.skillPower.toFixed(2)}</div>
       <p class="mc-flavor">${esc(card.flavor)}</p>
       <div class="mc-foot">${esc(card.storeCategory)}のレシート<span class="src">${esc(src)}</span></div>
@@ -199,7 +200,7 @@
   function receiptHtml(card, opt) {
     opt = opt || {};
     const r = card.receipt;
-    const items = r.items.map((it) => `<tr><td>${esc(it.name)}</td><td class="q">${it.quantity}</td><td class="n">${yenOrBlank(it.unitPrice)}</td><td class="n">${yenOrBlank(it.amount)}</td></tr>`).join("");
+    const items = r.items.map((it) => `<tr><td>${esc(it.name)}</td><td class="q">${esc(it.quantity)}</td><td class="n">${yenOrBlank(it.unitPrice)}</td><td class="n">${yenOrBlank(it.amount)}</td></tr>`).join("");
     return `<span class="rt-no">${opt.title ? esc(opt.title) : ""} <em>${esc(r.storeCategory)}</em></span>
       <span class="rt-store">${esc(r.storeName)}${r.branchName ? " " + esc(r.branchName) : ""}</span>
       <span class="rt-meta">${esc(r.purchasedAt.replace("T", " ").slice(0, 16))}　レシート番号 ${esc(r.receiptNumber)}</span>
@@ -355,7 +356,7 @@
 
   // ---------- M05 対戦 ----------
   function fighterHtml(card, slot) {
-    return `<div class="hp-box"><div class="hp-label"><span>${slot === 0 ? "あなた" : state.mode === "CPU" ? "コンピュータ" : "相手"}</span><span class="hp-num">${card.hp} / ${card.hp}</span></div><div class="hp-bar"><i class="hp-ghost"></i><i class="hp-main"></i></div></div>${cardHtml(card)}`;
+    return `<div class="hp-box"><div class="hp-label"><span>${slot === 0 ? "あなた" : state.mode === "CPU" ? "コンピュータ" : "相手"}</span><span class="hp-num">${esc(card.hp)} / ${esc(card.hp)}</span></div><div class="hp-bar"><i class="hp-ghost"></i><i class="hp-main"></i></div></div>${cardHtml(card)}`;
   }
 
   function startBattle() {

@@ -158,7 +158,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             throw mapApiException(e);
         } catch (Exception e) {
             LOGGER.error("Gemini receipt analysis failed: model={}, mimeType={}, imageBytes={}, exception={}, message={}",
-                    model, mimeType, imageBytes.length, e.getClass().getName(), e.getMessage());
+                    model, mimeType, imageBytes.length, e.getClass().getName(), forLog(e.getMessage()));
             ReceiptException classified = classifyUnexpectedGeminiFailure(e);
             if (classified != null) throw classified;
             throw new ReceiptException(
@@ -239,14 +239,29 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             );
         }
 
-        List<String> normalizedLines = parsed.lines().stream()
-                .filter(Objects::nonNull)
-                .map(String::trim)
-                .filter(line -> !line.isBlank())
-                .limit(1000)
-                .toList();
+        List<String> normalizedLines = normalizeLines(parsed.lines());
         int rotation = parsed.textRotation() == null ? 0 : Math.floorMod(parsed.textRotation(), 360);
         return new Attempt(normalizedLines, parsed.structuredData(), rotation);
+    }
+
+    /**
+     * Geminiが返した行は未検証の値として扱う。保存APIの制約（行数・1行の長さ・NUL不可）に収め、
+     * 解析結果をそのまま保存しても検証エラーにならないようにする。
+     */
+    static List<String> normalizeLines(List<String> lines) {
+        return lines.stream()
+                .filter(Objects::nonNull)
+                .map(line -> text(line, ValidationRules.MAX_LINE_LENGTH))
+                .filter(line -> !line.isBlank())
+                .limit(ValidationRules.MAX_LINES)
+                .toList();
+    }
+
+    /** 外部（Gemini・SDK）由来の文字列をログに出すときは、改行などの制御文字を除き長さを抑える（ログの偽装を防ぐ）。 */
+    static String forLog(String value) {
+        if (value == null) return "";
+        String cleaned = value.replaceAll("\\p{Cntrl}", " ");
+        return cleaned.length() <= 300 ? cleaned : cleaned.substring(0, 300) + "...";
     }
 
     /** 画像を時計回りに90度単位で回す。読み込めない形式ならnull（回転せずに元の結果を使う）。 */
@@ -335,7 +350,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
         String apiMessage = e.message() == null ? "" : e.message();
         String normalizedMessage = apiMessage.toLowerCase(java.util.Locale.ROOT);
         LOGGER.warn("Gemini API rejected request: code={}, status={}, message={}",
-                e.code(), apiStatus, apiMessage);
+                e.code(), forLog(apiStatus), forLog(apiMessage));
 
         if (e.code() == 429 || "RESOURCE_EXHAUSTED".equalsIgnoreCase(e.status())) {
             return new ReceiptException(

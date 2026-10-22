@@ -8,6 +8,8 @@ server:
       enabled: true
       force: true
     session:
+      # 無操作のまま30分たったら管理者のセッションを失効させる（Spring Bootの既定値を明示）
+      timeout: 30m
       cookie:
         http-only: true
         secure: ${SESSION_COOKIE_SECURE:true}
@@ -42,7 +44,7 @@ app:
   # /admin/ 以外のページへの直接アクセスの転送先（reFront/index.html）。このURLのオリジンからのリンクは許可する
   frontend:
     menu-url: https://sr5msym6xbw3oil22im7.github.io/receipt-game/reFront/index.html
-  # モンスターレシート対戦（doc/04_requirements_definition.html、doc/05_game_design_document.html）
+  # モンスターレシート対戦（doc/03_requirements_definition.html、doc/31_detailed_design.html）
   monster:
     wait-seconds: ${MONSTER_WAIT_SECONDS:90}
     room-ttl-minutes: ${MONSTER_ROOM_TTL_MINUTES:120}

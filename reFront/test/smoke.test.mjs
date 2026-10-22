@@ -125,8 +125,8 @@ test("public index routes admin login to Backend", () => {
 });
 
 test("admin pages use Backend session authentication and CSRF instead of Referrer guards", () => {
-  assert.match(select, /<script src="\.\/admin-api\.js\?v=20261011-keep-href2"><\/script>/);
-  assert.match(html, /<script src="\.\/admin-api\.js\?v=20261011-keep-href2"><\/script>/);
+  assert.match(select, /<script src="\.\/admin-api\.js\?v=20261022-csrf-origin"><\/script>/);
+  assert.match(html, /<script src="\.\/admin-api\.js\?v=20261022-csrf-origin"><\/script>/);
   assert.doesNotMatch(select + html, /access-guard\.js|document\.referrer|history\.replaceState/);
   assert.match(adminApi, /X-XSRF-TOKEN/);
   assert.match(adminApi, /credentials: "same-origin"/);
@@ -355,4 +355,49 @@ test("direct-access-guard: メニューが先頭で読み込み、動画ペー�
   }
   const notFound = await readFile(new URL("../../404.html", import.meta.url), "utf8");
   assert.match(notFound, /reFront\/index\.html/);
+});
+
+// ---- OWASP（DOM based XSS・CSRF）の対策が外れていないこと ----
+test("game / demo: HTML文字列へ差し込む値（属性値・数値を含む）は esc() を通す", () => {
+  for (const [name, js] of [["game", gameJs], ["demo", demoJs]]) {
+    assert.doesNotMatch(js, /\$\{card\.(id|hp|atk|def|spd|luck|rarity|element)\}/, `${name}: カードの値`);
+    assert.doesNotMatch(js, /class="\$\{cls\}"/, `${name}: class属性`);
+    assert.doesNotMatch(js, /\$\{it\.quantity\}/, `${name}: 数量`);
+    assert.match(js, /class="\$\{esc\(cls\)\}"/, `${name}: class属性をエスケープ`);
+  }
+});
+
+test("login.js: ログイン後の移動先は同じオリジンの /admin/ 配下だけ", async () => {
+  const { runInNewContext } = await import("node:vm");
+  const source = loginJs.match(/function safeAdminDestination[\s\S]*?\n}\n/)[0];
+  const window = { location: { origin: "https://backend.example" } };
+  const safe = runInNewContext(`${source}; safeAdminDestination`, { window, URL });
+  assert.equal(safe("/admin/menu.html"), "/admin/menu.html");
+  assert.equal(safe("/admin/select.html?x=1"), "/admin/select.html?x=1");
+  assert.equal(safe("https://evil.example/admin/menu.html"), "/admin/menu.html");
+  assert.equal(safe("//evil.example/admin/"), "/admin/menu.html");
+  assert.equal(safe("javascript:alert(1)"), "/admin/menu.html");
+  assert.equal(safe("/game/index.html"), "/admin/menu.html");
+  assert.equal(safe(undefined), "/admin/menu.html");
+});
+
+test("admin-api.js: CSRFトークンは管理APIのオリジン以外へ送らない", async () => {
+  const { runInNewContext } = await import("node:vm");
+  const requests = [];
+  const context = {
+    URL, Headers,
+    window: { APP_CONFIG: { API_BASE_URL: "https://backend.example" }, location: { origin: "https://backend.example" } },
+    document: { getElementById: () => null },
+    fetch: async (url, options) => {
+      requests.push({ url, options });
+      return { ok: true, status: 200, json: async () => ({ token: "csrf-token" }) };
+    }
+  };
+  runInNewContext(adminApi, context);
+  await context.adminFetch("/api/receipts/save", { method: "POST" });
+  assert.equal(requests.at(-1).url, "https://backend.example/api/receipts/save");
+  assert.equal(requests.at(-1).options.headers.get("X-XSRF-TOKEN"), "csrf-token");
+  requests.length = 0;
+  await assert.rejects(context.adminFetch("https://evil.example/collect", { method: "POST" }));
+  assert.equal(requests.length, 0, "別オリジンにはトークンの取得も送信もしない");
 });

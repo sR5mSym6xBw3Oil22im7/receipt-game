@@ -1,4 +1,15 @@
 const form = document.getElementById("login-form");
+
+// 応答に含まれる移動先は、同じオリジンの /admin/ 配下だけを許可する（別サイトや javascript: のURLへ移動させない）
+function safeAdminDestination(redirect) {
+  try {
+    const url = new URL(redirect, window.location.origin);
+    if (url.origin === window.location.origin && url.pathname.startsWith("/admin/")) return url.pathname + url.search;
+  } catch {
+    // 不正なURLは既定の移動先にする
+  }
+  return "/admin/menu.html";
+}
 const status = document.getElementById("login-status");
 
 form.addEventListener("submit", async (event) => {
@@ -33,8 +44,7 @@ form.addEventListener("submit", async (event) => {
       return;
     }
     const result = await response.json();
-    const destination = result.redirect || "/admin/menu.html";
-    window.location.assign(destination);
+    window.location.assign(safeAdminDestination(result.redirect));
   } catch {
     status.textContent = "Backendに接続できませんでした。";
   }

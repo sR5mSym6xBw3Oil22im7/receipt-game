@@ -1,13 +1,15 @@
 // ローカル確認用の静的ファイルサーバー。reFront/ を http://localhost:5051 で配信する。
 // config.js の「メニューへ戻る」の移動先と合わせるため、ポートは5051に固定している。
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { readFile, realpath } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PORT = 5051;
 const HOST = "localhost";
 const ROOT = fileURLToPath(new URL(".", import.meta.url));
+// シンボリックリンクをたどった先も reFront/ の中かを確かめるため、実体のパスも持つ
+const REAL_ROOT = (await realpath(ROOT)).replace(/\/?$/, "/");
 
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -78,8 +80,10 @@ const server = createServer(async (request, response) => {
     const relativePath = pathname.endsWith("/") ? `${pathname}index.html` : pathname;
     const filePath = normalize(join(ROOT, relativePath));
     if (!filePath.startsWith(ROOT)) throw new Error("outside of reFront");
+    const realFilePath = await realpath(filePath);
+    if (!realFilePath.startsWith(REAL_ROOT)) throw new Error("outside of reFront");
 
-    const body = await readFile(filePath);
+    const body = await readFile(realFilePath);
     response.writeHead(200, {
       "Content-Type": CONTENT_TYPES[extname(filePath).toLowerCase()] ?? "application/octet-stream",
       "Cache-Control": "no-store",

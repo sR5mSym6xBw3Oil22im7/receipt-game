@@ -79,8 +79,10 @@ node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 
 テストが内容の一致を検査します。
 
-- `reBack/src/main/resources/static/admin/` の `app.js`・`select.js`・`login.js`・`admin-api.js` ⇔ `reFront/` の同名ファイル
 - `reBack/src/main/resources/static/theme/` ⇔ `reFront/theme/`（元は `reBack` 側）
+- `reBack/src/main/resources/static/admin/config.js` ⇔ `reFront/config.js`（メニュー用の `DEMO_URL`・`GAME_URL` 以外）
+
+管理画面のJS（`app.js`・`select.js`・`login.js`・`admin-api.js`）は `reBack/src/main/resources/static/admin/` にだけあります。
 
 ## セキュリティ上の注意
 

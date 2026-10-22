@@ -111,6 +111,25 @@ class ReceiptControllerIntegrationTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    void analyzePassesDetectedImageTypeInsteadOfDeclaredContentType() throws Exception {
+        // 中身はPNGだが、Content-Typeは image/jpeg と申告されている
+        MockMultipartFile mislabeled = new MockMultipartFile(
+                "file",
+                "sample.jpg",
+                "image/jpeg",
+                new byte[]{(byte) 0x89, 'P', 'N', 'G', 0x0D, 0x0A, 0x1A, 0x0A, 0x00}
+        );
+
+        mockMvc.perform(multipart("/api/receipts/analyze")
+                        .with(user("test-admin").roles("ADMIN"))
+                        .with(SecurityMockMvcRequestPostProcessors.csrf())
+                        .file(mislabeled))
+                .andExpect(status().isOk());
+
+        assertThat(analyzer.lastMimeType).isEqualTo("image/png");
+    }
+
     private MockMultipartFile sampleFile() {
         return new MockMultipartFile(
                 "file",
@@ -139,10 +158,12 @@ class ReceiptControllerIntegrationTest {
 
     static class CapturingReceiptAnalyzer implements ReceiptAnalyzer {
         volatile int calls;
+        volatile String lastMimeType;
 
         @Override
         public ReceiptText analyze(byte[] bytes, String mimeType) {
             calls++;
+            lastMimeType = mimeType;
             return new ReceiptText(List.of(
                     "SAMPLE STORE",
                     "ITEM 100",
