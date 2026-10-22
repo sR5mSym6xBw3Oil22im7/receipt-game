@@ -19,7 +19,6 @@
 | `reBack/` | Java 21 / Spring Boot 4.1.0 のREST API、管理画面（`static/admin/`）、モンスター対戦（`/game/`）、テスト、Dockerfile、render.yml |
 | `reFront/` | メニューの静的ページ（ビルド不要）、`server.mjs`（ローカル用、ポート5051固定）、`theme/` |
 | `doc/` | 開発文書（HTML、01〜34。目次は `doc/index.html`） |
-| `review/` | セキュリティレビューなどの記録 |
 
 ## コマンド
 
