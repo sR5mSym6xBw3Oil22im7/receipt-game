@@ -1,6 +1,6 @@
 /* メニュー（index.html）のレイアウト：「遊ぶ」「作品を知る」「管理者向け」の3つに区切る。
    styles.css は変更しない方針なので、このファイルで追加する。色・書体は日替わりテーマの変数を使い、
-   区切りの見出し（.card h2）の装飾はテーマに任せる。紹介動画は video/showcase/ の WebM と MP4。 */
+   区切りの見出し（.card h2）の装飾はテーマに任せる。「作品を知る」の動画は video/pv/ のプロモーション映像（日付で1と2を切り替える。index.js）。 */
 .menu-group { margin-top: 26px; }
 .menu-group-title { margin: 0 0 12px; font-size: 1.1rem; }
 
@@ -16,7 +16,7 @@
 .play-foot { margin-top: auto; padding-top: 4px; font-weight: 700; font-size: 0.9rem; }
 .play-card:not(.is-main) .play-desc { color: var(--ink-soft); }
 
-/* 作品を知る：左に紹介動画、右に動画ページへのリンク4つ */
+/* 作品を知る：左にプロモーション映像、右に動画ページへのリンク4つ */
 .know { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 20px; align-items: start; }
 .showcase { margin: 0; }
 .showcase figcaption { margin-top: 6px; font-size: 0.82rem; color: var(--ink-soft); }

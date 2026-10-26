@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile, stat } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 
 const html = await readFile(new URL("../../reBack/src/main/resources/static/admin/upload.html", import.meta.url), "utf8");
 const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -419,24 +419,32 @@ test("game.js / demo.js: 待機中の秒数は固定幅の要素だけを書き�
   assert.match(fxCss, /\.wait-sec \{[^}]*min-width:[^}]*tabular-nums/);
 });
 
-test("menu: 「遊ぶ」「作品を知る」（紹介動画）「管理者向け」の順に区切り、遊び方の3ステップは置かない。showcase.css を ?v= 付きで読み込む", async () => {
+test("menu: 「遊ぶ」「作品を知る」（プロモーション映像）「管理者向け」の順に区切り、遊び方の3ステップは置かない。showcase.css を ?v= 付きで読み込む", () => {
   assert.match(index, /<link rel="stylesheet" href="\.\/showcase\.css\?v=[\w-]+">/);
-  assert.doesNotMatch(index, /sc-steps/);
+  assert.doesNotMatch(index, /sc-steps|video\/showcase\//);
   const pos = ['id="group-play"', 'id="game-link"', 'id="demo-link"', 'id="group-know"', 'class="showcase"', 'id="guide6min-link"', 'id="group-admin"', 'id="admin-login-link"'].map((key) => index.indexOf(key));
   pos.forEach((p, i) => assert.ok(p > 0 && (i === 0 || pos[i - 1] < p), `順番 ${i}`));
-  const showcase = pos[4];
-  const figure = index.slice(showcase, index.indexOf("</figure>", showcase));
+  const figure = index.slice(pos[4], index.indexOf("</figure>", pos[4]));
   assert.doesNotMatch(figure, /<img|<script|href=|autoplay/);
+  // スクリプトが動かないときは PV1。読み込みは index.js が日付を決めてから始める
   const video = figure.match(/<video [^>]*>/)?.[0] ?? "";
-  assert.match(video, /id="showcase-video"/);
-  assert.match(video, / muted /);
-  assert.ok(figure.indexOf('src="./video/showcase/receipt-game.webm" type="video/webm"') > 0);
-  assert.ok(figure.indexOf('src="./video/showcase/receipt-game.webm"') < figure.indexOf('src="./video/showcase/receipt-game.mp4" type="video/mp4"'));
-  for (const ext of ["webm", "mp4"]) {
-    assert.ok((await stat(new URL(`../video/showcase/receipt-game.${ext}`, import.meta.url))).size > 0);
-  }
+  assert.match(video, /id="showcase-video" src="\.\/video\/pv\/pv01\.mp4" muted /);
+  assert.match(video, /preload="none"/);
   // 動きを減らす設定では自動再生しない
   assert.match(indexJs, /!window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches/);
+});
+
+test("menu: 「作品を知る」の動画は、日本時間の奇数日がプロモーション映像1、偶数日が2", () => {
+  const src = indexJs.slice(indexJs.indexOf("function promoVideoFor("), indexJs.indexOf("\n}\n", indexJs.indexOf("function promoVideoFor(")) + 3);
+  const promoVideoFor = new Function(`${src}; return promoVideoFor;`)();
+  const at = (iso) => promoVideoFor(Date.parse(iso)).src;
+  assert.equal(at("2026-10-27T12:00:00+09:00"), "./video/pv/pv01.mp4");   // 27日（奇数）
+  assert.equal(at("2026-10-28T12:00:00+09:00"), "./video/pv/pv02.mp4");   // 28日（偶数）
+  assert.equal(at("2026-10-27T23:59:59+09:00"), "./video/pv/pv01.mp4");
+  assert.equal(at("2026-10-28T00:00:00+09:00"), "./video/pv/pv02.mp4");   // 日本時間の0:00で切り替え
+  assert.equal(at("2026-10-31T12:00:00+09:00"), "./video/pv/pv01.mp4");   // 31日 → 翌1日も奇数
+  assert.equal(at("2026-11-01T12:00:00+09:00"), "./video/pv/pv01.mp4");
+  assert.equal(at("2026-10-27T15:30:00Z"), "./video/pv/pv02.mp4");        // UTCでは27日でも日本時間は28日
 });
 
 test("game / demo: 対戦中は見出し・説明・進行状況を隠し、battleSeed とコンピュータの理由は結果画面に出す", async () => {
