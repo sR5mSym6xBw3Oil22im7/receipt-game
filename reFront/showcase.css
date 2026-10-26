@@ -1,17 +1,37 @@
-/* メニュー冒頭の「対戦画面のイメージ」（紹介動画）と遊び方。styles.css は変更しない方針なので、このファイルで追加する。
-   色・書体は日替わりテーマの変数を使う。動画は video/showcase/ の WebM と MP4。 */
-.showcase { margin: 18px 0 6px; padding: 18px 16px 14px; border: 1px solid var(--gold-line); border-radius: var(--radius-sm); background: linear-gradient(160deg, var(--surface-strong), var(--gold-mist)); }
-.showcase figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--ink-soft); text-align: center; }
-.sc-label { display: block; margin: 0 0 10px; font-family: var(--font-latin); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.24em; color: var(--gold-deep); text-align: center; text-transform: uppercase; }
-.sc-video { display: block; width: 100%; max-width: 720px; height: auto; aspect-ratio: 16 / 9; margin: 0 auto; border: 1px solid var(--gold-line); border-radius: 8px; background: #000; }
+/* メニュー（index.html）のレイアウト：「遊ぶ」「作品を知る」「管理者向け」の3つに区切る。
+   styles.css は変更しない方針なので、このファイルで追加する。色・書体は日替わりテーマの変数を使い、
+   区切りの見出し（.card h2）の装飾はテーマに任せる。紹介動画は video/showcase/ の WebM と MP4。 */
+.menu-group { margin-top: 26px; }
+.menu-group-title { margin: 0 0 12px; font-size: 1.1rem; }
 
-/* 遊び方の3ステップ */
-.sc-steps { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0 0; padding: 0; counter-reset: sc-step; }
-.sc-steps li { position: relative; padding: 10px 10px 10px 40px; border: 1px solid var(--gold-line); border-radius: var(--radius-sm); background: var(--surface); font-size: 0.86rem; text-align: left; counter-increment: sc-step; }
-.sc-steps li::before { content: counter(sc-step); position: absolute; top: 10px; left: 10px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gold-grad); color: var(--gold-ink); font-family: var(--font-latin); font-weight: 700; font-size: 0.85rem; }
-.sc-steps b { display: block; margin-bottom: 2px; }
+/* 遊ぶ：対戦とデモの2枚。対戦を主役にする */
+.play-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.play-card { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; border: 1.5px solid var(--gold-line); border-radius: var(--radius-sm); background: var(--surface-strong); color: var(--ink); text-decoration: none; text-align: left; transition: transform 0.2s ease, border-color 0.2s ease; }
+.play-card:hover { transform: translateY(-2px); border-color: var(--gold); color: var(--ink); }
+.play-card.is-main { border-color: transparent; background: var(--gold-grad); box-shadow: var(--shadow); }
+/* テーマのリンク色（例：t06 の & a）より優先し、背景と同じ色にならないようにする */
+:root .play-card.is-main, :root .play-card.is-main:hover { color: var(--gold-ink); }
+.play-title { font-family: var(--font-head); font-weight: 700; font-size: 1.25rem; }
+.play-desc { font-size: 0.88rem; line-height: 1.6; }
+.play-foot { margin-top: auto; padding-top: 4px; font-weight: 700; font-size: 0.9rem; }
+.play-card:not(.is-main) .play-desc { color: var(--ink-soft); }
 
-@media (max-width: 560px) {
-  .showcase { padding: 14px 10px 12px; }
-  .sc-steps { grid-template-columns: minmax(0, 1fr); }
+/* 作品を知る：左に紹介動画、右に動画ページへのリンク4つ */
+.know { display: grid; grid-template-columns: minmax(0, 480px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.showcase { margin: 0; }
+.showcase figcaption { margin-top: 6px; font-size: 0.82rem; color: var(--ink-soft); }
+.sc-video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1px solid var(--gold-line); border-radius: 8px; background: #000; }
+.video-menu { margin-top: 0; gap: 4px; }
+.video-menu .menu-link, .admin-menu .menu-link { padding-top: 8px; padding-bottom: 8px; }
+.video-menu .menu-title { font-size: 0.98rem; }
+.video-menu .menu-desc { font-size: 0.82rem; }
+
+@media (max-width: 760px) {
+  .play-cards, .know { grid-template-columns: minmax(0, 1fr); }
+  /* 見出しが「対／戦」で折り返さないよう、テーマの広い文字間隔と大きさを抑える */
+  :root[data-theme] .hero .hero-title { font-size: clamp(1.3rem, 6.4vw, 2.2rem); letter-spacing: 0.04em; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .play-card { transition: none; }
+  .play-card:hover { transform: none; }
 }

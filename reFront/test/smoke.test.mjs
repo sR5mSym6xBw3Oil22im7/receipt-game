@@ -419,13 +419,13 @@ test("game.js / demo.js: 待機中の秒数は固定幅の要素だけを書き�
   assert.match(fxCss, /\.wait-sec \{[^}]*min-width:[^}]*tabular-nums/);
 });
 
-test("menu: 対戦画面のイメージ（紹介動画）と遊び方をメニューより前に置き、showcase.css を ?v= 付きで読み込む", async () => {
+test("menu: 「遊ぶ」「作品を知る」（紹介動画）「管理者向け」の順に区切り、遊び方の3ステップは置かない。showcase.css を ?v= 付きで読み込む", async () => {
   assert.match(index, /<link rel="stylesheet" href="\.\/showcase\.css\?v=[\w-]+">/);
-  const showcase = index.indexOf('class="showcase"');
-  assert.ok(showcase > 0 && showcase < index.indexOf('id="game-link"'));
-  assert.ok(index.indexOf('class="sc-steps"') < index.indexOf('id="game-link"'));
-  // 中身は紹介動画（WebM → MP4 の順、音声なし・自動再生属性なし）だけ。外部の画像やスクリプトを読み込まない
-  const figure = index.slice(showcase, index.indexOf('class="sc-steps"'));
+  assert.doesNotMatch(index, /sc-steps/);
+  const pos = ['id="group-play"', 'id="game-link"', 'id="demo-link"', 'id="group-know"', 'class="showcase"', 'id="guide6min-link"', 'id="group-admin"', 'id="admin-login-link"'].map((key) => index.indexOf(key));
+  pos.forEach((p, i) => assert.ok(p > 0 && (i === 0 || pos[i - 1] < p), `順番 ${i}`));
+  const showcase = pos[4];
+  const figure = index.slice(showcase, index.indexOf("</figure>", showcase));
   assert.doesNotMatch(figure, /<img|<script|href=|autoplay/);
   const video = figure.match(/<video [^>]*>/)?.[0] ?? "";
   assert.match(video, /id="showcase-video"/);

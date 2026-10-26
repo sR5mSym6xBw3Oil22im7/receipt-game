@@ -10,13 +10,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
   <title>モンスターレシート対戦</title>
   <link rel="stylesheet" href="./styles.css?v=20261014-no-coin">
-  <link rel="stylesheet" href="./showcase.css?v=20261027-showcase-video">
+  <link rel="stylesheet" href="./showcase.css?v=20261027-menu-groups">
   <script src="./theme/theme.js"></script>
-  <style>
-    /* 動画の4項目は2行2列。styles.css は変更しない方針なので、ここで指定する */
-    .video-menu { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    @media (max-width: 560px) { .video-menu { grid-template-columns: 1fr; } }
-  </style>
 </head>
 <body>
   <main class="container is-wide">
@@ -25,76 +20,82 @@
         <p class="hero-sub">Monster Receipt Battle</p>
         <h1 class="hero-title">モンスターレシート対戦</h1>
         <div class="flourish is-left"></div>
-        <p class="lead">保存されたレシートからモンスターカードを呼び出して、2人で対戦します。</p>
-        <!-- 最初に作品の中身（カードと対戦画面）が伝わるよう、紹介動画（20秒・音声なし）を置く。
-             動きを減らす設定では自動再生しない（index.js）。WebM を優先し、再生できないブラウザーは MP4 -->
-        <figure class="showcase">
-          <span class="sc-label">Battle Preview</span>
-          <video class="sc-video" id="showcase-video" muted loop playsinline controls controlsList="nodownload" preload="metadata" width="1920" height="1080" aria-label="モンスターレシート対戦の紹介動画">
-            <source src="./video/showcase/receipt-game.webm" type="video/webm">
-            <source src="./video/showcase/receipt-game.mp4" type="video/mp4">
-            お使いのブラウザーは動画の再生に対応していません。
-          </video>
-          <figcaption>紹介動画（20秒・音声なし）。レシートの店舗カテゴリーや金額から、モンスターの属性と能力が決まります。</figcaption>
-        </figure>
-        <ol class="sc-steps" aria-label="遊び方">
-          <li><b>レシートを選ぶ</b>選んだレシートからモンスターカードが現れます。</li>
-          <li><b>カードを1枚決める</b>手札の3枚から、対戦に出す1枚を選びます。</li>
-          <li><b>自動で対戦</b>勝敗はサーバーが判定。相手がいなければコンピューターと対戦します。</li>
-        </ol>
-        <nav class="menu" aria-label="メニュー">
-          <a id="game-link" class="menu-link" href="https://receipt-game.onrender.com/game/index.html">
-            <span>
-              <span class="menu-title">モンスターレシート対戦</span>
-              <span class="menu-desc">保存済みのレシートからモンスターカードを呼び出して、2人で対戦します（ログイン不要）。</span>
-            </span>
-            <span class="menu-arrow" aria-hidden="true">→</span>
-          </a>
-          <a id="demo-link" class="menu-link" href="https://receipt-game.onrender.com/demo/index.html">
-            <span>
-              <span class="menu-title">モンスターレシート対戦（デモ）</span>
-              <span class="menu-desc">架空のレシートからモンスターカードを作って対戦するデモ画面です。</span>
-            </span>
-            <span class="menu-arrow" aria-hidden="true">→</span>
-          </a>
-          <a id="admin-login-link" class="menu-link" href="https://receipt-game.onrender.com/admin/login.html">
-            <span>
-              <span class="menu-title">管理者ログイン <span class="badge is-accent is-lock">管理者</span></span>
-              <span class="menu-desc">管理者向けのログイン画面です。ログイン後、レシート解析などのメニューを利用できます。</span>
-            </span>
-            <span class="menu-arrow" aria-hidden="true">→</span>
-          </a>
-          <div class="video-menu">
-            <a id="guide6min-link" class="menu-link" href="./video/show/guide6min.html">
-              <span>
-                <span class="menu-title">操作ガイド（標準版）</span>
-                <span class="menu-desc">モンスターレシート対戦の遊び方を詳しく紹介する動画です。</span>
-              </span>
-              <span class="menu-arrow" aria-hidden="true">→</span>
+        <p class="lead">レシートがモンスターになって対戦する、ログイン不要のカードゲームです。</p>
+
+        <!-- 「遊ぶ」「作品を知る」「管理者向け」の3つに区切る。見出し（h2）の装飾は日替わりテーマに任せる -->
+        <section class="menu-group" aria-labelledby="group-play">
+          <h2 class="menu-group-title" id="group-play">遊ぶ</h2>
+          <div class="play-cards">
+            <a id="game-link" class="play-card is-main" href="https://receipt-game.onrender.com/game/index.html">
+              <span class="play-title">対戦する</span>
+              <span class="play-desc">保存済みのレシートからモンスターカードを呼び出して、2人で対戦します。相手がいなければコンピューターと対戦します。</span>
+              <span class="play-foot">ログイン不要 <span aria-hidden="true">→</span></span>
             </a>
-            <a id="guide3min-link" class="menu-link" href="./video/show/guide3min.html">
-              <span>
-                <span class="menu-title">操作ガイド（簡易版）</span>
-                <span class="menu-desc">モンスターレシート対戦の遊び方の要点を短くまとめた動画です。</span>
-              </span>
-              <span class="menu-arrow" aria-hidden="true">→</span>
-            </a>
-            <a id="pv1-link" class="menu-link" href="./video/show/pv1.html">
-              <span>
-                <span class="menu-title">プロモーション映像 1</span>
-                <span class="menu-desc">モンスターレシート対戦を紹介する約1分の映像です。</span>
-              </span>
-              <span class="menu-arrow" aria-hidden="true">→</span>
-            </a>
-            <a id="pv2-link" class="menu-link" href="./video/show/pv2.html">
-              <span>
-                <span class="menu-title">プロモーション映像 2</span>
-                <span class="menu-desc">モンスターレシート対戦を紹介する約1分の映像です。</span>
-              </span>
-              <span class="menu-arrow" aria-hidden="true">→</span>
+            <a id="demo-link" class="play-card" href="https://receipt-game.onrender.com/demo/index.html">
+              <span class="play-title">デモで試す</span>
+              <span class="play-desc">架空のレシートで、カード作成から対戦までを体験できます。</span>
+              <span class="play-foot">データベースやAPIを使わずに動きます <span aria-hidden="true">→</span></span>
             </a>
           </div>
-        </nav>
+        </section>
+
+        <section class="menu-group" aria-labelledby="group-know">
+          <h2 class="menu-group-title" id="group-know">作品を知る</h2>
+          <div class="know">
+            <!-- 紹介動画（20秒・音声なし）。動きを減らす設定では自動再生しない（index.js）。WebM を優先し、再生できないブラウザーは MP4 -->
+            <figure class="showcase">
+              <video class="sc-video" id="showcase-video" muted loop playsinline controls controlsList="nodownload" preload="metadata" width="1920" height="1080" aria-label="モンスターレシート対戦の紹介動画">
+                <source src="./video/showcase/receipt-game.webm" type="video/webm">
+                <source src="./video/showcase/receipt-game.mp4" type="video/mp4">
+                お使いのブラウザーは動画の再生に対応していません。
+              </video>
+              <figcaption>紹介動画（20秒・音声なし）</figcaption>
+            </figure>
+            <nav class="menu video-menu" aria-label="動画">
+              <a id="guide6min-link" class="menu-link" href="./video/show/guide6min.html">
+                <span>
+                  <span class="menu-title">操作ガイド（標準版）</span>
+                  <span class="menu-desc">遊び方を詳しく紹介</span>
+                </span>
+                <span class="menu-arrow" aria-hidden="true">→</span>
+              </a>
+              <a id="guide3min-link" class="menu-link" href="./video/show/guide3min.html">
+                <span>
+                  <span class="menu-title">操作ガイド（簡易版）</span>
+                  <span class="menu-desc">要点を短くまとめた版</span>
+                </span>
+                <span class="menu-arrow" aria-hidden="true">→</span>
+              </a>
+              <a id="pv1-link" class="menu-link" href="./video/show/pv1.html">
+                <span>
+                  <span class="menu-title">プロモーション映像 1</span>
+                  <span class="menu-desc">約1分</span>
+                </span>
+                <span class="menu-arrow" aria-hidden="true">→</span>
+              </a>
+              <a id="pv2-link" class="menu-link" href="./video/show/pv2.html">
+                <span>
+                  <span class="menu-title">プロモーション映像 2</span>
+                  <span class="menu-desc">約1分</span>
+                </span>
+                <span class="menu-arrow" aria-hidden="true">→</span>
+              </a>
+            </nav>
+          </div>
+        </section>
+
+        <section class="menu-group" aria-labelledby="group-admin">
+          <h2 class="menu-group-title" id="group-admin">管理者向け</h2>
+          <nav class="menu admin-menu" aria-label="管理者">
+            <a id="admin-login-link" class="menu-link" href="https://receipt-game.onrender.com/admin/login.html">
+              <span>
+                <span class="menu-title">管理者ログイン <span class="badge is-accent is-lock">管理者</span></span>
+                <span class="menu-desc">ログイン後、レシート解析・保存などの管理メニューを利用できます。</span>
+              </span>
+              <span class="menu-arrow" aria-hidden="true">→</span>
+            </a>
+          </nav>
+        </section>
       </div>
     </section>
     <p class="note is-warn"><b>AIの利用について：</b>画像を送るのは、対戦画面の「レシート画像から作る」と、管理者のレシート解析のときだけです。送った画像は読み取りのためGoogleのGemini APIへ送信されます。無料枠のAPIを使っているため、送信した内容がGoogleのサービス改善（AIの学習を含む）に使われることがあります。個人情報が写った画像は選ばないでください。</p>
