@@ -401,3 +401,22 @@ test("admin-api.js: CSRFトークンは管理APIのオリジン以外へ送ら�
   await assert.rejects(context.adminFetch("https://evil.example/collect", { method: "POST" }));
   assert.equal(requests.length, 0, "別オリジンにはトークンの取得も送信もしない");
 });
+
+// ---- 講評への対応（待機画面のレイアウト・メニュー冒頭の画面イメージ） ----
+test("game.js / demo.js: 待機中の秒数は固定幅の要素だけを書き換え、文章を毎秒作り直さない", () => {
+  assert.match(gameJs, /function renderWaitCountdown\(/);
+  assert.match(gameJs, /\.wait-sec/);
+  assert.doesNotMatch(gameJs, /あと \$\{room\.waitSecondsLeft\} 秒/);
+  assert.match(demoJs, /function renderWaitCountdown\(/);
+  assert.doesNotMatch(demoJs, /あと \$\{left\} 秒/);
+  assert.match(fxCss, /\.wait-sec \{[^}]*min-width:[^}]*tabular-nums/);
+});
+
+test("menu: 対戦画面のイメージと遊び方をメニューより前に置き、showcase.css を ?v= 付きで読み込む", () => {
+  assert.match(index, /<link rel="stylesheet" href="\.\/showcase\.css\?v=[\w-]+">/);
+  const showcase = index.indexOf('class="showcase"');
+  assert.ok(showcase > 0 && showcase < index.indexOf('id="game-link"'));
+  assert.ok(index.indexOf('class="sc-steps"') < index.indexOf('id="game-link"'));
+  // イラストは固定のインラインSVGだけ（外部の画像やスクリプトを読み込まない）
+  assert.doesNotMatch(index.slice(showcase, index.indexOf('class="sc-steps"')), /<img|<script|href=/);
+});

@@ -558,6 +558,10 @@ public class MonsterRoomService {
                 throw new ReceiptException(HttpStatus.TOO_MANY_REQUESTS, "GEMINI_QUOTA_EXCEEDED",
                         "画像の読み取りが混み合っています。しばらく待つか、レシートを選んで対戦してください。");
             }
+            if ("NOT_A_RECEIPT".equals(e.code())) {
+                throw new ReceiptException(HttpStatus.UNPROCESSABLE_CONTENT, "NOT_A_RECEIPT",
+                        "レシートの画像ではないため、カードを作れません。レシートを撮影した画像を選んでください。");
+            }
             if (e.status() == HttpStatus.UNPROCESSABLE_CONTENT) {
                 throw new ReceiptException(HttpStatus.UNPROCESSABLE_CONTENT, "NO_TEXT_FOUND", "画像からレシートを読み取れませんでした。");
             }

@@ -10,8 +10,8 @@
   <title>モンスターレシート対戦</title>
   <!-- 既存画面と同じ admin/styles.css を読み込み、見た目は日替わりテーマで上書きする。 -->
   <link rel="stylesheet" href="../admin/styles.css?v=20261014-no-coin">
-  <link rel="stylesheet" href="./game.css?v=20261026-public-receipt">
-  <link rel="stylesheet" href="./fx.css?v=20261013-fx2">
+  <link rel="stylesheet" href="./game.css?v=20261026-review-fix">
+  <link rel="stylesheet" href="./fx.css?v=20261026-review-fix">
   <script src="../theme/theme.js"></script>
 </head>
 <body>
@@ -97,7 +97,7 @@
         <p class="note is-warn"><b>ご注意：</b>選んだ画像は、読み取りのためGoogleのGemini APIへ送信されます。無料枠のAPIを使っているため、送信した内容がGoogleのサービス改善（AIの学習を含む）に使われることがあります。氏名・電話番号・住所・会員番号・カード番号などが写った画像は選ばないでください。当サイトは画像を保存しません。</p>
         <label class="drop-zone" id="drop-zone">
           <span class="drop-title">レシート画像を選ぶ（JPEG / PNG・5 MiBまで）</span>
-          <span class="help-text">クリックして選ぶか、ここへドロップします。当サイトは画像を保存しません（Googleへは送信されます）。読み取った内容から個人情報を取り除いてカードを作ります。</span>
+          <span class="help-text">クリックして選ぶか、ここへドロップします。使えるのはレシートを撮影した画像だけで、人物・風景などレシート以外の画像からはカードを作れません。当サイトは画像を保存しません（Googleへは送信されます）。読み取った内容から個人情報を取り除いてカードを作ります。</span>
           <input type="file" id="image-input" accept="image/jpeg,image/png">
         </label>
         <p class="status" id="gen-status" role="status"></p>
@@ -154,6 +154,6 @@
   <div id="fx-layer" aria-hidden="true"></div>
   <script src="../game/back-link.js?v=20261014-pages-receipt-game"></script>
   <script src="./fx.js?v=20261013-fx2"></script>
-  <script src="./game.js?v=20261026-public-receipt"></script>
+  <script src="./game.js?v=20261026-review-fix"></script>
 </body>
 </html>

@@ -1,0 +1,49 @@
+/* メニュー冒頭の「対戦画面のイメージ」。styles.css は変更しない方針なので、このファイルで追加する。
+   色・書体は日替わりテーマの変数を使う。画像ファイルは使わず、カードのイラストはインラインSVG。 */
+.showcase { margin: 18px 0 6px; padding: 18px 16px 14px; border: 1px solid var(--gold-line); border-radius: var(--radius-sm); background: linear-gradient(160deg, var(--surface-strong), var(--gold-mist)); }
+.showcase figcaption { margin-top: 10px; font-size: 0.85rem; color: var(--ink-soft); text-align: center; }
+.sc-label { display: block; margin: 0 0 10px; font-family: var(--font-latin); font-weight: 700; font-size: 0.8rem; letter-spacing: 0.24em; color: var(--gold-deep); text-align: center; text-transform: uppercase; }
+.sc-arena { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); align-items: start; gap: 8px; max-width: 520px; margin: 0 auto; }
+.sc-vs { align-self: center; text-align: center; font-family: var(--font-latin); font-weight: 700; font-size: 1.5rem; color: var(--gold-deep); }
+.sc-hp { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; }
+.sc-bar { height: 10px; margin: 2px 0 8px; border-radius: 999px; background: #e9dcc0; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.25); }
+.sc-bar i { display: block; height: 100%; background: linear-gradient(90deg, #7c8f2e, #b6c64a); }
+.sc-bar i.is-80 { width: 80%; }
+.sc-bar i.is-35 { width: 35%; background: linear-gradient(90deg, #d49a1a, #f1c94d); }
+
+.sc-card { --accent: #8b8fa3; --rar: #9a8f7d; position: relative; display: flex; flex-direction: column; gap: 5px; padding: 8px 8px 10px; border-radius: 12px; border: 3px solid var(--accent); background: linear-gradient(180deg, #fffdf5, #f7ecc8); box-shadow: 0 10px 20px -12px rgba(80, 50, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.8); color: #3a2a10; text-align: left; }
+.sc-card.is-fire { --accent: #e4572e; --rar: #d99a00; }
+.sc-card.is-thunder { --accent: #e8b800; --rar: #8a4fbf; }
+.sc-head { display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+.sc-name { font-family: var(--font-head); font-weight: 700; font-size: 0.92rem; overflow-wrap: anywhere; }
+.sc-rarity { flex: none; padding: 0 6px; border-radius: 6px; background: var(--rar); color: #fff; font-family: var(--font-latin); font-weight: 700; font-size: 0.74rem; letter-spacing: 0.06em; }
+.sc-art { position: relative; aspect-ratio: 1; border-radius: 8px; border: 1px solid var(--gold-line); background: radial-gradient(circle at 50% 35%, #fff, color-mix(in srgb, var(--accent) 25%, #fff8e0)); overflow: hidden; }
+.sc-art svg { display: block; width: 100%; height: 100%; }
+.sc-elem { position: absolute; top: 5px; left: 5px; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.74rem; font-weight: 700; }
+.sc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin: 0; text-align: center; }
+.sc-stats div { padding: 1px 0; border-radius: 6px; background: rgba(255, 255, 255, 0.7); }
+.sc-stats dt { font-family: var(--font-latin); font-size: 0.6rem; letter-spacing: 0.06em; color: #7a6544; }
+.sc-stats dd { margin: 0; font-weight: 700; font-size: 0.82rem; line-height: 1.2; }
+.sc-skill { font-size: 0.74rem; font-weight: 700; color: #8a5f0b; }
+.sc-fighter.is-left .sc-card { animation: sc-lunge 2.8s ease-in-out infinite; }
+.sc-fighter.is-right .sc-card { animation: sc-hit 2.8s ease-in-out infinite; }
+@keyframes sc-lunge { 0%, 30%, 100% { transform: none; } 40% { transform: translateX(14px) scale(1.04); } 50% { transform: none; } }
+@keyframes sc-hit { 0%, 38%, 60%, 100% { transform: none; } 44% { transform: translateX(6px); } 50% { transform: translateX(-5px); } 55% { transform: translateX(3px); } }
+
+/* 遊び方の3ステップ */
+.sc-steps { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0 0; padding: 0; counter-reset: sc-step; }
+.sc-steps li { position: relative; padding: 10px 10px 10px 40px; border: 1px solid var(--gold-line); border-radius: var(--radius-sm); background: var(--surface); font-size: 0.86rem; text-align: left; counter-increment: sc-step; }
+.sc-steps li::before { content: counter(sc-step); position: absolute; top: 10px; left: 10px; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--gold-grad); color: var(--gold-ink); font-family: var(--font-latin); font-weight: 700; font-size: 0.85rem; }
+.sc-steps b { display: block; margin-bottom: 2px; }
+
+@media (max-width: 560px) {
+  .showcase { padding: 14px 10px 12px; }
+  .sc-arena { grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); gap: 4px; }
+  .sc-vs { font-size: 1rem; }
+  .sc-name { font-size: 0.8rem; }
+  .sc-stats dd { font-size: 0.74rem; }
+  .sc-steps { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sc-fighter .sc-card { animation: none; }
+}

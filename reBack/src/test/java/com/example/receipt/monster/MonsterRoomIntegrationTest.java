@@ -199,7 +199,7 @@ class MonsterRoomIntegrationTest {
                         .with(SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType("application/json")
                         .content("{\"lines\":[\"TEST\"],\"sha256\":\"" + sha + "\"}"))
-                .andExpect(status().isUnprocessableContent())
+                .andExpect(status().is(422))
                 .andReturn();
 
         assertThat(result.getResponse().getContentAsString()).contains(MonsterCardService.PII_FAILED_MESSAGE);
@@ -391,8 +391,9 @@ class MonsterRoomIntegrationTest {
         assertThat(made.getAsJsonObject("card").get("source").getAsString()).isEqualTo("PLAYER1");
         assertThat(ai.readKeys).containsExactly("player1-key");
         assertThat(cardRepository.countAll()).isEqualTo(before + 1);
-        // 個人情報は取り除いてから使う
-        assertThat(made.toString()).doesNotContain("山田");
+        // 個人情報は取り除いてから使う。店名・商品名などの購入の詳細も返さない
+        assertThat(made.toString()).doesNotContain("山田", "画像の店", "おにぎり");
+        assertNoPurchaseDetails(made.toString());
 
         // 同じ画像なら新しく作らない
         JsonObject again = json(mockMvc.perform(multipart("/api/monster/rooms/" + code + "/image-card")
@@ -430,6 +431,26 @@ class MonsterRoomIntegrationTest {
                         .file(new MockMultipartFile("file", "b.png", "image/png", png("b"))).header("X-Seat-Token", t1).with(fromIp()))
                 .andExpect(status().isConflict());
         assertThat(ai.readKeys).isEmpty();
+    }
+
+    @Test
+    void imageCardIsNotCreatedFromNonReceiptImage() throws Exception {
+        seed(12);
+        JsonObject p1 = create();
+        String code = p1.get("code").getAsString(), t1 = p1.get("token").getAsString();
+        expireWait(code);
+        long before = cardRepository.countAll();
+        ai.notReceipt = true;
+
+        JsonObject error = json(mockMvc.perform(multipart("/api/monster/rooms/" + code + "/image-card")
+                        .file(new MockMultipartFile("file", "cat.png", "image/png", png("cat"))).header("X-Seat-Token", t1).with(fromIp()))
+                .andExpect(status().is(422)).andReturn());
+        assertThat(error.get("code").getAsString()).isEqualTo("NOT_A_RECEIPT");
+        assertThat(ai.readKeys).containsExactly("player1-key");
+        assertThat(ai.parameterKeys).isEmpty();
+        assertThat(cardRepository.countAll()).isEqualTo(before);
+        JsonObject field = getJson("/api/monster/rooms/" + code + "/field", t1);
+        assertThat(!field.has("imageCard") || field.get("imageCard").isJsonNull()).isTrue();
     }
 
     // ---------- 回数制限・キャッシュ（13章） ----------
@@ -567,6 +588,7 @@ class MonsterRoomIntegrationTest {
         volatile String illustrationSvg;
         volatile MonsterParameters parameters;
         volatile boolean cpuFails;
+        volatile boolean notReceipt;
         volatile int lastCpuHandMaxPower;
 
         void reset() {
@@ -578,11 +600,16 @@ class MonsterRoomIntegrationTest {
             illustrationSvg = null;
             parameters = null;
             cpuFails = false;
+            notReceipt = false;
         }
 
         @Override
         public ReceiptText readReceipt(byte[] imageBytes, String mimeType, String apiKey) {
             readKeys.add(apiKey);
+            if (notReceipt) {
+                throw new com.example.receipt.exception.ReceiptException(org.springframework.http.HttpStatus.UNPROCESSABLE_CONTENT,
+                        "NOT_A_RECEIPT", "レシートの画像ではありません。");
+            }
             return new ReceiptText(List.of("画像の店", "山田太郎様"), null, new ReceiptStructuredData("画像の店", "山田太郎様", "コンビニ",
                     LocalDateTime.parse("2026-10-07T07:07:00"), 777L, "現金", "1", List.of(
                     new ReceiptItemData("おにぎり", "食料品", BigDecimal.ONE, 150L, 150L))));

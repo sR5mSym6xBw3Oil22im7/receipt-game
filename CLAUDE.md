@@ -69,6 +69,7 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 - 「解析」ではDBに登録しない。確認後に「PostgreSQLへ保存」で保存する。
 - 画像ファイルそのものは保存しない。SHA-256（重複判定）、行ごとの文字列、構造化データを保存する。SHA-256が一致する画像は409（`DUPLICATE_RECEIPT_IMAGE`）。
 - レシートごとに `receipt_` + 32桁16進数のテーブルを作る。他に `receipt_structured_summary`、`receipt_structured_item`、`receipt_image_hash_registry`。テーブルはアプリが実行時に作成する。
+- Geminiの応答スキーマには `isReceipt` を含め、レシート以外の画像（人物・風景など）は解析・画像からのカード作成とも422（`NOT_A_RECEIPT`）で断る。キーを替えての再試行はしない。
 - Geminiの応答にはJSONスキーマを指定する。タイムアウトはバックエンド180秒、解析画面の要求210秒、保存30秒。
 - Gemini APIキーは `GEMINI_API_DEFAULT`（必須、未設定ならバックエンドは起動しない）と用途別 `GEMINI_API_ANALYZE` / `_MONSTER` / `_PLAYER1` / `_PLAYER2`。画面から入力させず、DBにも保存しない。
   - 解析：`ANALYZE` → `DEFAULT`。モンスターのカード生成：`MONSTER` → `DEFAULT` → 計算式の値と代替イラスト。

@@ -98,7 +98,7 @@
       const tick = () => {
         if (left <= 0) { startCpuMode(theirs); return; }
         FX.waitRing($("wait-ring"), left, CPU_WAIT_SECONDS);
-        $("wait-status").textContent = `ルームコードを相手に伝えてください。あと ${left} 秒で、参加がなければコンピュータ（P2）との対戦になります。`;
+        renderWaitCountdown($("wait-status"), left);
         left--;
         later(tick, 1000);
       };
@@ -110,6 +110,18 @@
       $("wait-status").textContent = "ルームに参加しました。カード選択へ進みます…";
       later(enterSelect, 1300);
     }
+  }
+
+  // 文章は1回だけ組み立て、毎秒は秒数だけを書き換える（本番 game.js と同じ。秒数は固定幅で折り返し位置を動かさない）
+  function renderWaitCountdown(el, secondsLeft) {
+    let sec = el.querySelector(".wait-sec");
+    if (!sec) {
+      sec = document.createElement("span");
+      sec.className = "wait-sec";
+      el.replaceChildren("ルームコードを相手に伝えてください。", document.createElement("br"),
+        "あと ", sec, " 秒で、参加がなければコンピュータ（P2）との対戦になります。");
+    }
+    sec.textContent = String(Math.max(0, Number(secondsLeft)));
   }
 
   function humanJoined() {

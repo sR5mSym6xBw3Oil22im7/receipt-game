@@ -14,6 +14,7 @@
 | パス | 内容 |
 | --- | --- |
 | `index.html` / `index.js` / `styles.css` | メニュー（対戦・デモ・管理者ログイン・動画4本へのリンク） |
+| `showcase.css` | メニュー冒頭の「対戦画面のイメージ」（見本のカード2枚・HPバー）と遊び方3ステップ。`styles.css` は変更しない方針のため別ファイル |
 | `config.js` | 接続先の切替。localhost（`file:` 含む）ではバックエンド `http://localhost:8081`、それ以外では本番 `https://receipt-game.onrender.com` |
 | `direct-access-guard.js` | メニューが読み込み、メニュー以外のページを直接開いたらメニューへ移動させる（動画ページは読み込まない） |
 | `theme/` | 日替わりテーマ（`theme.js`、`base.css`、`t01.css`〜`t10.css`） |

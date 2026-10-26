@@ -15,6 +15,7 @@
 - 勝敗とカード生成はサーバーで計算し、相手のカードは対戦開始まで返さない（`monster/engine/`）。
 - 対戦API（ログイン不要）が返すレシート情報は、店舗カテゴリー・金額帯・品数だけ（`MonsterViews.ReceiptView`）。店名・支店名・購入日時・レシート番号・商品名・単価・支払方法は返さない。生成AIが作るカードの名前・技名・説明文に店名・商品名が入ったときは、計算式の値に戻す。
 - Geminiが使えない・応答が不正なときは、計算式の値と代替イラストへ自動で切り替える。SVGは許可リストで検証する。
+- Geminiの応答スキーマに `isReceipt` を含め、レシート以外の画像は解析・画像からのカード作成とも 422 `NOT_A_RECEIPT` で断る（`GeminiReceiptAnalyzer.parseResponse`）。
 - `/api/**` は既定で拒否し、認可を書いたものだけ公開する（`SecurityConfig`）。CSRF、ログイン失敗ロック、アップロードの型（先頭バイト）・画素数検査、IP別のレート制限を備える。管理者のセッションは無操作30分で失効する。
 - 保存前に個人情報を除去し、画像そのものは保存しない。
 - テストはH2で動き、Geminiを呼ばない。
@@ -73,7 +74,7 @@ Geminiのキーは画面から入力させず、DBにも保存しません。解
 | GET | `/api/monster/rooms/{code}/field` | 席トークン | 場・手札 |
 | POST | `/api/monster/rooms/{code}/shuffle` | 席トークン | シャッフル |
 | POST | `/api/monster/rooms/{code}/flip` | 席トークン | レシートをめくる |
-| POST | `/api/monster/rooms/{code}/image-card` | 席トークン | 画像からカード作成 |
+| POST | `/api/monster/rooms/{code}/image-card` | 席トークン | 画像からカード作成（レシート以外の画像は422 `NOT_A_RECEIPT`） |
 | POST | `/api/monster/rooms/{code}/select` | 席トークン | カード決定 |
 | GET | `/api/monster/rooms/{code}/battle` | 席トークン | 対戦結果 |
 | POST | `/api/monster/rooms/{code}/rematch` | 席トークン | 再戦 |

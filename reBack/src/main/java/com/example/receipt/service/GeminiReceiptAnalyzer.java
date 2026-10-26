@@ -51,7 +51,12 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeminiReceiptAnalyzer.class);
     private static final int GEMINI_REQUEST_TIMEOUT_MS = 180_000;
     private static final String PROMPT = """
-            この画像はレシートです。印字されている文字列を上から下へ読み取り、
+            まず、この画像がレシート（店舗での買い物・飲食・サービスの代金の明細、または領収書）かどうかを判定し、
+            isReceipt に true または false で出力してください。
+            人物・動物・風景・料理・商品などの写真、イラスト、画面のスクリーンショット、レシート以外の書類は
+            レシートではありません。レシートでない場合は isReceipt を false とし、lines を空の配列、
+            structuredData の各項目を null、items を空の配列にしてください。
+            レシートの場合は、印字されている文字列を上から下へ読み取り、
             1行ごとに lines 配列へ格納し、同じ解析結果から structuredData も作成してください。
             structuredData の店舗カテゴリは スーパー、コンビニ、ドラッグストア、飲食店、その他のいずれか、
             商品カテゴリは 食料品、日用品、飲食、交通・移動、その他のいずれかにしてください。
@@ -197,6 +202,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
                 .build();
 
         Map<String, Schema> properties = new LinkedHashMap<>();
+        properties.put("isReceipt", Schema.builder().type(Type.Known.BOOLEAN).build());
         properties.put("lines", Schema.builder()
                 .type(Type.Known.ARRAY)
                 .items(Schema.builder().type(Type.Known.STRING).build())
@@ -206,7 +212,7 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
         return Schema.builder()
                 .type(Type.Known.OBJECT)
                 .properties(properties)
-                .required("lines", "structuredData", "textRotation")
+                .required("isReceipt", "lines", "structuredData", "textRotation")
                 .build();
     }
 
@@ -221,7 +227,14 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
         );
 
         GenerateContentResponse response = client.models.generateContent(model, content, config);
-        String responseText = response.text();
+        return parseResponse(response.text());
+    }
+
+    /**
+     * Geminiの応答（JSON）を読む。レシートではないと判定された画像は NOT_A_RECEIPT で断る
+     * （人物や風景の写真などからモンスターカードを作らせない）。回転して読み直した結果での判定は、呼び出し側で元の結果を使う。
+     */
+    Attempt parseResponse(String responseText) {
         if (responseText == null || responseText.isBlank()) {
             throw new ReceiptException(
                     HttpStatus.UNPROCESSABLE_CONTENT,
@@ -236,6 +249,13 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
                     HttpStatus.UNPROCESSABLE_CONTENT,
                     "INVALID_ANALYSIS_RESULT",
                     "Geminiの解析結果が想定形式ではありません。"
+            );
+        }
+        if (Boolean.FALSE.equals(parsed.isReceipt())) {
+            throw new ReceiptException(
+                    HttpStatus.UNPROCESSABLE_CONTENT,
+                    "NOT_A_RECEIPT",
+                    "レシートの画像ではないため、読み取れません。レシートを撮影した画像を選んでください。"
             );
         }
 
@@ -488,8 +508,8 @@ public class GeminiReceiptAnalyzer implements ReceiptAnalyzer {
             DateTimeFormatter.ofPattern("uuuu-M-d H:mm")
     );
 
-    private record Attempt(List<String> lines, RawStructuredData structuredData, int rotation) { }
-    private record GeminiResponse(List<String> lines, RawStructuredData structuredData, Integer textRotation) { }
+    record Attempt(List<String> lines, RawStructuredData structuredData, int rotation) { }
+    private record GeminiResponse(Boolean isReceipt, List<String> lines, RawStructuredData structuredData, Integer textRotation) { }
     private record RawStructuredData(String storeName, String branchName, String storeCategory, String purchasedAt,
                                      Long totalAmount, String paymentMethod, String receiptNumber, List<RawItem> items) { }
     private record RawItem(String name, String category, BigDecimal quantity, Long unitPrice, Long amount) { }

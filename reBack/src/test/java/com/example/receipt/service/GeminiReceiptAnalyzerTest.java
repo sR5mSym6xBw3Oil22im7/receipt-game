@@ -157,6 +157,29 @@ class GeminiReceiptAnalyzerTest {
     }
 
     /** Geminiを呼ばず、使ったキーを記録する。failures にあるキーはそのエラーで失敗する。 */
+    @Test
+    void rejectsImagesThatAreNotReceipts() {
+        GeminiReceiptAnalyzer analyzer = new GeminiReceiptAnalyzer("gemini-3.5-flash-lite", new GeminiApiKeys("default-key", "", "", "", ""));
+
+        assertThatThrownBy(() -> analyzer.parseResponse(
+                "{\"isReceipt\":false,\"lines\":[\"猫\"],\"structuredData\":null,\"textRotation\":0}"))
+                .isInstanceOfSatisfying(ReceiptException.class, e -> {
+                    assertThat(e.status()).isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT);
+                    assertThat(e.code()).isEqualTo("NOT_A_RECEIPT");
+                });
+        assertThat(analyzer.parseResponse(
+                "{\"isReceipt\":true,\"lines\":[\"テスト店\",\"合計 ¥100\"],\"structuredData\":null,\"textRotation\":90}").lines())
+                .containsExactly("テスト店", "合計 ¥100");
+    }
+
+    @Test
+    void doesNotRetryWithDefaultKeyWhenImageIsNotReceipt() {
+        KeyRecordingAnalyzer analyzer = new KeyRecordingAnalyzer(new GeminiApiKeys("default-key", "", "", "", "analyze-key"));
+        analyzer.failures.put("analyze-key", "NOT_A_RECEIPT");
+        assertThatThrownBy(() -> analyzer.analyze(new byte[]{1}, "image/jpeg")).isInstanceOf(ReceiptException.class);
+        assertThat(analyzer.usedKeys).containsExactly("analyze-key");
+    }
+
     private static class KeyRecordingAnalyzer extends GeminiReceiptAnalyzer {
         final java.util.List<String> usedKeys = new java.util.ArrayList<>();
         final java.util.Map<String, String> failures = new java.util.HashMap<>();

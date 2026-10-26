@@ -173,3 +173,33 @@ h3 { margin-top: 16px; }
 #result-receipts { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .drop-zone.is-disabled { opacity: 0.5; pointer-events: none; }
 .subtab:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ---------- スマートフォン（本番の game.css と同じ） ---------- */
+@media (max-width: 640px) {
+  .subtabs { flex-wrap: wrap; }
+  .room-code { font-size: 1.7rem; letter-spacing: 0.2em; }
+  .chosen-bar .primary-button { width: 100%; }
+  /* 対戦：2体を横に並べ、1画面で両方のHPと攻撃が見えるようにする（縦に並べるとスクロールが必要になる） */
+  .arena { grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); gap: 4px; }
+  .vs { font-size: 0.95rem; }
+  .fighter .mcard { padding: 6px 6px 8px; border-width: 2px; gap: 4px; }
+  .fighter .mc-name { font-size: 0.82rem; }
+  .fighter .mc-stats dt { font-size: 0.55rem; }
+  .fighter .mc-stats dd { font-size: 0.72rem; }
+  .fighter .mc-skill { font-size: 0.72rem; }
+  .fighter .mc-flavor, .fighter .mc-foot { display: none; }
+  .hp-label { font-size: 0.72rem; }
+  .float-dmg { font-size: 1.6rem; }
+  .battle-controls .small-button { flex: 1 1 0; }
+  .battle-log { max-height: 160px; font-size: 0.84rem; padding: 10px 12px; }
+}
+@media (max-width: 560px) {
+  /* 手札は2列にして、3枚が縦に長く並ばないようにする */
+  .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .card-grid .mcard { padding: 8px 8px 10px; }
+  .card-grid .mc-stats dt { font-size: 0.55rem; }
+  .card-grid .mc-stats dd { font-size: 0.76rem; }
+  .card-grid .mc-flavor { font-size: 0.7rem; }
+  .hand-slot { min-height: 120px; }
+  #result-receipts { grid-template-columns: minmax(0, 1fr); }
+}

@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Shippori+Mincho:wght@600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
   <title>モンスターレシート対戦</title>
   <link rel="stylesheet" href="./styles.css?v=20261014-no-coin">
+  <link rel="stylesheet" href="./showcase.css?v=20261026-showcase">
   <script src="./theme/theme.js"></script>
   <style>
     /* 動画の4項目は2行2列。styles.css は変更しない方針なので、ここで指定する */
@@ -25,6 +26,45 @@
         <h1 class="hero-title">モンスターレシート対戦</h1>
         <div class="flourish is-left"></div>
         <p class="lead">保存されたレシートからモンスターカードを呼び出して、2人で対戦します。</p>
+        <!-- 最初に作品の中身（カードと対戦画面）が伝わるよう、対戦画面のイメージを置く。数値は見本 -->
+        <figure class="showcase">
+          <span class="sc-label">Battle Preview</span>
+          <div class="sc-arena">
+            <div class="sc-fighter is-left">
+              <div class="sc-hp"><span>P1</span><span>HP 416 / 520</span></div>
+              <div class="sc-bar" aria-hidden="true"><i class="is-80"></i></div>
+              <div class="sc-card is-fire">
+                <div class="sc-head"><span class="sc-name">ホムラドン</span><span class="sc-rarity">SSR</span></div>
+                <div class="sc-art">
+                  <span class="sc-elem">炎</span>
+                  <svg viewBox="0 0 200 200" role="img" aria-label="炎属性のモンスターのイラスト"><defs><radialGradient id="sc-g-fire" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#ffc065"/><stop offset=".55" stop-color="#e4572e"/><stop offset="1" stop-color="#7a1f0c"/></radialGradient></defs><g fill="url(#sc-g-fire)" stroke="#7a1f0c" stroke-width="3" stroke-linejoin="round"><ellipse cx="72" cy="188" rx="20" ry="9" fill="#7a1f0c"/><ellipse cx="128" cy="188" rx="20" ry="9" fill="#7a1f0c"/><polygon points="47,58 56,24 65,58" fill="#7a1f0c"/><polygon points="135,58 144,24 153,58" fill="#7a1f0c"/><path d="M100 26C132 68 170 98 162 140C156 172 128 186 100 186C72 186 44 172 38 140C30 98 68 68 100 26Z"/></g><path d="M100 8C112 26 124 30 116 48C108 40 104 40 100 28C96 40 92 40 84 48C76 30 90 26 100 8Z" fill="#ffc065"/><circle cx="76" cy="108" r="15" fill="#fff"/><circle cx="78" cy="110" r="8" fill="#241a10"/><circle cx="81" cy="106" r="3" fill="#fff"/><circle cx="124" cy="108" r="15" fill="#fff"/><circle cx="126" cy="110" r="8" fill="#241a10"/><circle cx="129" cy="106" r="3" fill="#fff"/><path d="M72 146Q100 168 128 146Q100 156 72 146Z" fill="#7a1f0c"/><polygon points="82,150 88,164 94,153" fill="#fff"/><polygon points="106,153 112,164 118,150" fill="#fff"/><path d="M168 30l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#fff6c9"/><path d="M26 40l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#fff6c9"/></svg>
+                </div>
+                <dl class="sc-stats"><div><dt>ATK</dt><dd>88</dd></div><div><dt>DEF</dt><dd>54</dd></div><div><dt>SPD</dt><dd>71</dd></div></dl>
+                <span class="sc-skill">必殺技：紅蓮ブレス</span>
+              </div>
+            </div>
+            <div class="sc-vs" aria-hidden="true">VS</div>
+            <div class="sc-fighter is-right">
+              <div class="sc-hp"><span>P2</span><span>HP 168 / 480</span></div>
+              <div class="sc-bar" aria-hidden="true"><i class="is-35"></i></div>
+              <div class="sc-card is-thunder">
+                <div class="sc-head"><span class="sc-name">イナズマル</span><span class="sc-rarity">SR</span></div>
+                <div class="sc-art">
+                  <span class="sc-elem">雷</span>
+                  <svg viewBox="0 0 200 200" role="img" aria-label="雷属性のモンスターのイラスト"><defs><radialGradient id="sc-g-thunder" cx="40%" cy="30%" r="80%"><stop offset="0" stop-color="#8f7bff"/><stop offset=".55" stop-color="#e8b800"/><stop offset="1" stop-color="#40358f"/></radialGradient></defs><g fill="url(#sc-g-thunder)" stroke="#40358f" stroke-width="3" stroke-linejoin="round"><ellipse cx="72" cy="188" rx="20" ry="9" fill="#40358f"/><ellipse cx="128" cy="188" rx="20" ry="9" fill="#40358f"/><polygon points="100,22 162,68 176,140 132,184 68,184 24,140 38,68"/></g><polygon points="108,162 90,184 102,184 94,200 118,176 104,176" fill="#8f7bff"/><circle cx="62" cy="108" r="15" fill="#fff"/><circle cx="64" cy="110" r="8" fill="#241a10"/><circle cx="67" cy="106" r="3" fill="#fff"/><circle cx="100" cy="108" r="15" fill="#fff"/><circle cx="102" cy="110" r="8" fill="#241a10"/><circle cx="105" cy="106" r="3" fill="#fff"/><circle cx="138" cy="108" r="15" fill="#fff"/><circle cx="140" cy="110" r="8" fill="#241a10"/><circle cx="143" cy="106" r="3" fill="#fff"/><circle cx="56" cy="136" r="9" fill="#ff8aa0" opacity=".55"/><circle cx="144" cy="136" r="9" fill="#ff8aa0" opacity=".55"/><path d="M78 148Q100 166 122 148" fill="none" stroke="#40358f" stroke-width="5" stroke-linecap="round"/><path d="M168 30l4 10 10 4-10 4-4 10-4-10-10-4 10-4z" fill="#fff6c9"/></svg>
+                </div>
+                <dl class="sc-stats"><div><dt>ATK</dt><dd>76</dd></div><div><dt>DEF</dt><dd>48</dd></div><div><dt>SPD</dt><dd>93</dd></div></dl>
+                <span class="sc-skill">必殺技：雷鳴ステップ</span>
+              </div>
+            </div>
+          </div>
+          <figcaption>対戦画面のイメージ。レシートの店舗カテゴリーや金額から、モンスターの属性と能力が決まります。</figcaption>
+        </figure>
+        <ol class="sc-steps" aria-label="遊び方">
+          <li><b>レシートを選ぶ</b>選んだレシートからモンスターカードが現れます。</li>
+          <li><b>カードを1枚決める</b>手札の3枚から、対戦に出す1枚を選びます。</li>
+          <li><b>自動で対戦</b>勝敗はサーバーが判定。相手がいなければコンピューターと対戦します。</li>
+        </ol>
         <nav class="menu" aria-label="メニュー">
           <a id="game-link" class="menu-link" href="https://receipt-game.onrender.com/game/index.html">
             <span>

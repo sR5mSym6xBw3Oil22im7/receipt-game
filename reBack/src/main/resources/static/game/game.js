@@ -221,9 +221,21 @@
       if (state.waitTotal === null) state.waitTotal = Math.max(Number(room.waitSecondsLeft), 1);   // 最初に受け取った秒数を全体とする
       FX.waitRing($("wait-ring"), room.waitSecondsLeft, state.waitTotal);
     } else FX.waitRing($("wait-ring"), null);
-    $("wait-status").textContent = room.status === "WAITING"
-      ? `ルームコードを相手に伝えてください。あと ${room.waitSecondsLeft} 秒で、参加がなければコンピュータ（P2）との対戦になります。`
-      : room.mode === "CPU" ? "相手が参加しなかったため、コンピュータ対戦になりました。カード選択へ進みます…" : "2人そろいました。カード選択へ進みます…";
+    if (room.status === "WAITING") renderWaitCountdown($("wait-status"), room.waitSecondsLeft);
+    else $("wait-status").textContent = room.mode === "CPU"
+      ? "相手が参加しなかったため、コンピュータ対戦になりました。カード選択へ進みます…" : "2人そろいました。カード選択へ進みます…";
+  }
+
+  // 文章は1回だけ組み立て、毎秒は秒数だけを書き換える（桁数が変わっても折り返し位置が動かないよう、秒数は固定幅）
+  function renderWaitCountdown(el, secondsLeft) {
+    let sec = el.querySelector(".wait-sec");
+    if (!sec) {
+      sec = document.createElement("span");
+      sec.className = "wait-sec";
+      el.replaceChildren("ルームコードを相手に伝えてください。", document.createElement("br"),
+        "あと ", sec, " 秒で、参加がなければコンピュータ（P2）との対戦になります。");
+    }
+    sec.textContent = secondsLeft == null ? "--" : String(Math.max(0, Number(secondsLeft)));
   }
 
   // 参加した側（P2）も待機画面で「参戦」の演出を見せてから、カード選択へ進む
