@@ -175,6 +175,31 @@ public final class MonsterCardGenerator {
         return value != null && ITEM_CATEGORIES.contains(value.trim()) ? value.trim() : "その他";
     }
 
+    /**
+     * 生成AIの名前・必殺技名・説明文に、レシートの店名・支店名・商品名・レシート番号・支払方法が入っていたら、
+     * その項目は計算式の値を使う。カードはログイン不要の対戦APIで返すので、購入の詳細を載せない（プロンプトの指示をサーバーでも守らせる）。
+     * 店名・商品名は文字以外で区切った2文字以上の語で照合する。店舗・商品カテゴリーの語は照合しない。
+     */
+    public static MonsterParameters withoutReceiptDetails(MonsterParameters p, MonsterCard base, ReceiptStructuredData data) {
+        if (p == null || data == null) return p;
+        List<String> terms = new java.util.ArrayList<>();
+        java.util.stream.Stream.concat(java.util.stream.Stream.of(data.storeName(), data.branchName()),
+                        data.safeItems().stream().filter(Objects::nonNull).map(ReceiptItemData::name))
+                .filter(Objects::nonNull)
+                .flatMap(s -> java.util.Arrays.stream(s.split("[^\\p{L}]+")))
+                .filter(w -> w.codePointCount(0, w.length()) >= 2)
+                .filter(w -> !STORE_CATEGORIES.contains(w) && !ITEM_CATEGORIES.contains(w))
+                .forEach(w -> terms.add(w.toLowerCase(java.util.Locale.ROOT)));
+        for (String whole : new String[]{data.receiptNumber(), data.paymentMethod()}) {
+            if (whole != null && whole.trim().length() >= 2) terms.add(whole.trim().toLowerCase(java.util.Locale.ROOT));
+        }
+        java.util.function.Predicate<String> leaks = s -> s != null
+                && terms.stream().anyMatch(s.toLowerCase(java.util.Locale.ROOT)::contains);
+        return new MonsterParameters(leaks.test(p.name()) ? base.name() : p.name(), p.element(), p.hp(), p.atk(), p.def(),
+                p.spd(), p.luck(), leaks.test(p.skillName()) ? base.skillName() : p.skillName(), p.skillPower(),
+                leaks.test(p.flavor()) ? base.flavor() : p.flavor());
+    }
+
     private static final java.util.regex.Pattern KATAKANA = java.util.regex.Pattern.compile("[ァ-ヶー]+");
     private static final java.util.regex.Pattern LINK_LIKE = java.util.regex.Pattern.compile("(?i)https?:|www\\.|@|://|\\.(?:com|net|jp|org)\\b");
 

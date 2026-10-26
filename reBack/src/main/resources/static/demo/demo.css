@@ -159,14 +159,11 @@ h3 { margin-top: 16px; }
 @media (prefers-reduced-motion: reduce) { .mcard.is-revealed { animation: none; } }
 
 .rt-no em { font-style: normal; margin-left: 6px; padding: 0 9px; border-radius: 999px; background: var(--gold-mist); border: 1px solid var(--gold-line); font-size: 0.78rem; color: var(--ink); }
-.rt-store { font-family: var(--font-head); font-weight: 700; font-size: 1.05rem; text-align: center; }
-.rt-meta { font-size: 0.78rem; color: var(--ink-soft); }
-.rt-items { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-.rt-items th { font-weight: 700; color: var(--ink-soft); border-bottom: 1px dashed #d8c58f; padding: 2px 3px; text-align: left; }
-.rt-items td { padding: 2px 3px; border-bottom: 1px dotted #eadfb8; overflow-wrap: anywhere; }
-.rt-items .q { text-align: center; width: 2.2em; } .rt-items .n { text-align: right; white-space: nowrap; }
-.rt-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--ink); padding-top: 4px; font-weight: 700; }
-.rt-total b { font-size: 1.1rem; }
+/* レシートの手がかり（本番の game.css と同じ。店舗カテゴリー・金額帯・品数だけを表示する） */
+.rt-hints { display: grid; gap: 4px; margin: 2px 0 4px; }
+.rt-hints div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1px dotted #eadfb8; padding: 2px 0; }
+.rt-hints dt { font-size: 0.78rem; color: var(--ink-soft); }
+.rt-hints dd { margin: 0; font-weight: 700; }
 .draw-row { margin-bottom: 12px; }
 
 .receipt-tile { cursor: default; }

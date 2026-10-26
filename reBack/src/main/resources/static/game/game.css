@@ -119,7 +119,7 @@ h3 { margin-top: 16px; }
   .hp-bar > i { transition: none; }
 }
 
-/* めくる前のレシート（個人情報は伏せ字）と手札 */
+/* めくる前のレシート（店舗カテゴリー・金額帯・品数だけ）と手札 */
 .receipt-field { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
 .receipt-tile { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 10px; text-align: left; font: inherit; color: var(--ink); background: #fffef8; border: 1px solid #e3cf9c; border-radius: 6px; box-shadow: 0 8px 16px -12px rgba(80, 50, 0, 0.7); cursor: pointer; transition: transform 0.15s ease; letter-spacing: 0; background-image: linear-gradient(transparent 94%, #f0e4bd 94%); background-size: 100% 22px; }
 .receipt-tile::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 8px; background: radial-gradient(circle at 6px -1px, transparent 6px, #fffef8 7px) 0 0 / 12px 8px repeat-x; filter: drop-shadow(0 2px 1px rgba(80, 50, 0, 0.15)); }
@@ -134,14 +134,11 @@ h3 { margin-top: 16px; }
 @media (prefers-reduced-motion: reduce) { .mcard.is-revealed { animation: none; } }
 
 .rt-no em { font-style: normal; margin-left: 6px; padding: 0 9px; border-radius: 999px; background: var(--gold-mist); border: 1px solid var(--gold-line); font-size: 0.78rem; color: var(--ink); }
-.rt-store { font-family: var(--font-head); font-weight: 700; font-size: 1.05rem; text-align: center; }
-.rt-meta { font-size: 0.78rem; color: var(--ink-soft); }
-.rt-items { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-.rt-items th { font-weight: 700; color: var(--ink-soft); border-bottom: 1px dashed #d8c58f; padding: 2px 3px; text-align: left; }
-.rt-items td { padding: 2px 3px; border-bottom: 1px dotted #eadfb8; overflow-wrap: anywhere; }
-.rt-items .q { text-align: center; width: 2.2em; } .rt-items .n { text-align: right; white-space: nowrap; }
-.rt-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--ink); padding-top: 4px; font-weight: 700; }
-.rt-total b { font-size: 1.1rem; }
+/* レシートの手がかり（店舗カテゴリー・金額帯・品数）。購入の詳細はAPIが返さない */
+.rt-hints { display: grid; gap: 4px; margin: 2px 0 4px; }
+.rt-hints div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1px dotted #eadfb8; padding: 2px 0; }
+.rt-hints dt { font-size: 0.78rem; color: var(--ink-soft); }
+.rt-hints dd { margin: 0; font-weight: 700; }
 .draw-row { margin-bottom: 12px; }
 
 .receipt-tile { cursor: default; }

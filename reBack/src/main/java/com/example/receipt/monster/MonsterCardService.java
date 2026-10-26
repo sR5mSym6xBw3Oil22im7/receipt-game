@@ -122,7 +122,8 @@ public class MonsterCardService {
         if (!settings.aiIllustrationEnabled()) return new GeneratedCard(base, false, false);
         Optional<MonsterCard> withParameters = firstSuccess(aiKeys, "parameters",
                 key -> ai.generateParameters(cleanData, charCount, key.apiKey()))
-                .map(p -> MonsterCardGenerator.applyParameters(base, p));
+                .map(p -> MonsterCardGenerator.applyParameters(base,
+                        MonsterCardGenerator.withoutReceiptDetails(p, base, cleanData)));
         MonsterCard card = withParameters.orElse(base);
         Optional<String> svg = firstSuccess(aiKeys, "illustration", key -> ai.illustrate(card, key.apiKey()));
         return new GeneratedCard(svg.map(card::withSvg).orElse(card), withParameters.isPresent(), svg.isPresent());

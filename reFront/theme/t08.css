@@ -23,7 +23,7 @@
   & .menu-link:hover, & .receipt-row:hover { transform: none; border-color: var(--ink); }
   & .menu-link:active, & .receipt-row:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--ink); }
   /* LED表示 */
-  & .room-code, & .rt-total b, & .battle-seed { font-family: var(--font-latin); background: #150d00; color: #ffb326; padding: 2px 14px; border-radius: 4px; text-shadow: 0 0 6px #ffb326; animation: t08-led 1.8s steps(2) infinite; }
+  & .room-code, & .rt-hints div:first-child dd, & .battle-seed { font-family: var(--font-latin); background: #150d00; color: #ffb326; padding: 2px 14px; border-radius: 4px; text-shadow: 0 0 6px #ffb326; animation: t08-led 1.8s steps(2) infinite; }
   & .badge { background: #150d00; color: #ffb326; border: 0; font-family: var(--font-latin); }
   & .steps li { border: 2px solid var(--ink); border-radius: 4px; }
   & .steps li.is-active { background: #ffb326; color: var(--ink); }

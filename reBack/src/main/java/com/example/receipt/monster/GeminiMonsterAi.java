@@ -80,9 +80,9 @@ public class GeminiMonsterAi implements MonsterAi {
                 - element：属性。%s のどれか。食べ物や飲食なら炎、食料品なら土、日用品なら風、交通・移動なら雷を目安に、レシートの中身に合うものを選ぶ。
                 - hp %d〜%d、atk %d〜%d、def %d〜%d、spd %d〜%d、luck %d〜%d の整数。
                   レシートの特徴（金額、品数、高い商品、時間帯、日付など）が伝わるように強弱をつけ、すべてを最大にしない。
-                - skillName：必殺技の名前。%d文字以内。
+                - skillName：必殺技の名前。%d文字以内。実在の人名・店名・商品名は使わない。
                 - skillPower：必殺技の倍率。1.5〜2.0。
-                - flavor：カードの説明文。日本語%d文字以内。店名・人名・金額は書かない。
+                - flavor：カードの説明文。日本語%d文字以内。店名・人名・商品名・金額・日時は書かない（カードは誰でも見られるため）。
                 出力は指定されたJSONスキーマだけにしてください。
                 """.formatted(gson.toJson(receipt), MonsterCardGenerator.MAX_NAME_LENGTH,
                 String.join("・", MonsterCardGenerator.ELEMENTS),

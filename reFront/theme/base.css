@@ -27,7 +27,7 @@
   & .mc-zoro { background: var(--gold-mist); border-color: var(--gold); color: var(--gold-deep); }
   & .receipt-tile { background-color: var(--paper-solid); border-color: var(--line); background-image: linear-gradient(transparent 94%, var(--line) 94%); color: var(--ink); }
   & .receipt-tile::after { background: radial-gradient(circle at 6px -1px, transparent 6px, var(--paper-solid) 7px) 0 0 / 12px 8px repeat-x; }
-  & .rt-items th, & .rt-items td { border-bottom-color: var(--line); }
+  & .rt-hints div { border-bottom-color: var(--line); }
   & .hand-slot { border-color: var(--gold-line); background: color-mix(in srgb, var(--surface-strong) 50%, transparent); }
   & .hp-bar { background: var(--line); }
   & .result-banner { background: none; color: var(--gold-deep); -webkit-background-clip: border-box; background-clip: border-box; }

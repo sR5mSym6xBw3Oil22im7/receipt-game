@@ -20,7 +20,6 @@
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   }
-  const yen = (n) => (n == null ? "" : "¥" + Number(n).toLocaleString("ja-JP"));
   const svgDataUri = (svg) => "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 
   function saveSession() {
@@ -120,16 +119,11 @@
     </${tag}>`;
   }
 
-  // レシートの表示項目（店舗カテゴリ・店名・日時・レシート番号・商品・合計・支払方法）。行テキストは表示しない。
+  // レシートの表示項目（店舗カテゴリー・金額帯・品数）。店名・日時・商品などの購入の詳細はAPIが返さない。
   function receiptHtml(r, title) {
     if (!r) return '<p class="help-text">レシートの内容を表示できません。</p>';
-    const items = (r.items || []).map((it) => `<tr><td>${esc(it.name)}</td><td class="q">${esc(it.quantity == null ? "" : it.quantity)}</td><td class="n">${yen(it.unitPrice)}</td><td class="n">${yen(it.amount)}</td></tr>`).join("");
     return `<span class="rt-no">${title ? esc(title) : ""} <em>${esc(r.storeCategory)}</em></span>
-      <span class="rt-store">${esc(r.storeName || "（店名なし）")}${r.branchName ? " " + esc(r.branchName) : ""}</span>
-      <span class="rt-meta">${esc(r.purchasedAt || "日時なし")}${r.receiptNumber ? "　レシート番号 " + esc(r.receiptNumber) : ""}</span>
-      <table class="rt-items"><thead><tr><th>商品</th><th class="q">数</th><th class="n">単価</th><th class="n">金額</th></tr></thead><tbody>${items}</tbody></table>
-      <span class="rt-total"><span>合計</span><b>${yen(r.totalAmount)}</b></span>
-      <span class="rt-meta">お支払い：${esc(r.paymentMethod || "―")}</span>`;
+      <dl class="rt-hints"><div><dt>金額帯</dt><dd>${esc(r.amountRange)}</dd></div><div><dt>品数</dt><dd>${esc(r.itemCount)}品</dd></div></dl>`;
   }
 
 

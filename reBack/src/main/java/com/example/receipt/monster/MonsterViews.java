@@ -5,15 +5,12 @@ import com.example.receipt.dto.ReceiptStructuredData;
 import com.example.receipt.monster.engine.MonsterBattleEngine;
 import com.example.receipt.monster.engine.MonsterCard;
 
-import java.math.BigDecimal;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/** モンスターレシート対戦APIの応答。画像ハッシュ・テーブル名・行テキストは含めない。 */
+/** モンスターレシート対戦APIの応答。画像ハッシュ・テーブル名・行テキスト・購入の詳細は含めない。 */
 public final class MonsterViews {
-    private static final DateTimeFormatter DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private MonsterViews() {
     }
@@ -27,22 +24,30 @@ public final class MonsterViews {
         }
     }
 
-    public record ItemView(String name, BigDecimal quantity, Long unitPrice, Long amount) {
-    }
-
-    /** レシートの表示項目（doc/15_api_specification.html 3章 ReceiptView）。 */
-    public record ReceiptView(String storeCategory, String storeName, String branchName, String purchasedAt,
-                              String receiptNumber, List<ItemView> items, Long totalAmount, String paymentMethod) {
+    /**
+     * レシートの表示項目（doc/15_api_specification.html 6章 ReceiptView）。
+     * 対戦APIはログイン不要なので、ゲームに必要な店舗カテゴリー・金額帯・品数だけを返す。
+     * 店名・支店名・購入日時・レシート番号・商品名・単価・支払方法は返さない。
+     */
+    public record ReceiptView(String storeCategory, String amountRange, int itemCount) {
         public static ReceiptView of(ReceiptStructuredData d) {
-            List<ItemView> items = d.safeItems().stream().filter(Objects::nonNull)
-                    .filter(it -> it.name() != null && !it.name().isBlank())
-                    .map(it -> new ItemView(it.name(), it.quantity(), it.unitPrice(), it.amount())).toList();
+            long itemCount = d.safeItems().stream().filter(Objects::nonNull)
+                    .filter(it -> it.name() != null && !it.name().isBlank()).count();
             Long total = d.totalAmount() != null ? d.totalAmount()
                     : d.safeItems().stream().filter(Objects::nonNull).map(ReceiptItemData::amount)
                     .filter(Objects::nonNull).mapToLong(Long::longValue).sum();
-            return new ReceiptView(d.storeCategory() == null ? "その他" : d.storeCategory(), d.storeName(), d.branchName(),
-                    d.purchasedAt() == null ? null : DATE_TIME.format(d.purchasedAt()), d.receiptNumber(), items, total,
-                    d.paymentMethod());
+            return new ReceiptView(d.storeCategory() == null ? "その他" : d.storeCategory(), amountRange(total),
+                    (int) itemCount);
+        }
+
+        /** 合計金額を金額帯にまとめる（正確な金額は返さない）。 */
+        static String amountRange(Long total) {
+            if (total == null) return "金額不明";
+            if (total < 1_000) return "1,000円未満";
+            if (total < 3_000) return "1,000〜2,999円";
+            if (total < 5_000) return "3,000〜4,999円";
+            if (total < 10_000) return "5,000〜9,999円";
+            return "10,000円以上";
         }
     }
 

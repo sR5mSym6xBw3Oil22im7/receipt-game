@@ -124,6 +124,19 @@ class MonsterRoomIntegrationTest {
     }
 
     @Test
+    void generatedTextsDoNotCarryStoreOrItemNames() {
+        // カードはログイン不要の対戦APIで返すので、店名・商品名が入った技名・説明文は計算式の値に戻す
+        ai.parameters = new MonsterParameters("ミソドラ", "土", 300, 60, 40, 50, 10, "味噌砲", 1.6, "テスト店で買った味噌の魔物。");
+
+        saveReceipt(0, "テスト店", List.of("味噌 ¥200"));
+
+        MonsterCard card = cardRepository.findById(cardRepository.activeCardIds().getFirst()).orElseThrow().card();
+        assertThat(card.name()).isEqualTo("ミソドラ");
+        assertThat(card.skillName()).isNotEqualTo("味噌砲");
+        assertThat(card.flavor()).doesNotContain("テスト店", "味噌");
+    }
+
+    @Test
     void savingFallsBackToDefaultKeyWhenMonsterKeyFails() {
         ai.illustrationSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><circle cx=\"100\" cy=\"100\" r=\"50\"/></svg>";
         ai.parameters = new MonsterParameters("コメドラ", "雷", 300, 60, 40, 50, 10, "稲妻米", 1.6, "米の魔物。");
@@ -222,7 +235,12 @@ class MonsterRoomIntegrationTest {
         // レシートの応答に、カードの中身・行テキスト・画像ハッシュ・テーブル名は含めない
         String fieldText = f1.toString();
         assertThat(fieldText).doesNotContain("svg", "power", "sha", "receipt_", "lines", "TEL");
-        assertThat(storeNames(f1)).doesNotContainAnyElementsOf(storeNames(f2));
+        // ログイン不要のAPIなので、店名・日時・レシート番号・商品・支払方法などの購入の詳細も返さない
+        assertNoPurchaseDetails(fieldText);
+        JsonObject tile = f1.getAsJsonArray("receipts").get(0).getAsJsonObject().getAsJsonObject("receipt");
+        assertThat(tile.keySet()).containsExactlyInAnyOrder("storeCategory", "amountRange", "itemCount");
+        assertThat(tile.get("itemCount").getAsInt()).isEqualTo(2);
+        assertThat(fieldCardIds(code, "P1")).doesNotContainAnyElementsOf(fieldCardIds(code, "P2"));
 
         // シャッフルはレシートを選ぶ前だけ
         postJson("/api/monster/rooms/" + code + "/shuffle", t1, "").andExpect(status().isOk());
@@ -263,7 +281,9 @@ class MonsterRoomIntegrationTest {
         assertThat(b1).isEqualTo(b2);
         assertThat(b1.getAsJsonObject("cards").getAsJsonObject("P1").get("id").getAsLong()).isEqualTo(myCard);
         assertThat(b1.getAsJsonObject("cards").getAsJsonObject("P2").get("id").getAsLong()).isEqualTo(p2Card);
-        assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P1").get("storeName").getAsString()).startsWith("店");
+        assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P1").get("storeCategory").getAsString()).isIn("スーパー", "飲食店");
+        assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P2").get("amountRange").getAsString()).isNotBlank();
+        assertNoPurchaseDetails(b1.toString());
         assertThat(b1.get("winner").getAsString()).isIn("P1", "P2", "DRAW");
         assertThat(b1.getAsJsonArray("log")).isNotEmpty();
 
@@ -387,7 +407,12 @@ class MonsterRoomIntegrationTest {
         postJson("/api/monster/rooms/" + code + "/select", t1, "{\"cardId\":" + imageCard + "}").andExpect(status().isOk());
         JsonObject battle = waitForBattle(code, t1);
         assertThat(battle.getAsJsonObject("cards").getAsJsonObject("P1").get("id").getAsLong()).isEqualTo(imageCard);
-        assertThat(battle.getAsJsonObject("receipts").getAsJsonObject("P1").get("storeName").getAsString()).isEqualTo("画像の店");
+        JsonObject imageReceipt = battle.getAsJsonObject("receipts").getAsJsonObject("P1");
+        assertThat(imageReceipt.get("storeCategory").getAsString()).isEqualTo("コンビニ");
+        assertThat(imageReceipt.get("amountRange").getAsString()).isEqualTo("1,000円未満");
+        assertThat(imageReceipt.get("itemCount").getAsInt()).isEqualTo(1);
+        assertThat(battle.toString()).doesNotContain("画像の店", "おにぎり");
+        assertNoPurchaseDetails(battle.toString());
     }
 
     @Test
@@ -452,12 +477,18 @@ class MonsterRoomIntegrationTest {
         throw new AssertionError("battle did not start");
     }
 
-    private static Set<String> storeNames(JsonObject field) {
-        Set<String> names = new HashSet<>();
-        for (var r : field.getAsJsonArray("receipts")) {
-            names.add(r.getAsJsonObject().getAsJsonObject("receipt").get("branchName").getAsString());
-        }
-        return names;
+    /** 応答には座席ごとの配布内容（カードID）を含めないため、DBから読む。 */
+    private Set<Long> fieldCardIds(String code, String seat) {
+        String json = jdbc.queryForObject("SELECT p.field_json FROM monster_play p JOIN monster_room r ON r.id = p.room_id "
+                + "WHERE r.code = ? AND p.seat = ?", String.class, code, seat);
+        Set<Long> ids = new HashSet<>();
+        for (var e : JsonParser.parseString(json).getAsJsonArray()) ids.add(e.getAsJsonObject().get("cardId").getAsLong());
+        return ids;
+    }
+
+    private static void assertNoPurchaseDetails(String body) {
+        assertThat(body).doesNotContain("storeName", "branchName", "purchasedAt", "receiptNumber", "paymentMethod",
+                "unitPrice", "totalAmount", "\"items\"", "支店", "米 10kg", "味噌", "2026-10-0");
     }
 
     private org.springframework.test.web.servlet.ResultActions postJson(String url, String token, String body) throws Exception {
