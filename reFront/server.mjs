@@ -21,7 +21,8 @@ const CONTENT_TYPES = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".ico": "image/x-icon",
-  ".mp4": "video/mp4"
+  ".mp4": "video/mp4",
+  ".webm": "video/webm"
 };
 
 // 許可する Host（DNSリバインディング対策。localhost 以外の名前で来た要求は拒否する）

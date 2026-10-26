@@ -14,13 +14,14 @@
 | パス | 内容 |
 | --- | --- |
 | `index.html` / `index.js` / `styles.css` | メニュー（対戦・デモ・管理者ログイン・動画4本へのリンク） |
-| `showcase.css` | メニュー冒頭の「対戦画面のイメージ」（見本のカード2枚・HPバー）と遊び方3ステップ。`styles.css` は変更しない方針のため別ファイル |
+| `showcase.css` | メニュー冒頭の「対戦画面のイメージ」（紹介動画）と遊び方3ステップ。`styles.css` は変更しない方針のため別ファイル |
 | `config.js` | 接続先の切替。localhost（`file:` 含む）ではバックエンド `http://localhost:8081`、それ以外では本番 `https://receipt-game.onrender.com` |
 | `direct-access-guard.js` | メニューが読み込み、メニュー以外のページを直接開いたらメニューへ移動させる（動画ページは読み込まない） |
 | `theme/` | 日替わりテーマ（`theme.js`、`base.css`、`t01.css`〜`t10.css`） |
 | `video/manual/` | 操作ガイド動画（標準版 `guide6min.mp4`、簡易版 `guide3min.mp4`） |
 | `video/pv/` | プロモーション映像（`pv01.mp4`、`pv02.mp4`） |
 | `video/show/` | 動画再生ページ（`guide6min.html`、`guide3min.html`、`pv1.html`、`pv2.html`） |
+| `video/showcase/` | メニュー冒頭の紹介動画（`receipt-game.webm`、再生できないブラウザー向けに `receipt-game.mp4`。20秒・音声なし） |
 | `server.mjs` | ローカル用の静的サーバー（`http://localhost:5051`、ポート固定） |
 | `test/smoke.test.mjs` | スモークテスト（`node:test`） |
 

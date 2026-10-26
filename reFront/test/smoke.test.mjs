@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, stat } from "node:fs/promises";
 
 const html = await readFile(new URL("../../reBack/src/main/resources/static/admin/upload.html", import.meta.url), "utf8");
 const index = await readFile(new URL("../index.html", import.meta.url), "utf8");
@@ -419,13 +419,24 @@ test("game.js / demo.js: 待機中の秒数は固定幅の要素だけを書き�
   assert.match(fxCss, /\.wait-sec \{[^}]*min-width:[^}]*tabular-nums/);
 });
 
-test("menu: 対戦画面のイメージと遊び方をメニューより前に置き、showcase.css を ?v= 付きで読み込む", () => {
+test("menu: 対戦画面のイメージ（紹介動画）と遊び方をメニューより前に置き、showcase.css を ?v= 付きで読み込む", async () => {
   assert.match(index, /<link rel="stylesheet" href="\.\/showcase\.css\?v=[\w-]+">/);
   const showcase = index.indexOf('class="showcase"');
   assert.ok(showcase > 0 && showcase < index.indexOf('id="game-link"'));
   assert.ok(index.indexOf('class="sc-steps"') < index.indexOf('id="game-link"'));
-  // イラストは固定のインラインSVGだけ（外部の画像やスクリプトを読み込まない）
-  assert.doesNotMatch(index.slice(showcase, index.indexOf('class="sc-steps"')), /<img|<script|href=/);
+  // 中身は紹介動画（WebM → MP4 の順、音声なし・自動再生属性なし）だけ。外部の画像やスクリプトを読み込まない
+  const figure = index.slice(showcase, index.indexOf('class="sc-steps"'));
+  assert.doesNotMatch(figure, /<img|<script|href=|autoplay/);
+  const video = figure.match(/<video [^>]*>/)?.[0] ?? "";
+  assert.match(video, /id="showcase-video"/);
+  assert.match(video, / muted /);
+  assert.ok(figure.indexOf('src="./video/showcase/receipt-game.webm" type="video/webm"') > 0);
+  assert.ok(figure.indexOf('src="./video/showcase/receipt-game.webm"') < figure.indexOf('src="./video/showcase/receipt-game.mp4" type="video/mp4"'));
+  for (const ext of ["webm", "mp4"]) {
+    assert.ok((await stat(new URL(`../video/showcase/receipt-game.${ext}`, import.meta.url))).size > 0);
+  }
+  // 動きを減らす設定では自動再生しない
+  assert.match(indexJs, /!window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches/);
 });
 
 test("game / demo: 対戦中は見出し・説明・進行状況を隠し、battleSeed とコンピュータの理由は結果画面に出す", async () => {
