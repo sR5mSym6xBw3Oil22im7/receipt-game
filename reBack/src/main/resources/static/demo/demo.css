@@ -72,6 +72,8 @@ button.mcard:hover { transform: translateY(-3px); }
 .mc-foot .src { float: right; }
 
 /* 対戦 */
+/* 対戦中はページの見出し・説明・メニューへのリンク・進行状況を隠す（battleSeed とコンピュータの思考は結果画面に出す） */
+.is-battling .page-actions, .is-battling .hero-mini, .is-battling .footer-note, .is-battling #view-battle .steps { display: none; }
 .battle-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .arena { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); align-items: center; gap: 10px; max-width: 720px; margin: 8px auto 12px; }
 .vs { text-align: center; font-family: var(--font-latin); font-weight: 700; font-size: 1.6rem; color: var(--gold-deep); }
@@ -144,7 +146,7 @@ h3 { margin-top: 16px; }
   .hp-bar > i { transition: none; }
 }
 
-/* めくる前のレシート（個人情報は伏せ字）と手札 */
+/* めくる前のレシート（店舗カテゴリー・金額帯・品数だけ）と手札 */
 .receipt-field { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-bottom: 18px; }
 .receipt-tile { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 12px 10px; text-align: left; font: inherit; color: var(--ink); background: #fffef8; border: 1px solid #e3cf9c; border-radius: 6px; box-shadow: 0 8px 16px -12px rgba(80, 50, 0, 0.7); cursor: pointer; transition: transform 0.15s ease; letter-spacing: 0; background-image: linear-gradient(transparent 94%, #f0e4bd 94%); background-size: 100% 22px; }
 .receipt-tile::after { content: ""; position: absolute; left: 0; right: 0; bottom: -7px; height: 8px; background: radial-gradient(circle at 6px -1px, transparent 6px, #fffef8 7px) 0 0 / 12px 8px repeat-x; filter: drop-shadow(0 2px 1px rgba(80, 50, 0, 0.15)); }
@@ -173,6 +175,10 @@ h3 { margin-top: 16px; }
 #result-receipts { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
 .drop-zone.is-disabled { opacity: 0.5; pointer-events: none; }
 .subtab:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 幅に応じてレシートの列数を減らす（本番の game.css と同じ。3列のままだとスマートフォンで文字が縦に1文字ずつ折り返す） */
+@media (max-width: 900px) { .receipt-field { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .receipt-field { grid-template-columns: minmax(0, 1fr); } }
 
 /* ---------- スマートフォン（本番の game.css と同じ） ---------- */
 @media (max-width: 640px) {

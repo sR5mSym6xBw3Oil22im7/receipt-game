@@ -62,6 +62,8 @@
     FX.clear();
     state.view = view;
     document.querySelectorAll(".view").forEach((s) => s.classList.toggle("hidden", s.id !== "view-" + view));
+    // 対戦中は対戦そのものに集中できるよう、見出し・説明などを隠す（CSSの .is-battling）
+    document.body.classList.toggle("is-battling", view === "battle");
     const stepIndex = { wait: 0, select: 1, battle: 2, result: 3 }[view];
     if (stepIndex !== undefined) {
       document.querySelectorAll("#view-" + view + " .steps li").forEach((li, i) => {
@@ -444,7 +446,6 @@
     const slotOf = (seat) => (seat === me ? 0 : 1);   // 画面の左＝自分、右＝相手
     const slotCards = [battle.cards[me], battle.cards[opp]];
     state.replay = { battle, slotOf, slotCards, step: 0, timer: null };
-    $("battle-seed").textContent = "battleSeed " + battle.battleSeed;
     $("cpu-note").classList.toggle("hidden", !cpu);
     $("cpu-note").textContent = cpu ? "コンピュータ（P2）の選んだ理由：" + (battle.cpuReason || "自動で選びました") : "";
     $("fighter-0").innerHTML = fighterHtml(slotCards[0], "あなた");

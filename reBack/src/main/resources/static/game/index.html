@@ -10,7 +10,7 @@
   <title>モンスターレシート対戦</title>
   <!-- 既存画面と同じ admin/styles.css を読み込み、見た目は日替わりテーマで上書きする。 -->
   <link rel="stylesheet" href="../admin/styles.css?v=20261014-no-coin">
-  <link rel="stylesheet" href="./game.css?v=20261026-review-fix">
+  <link rel="stylesheet" href="./game.css?v=20261026-battle-focus">
   <link rel="stylesheet" href="./fx.css?v=20261026-review-fix">
   <script src="../theme/theme.js"></script>
 </head>
@@ -116,9 +116,7 @@
       <ol class="steps" aria-label="進行状況"><li>ルーム</li><li>カード選択</li><li>対戦</li><li>結果</li></ol>
       <div class="battle-head">
         <h2>対戦</h2>
-        <span class="badge" id="battle-seed"></span>
       </div>
-      <p class="note cpu-note hidden" id="cpu-note"></p>
       <div class="arena" id="battle-arena">
         <div class="fighter" id="fighter-0"></div>
         <div class="vs" aria-hidden="true">VS</div>
@@ -136,6 +134,7 @@
       <ol class="steps" aria-label="進行状況"><li>ルーム</li><li>カード選択</li><li>対戦</li><li>結果</li></ol>
       <div class="result-banner" id="result-banner"></div>
       <p class="lead" id="result-detail"></p>
+      <p class="note cpu-note hidden" id="cpu-note"></p>
       <p class="status" id="result-status" role="status"></p>
       <div class="arena result-arena" id="result-arena"></div>
       <div class="fx-slip" id="result-slip" aria-label="バトル明細"></div>
@@ -154,6 +153,6 @@
   <div id="fx-layer" aria-hidden="true"></div>
   <script src="../game/back-link.js?v=20261014-pages-receipt-game"></script>
   <script src="./fx.js?v=20261013-fx2"></script>
-  <script src="./game.js?v=20261026-review-fix"></script>
+  <script src="./game.js?v=20261026-battle-focus"></script>
 </body>
 </html>

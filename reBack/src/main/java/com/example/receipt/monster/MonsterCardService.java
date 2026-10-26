@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -182,6 +183,44 @@ public class MonsterCardService {
             }
         } catch (RuntimeException e) {
             LOGGER.warn("Monster card backfill failed: exception={}", e.getClass().getName());
+        }
+    }
+
+    /**
+     * 保存済みカードの名前・必殺技名・説明文に、元レシートの店名・支店名・商品名・レシート番号・支払方法が入っていないかを点検する（起動時）。
+     * カード生成時の照合（{@link MonsterCardGenerator#withoutReceiptDetails}）を入れる前に作ったカードも、ログイン不要の対戦APIで返すため。
+     * 入っていた項目は計算式の値に書き換える。
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    public void scrubReceiptDetailsFromStoredCards() {
+        int updated = 0, failed = 0;
+        try {
+            for (long id : cards.activeCardIds()) {
+                try {
+                    MonsterCardRepository.StoredCard stored = cards.findById(id).orElse(null);
+                    if (stored == null) continue;
+                    ReceiptStructuredData data = cards.loadReceipt(stored.receiptTableName()).orElse(null);
+                    if (data == null) continue;
+                    MonsterCard card = stored.card();
+                    List<String> lines = cards.tableExists(stored.receiptTableName())
+                            ? cards.receiptLines(stored.receiptTableName()) : List.of();
+                    MonsterCard base = MonsterCardGenerator.generate(data, card.imageSha256(),
+                            MonsterCardGenerator.charCount(lines), card.source());
+                    MonsterCard clean = MonsterCardGenerator.withoutReceiptDetails(card, base, data);
+                    if (clean.name().equals(card.name()) && clean.skillName().equals(card.skillName())
+                            && Objects.equals(clean.flavor(), card.flavor())) continue;
+                    cards.updateTexts(id, clean.name(), clean.skillName(), clean.flavor());
+                    updated++;
+                } catch (RuntimeException e) {
+                    failed++;
+                }
+            }
+        } catch (RuntimeException e) {
+            LOGGER.warn("Monster card receipt-detail check failed: exception={}", e.getClass().getName());
+            return;
+        }
+        if (updated > 0 || failed > 0) {
+            LOGGER.info("Monster card receipt-detail check: updated={}, failed={}", updated, failed);
         }
     }
 

@@ -2,14 +2,14 @@
 // config.js の「メニューへ戻る」の移動先と合わせるため、ポートは5051に固定している。
 import { createServer } from "node:http";
 import { readFile, realpath } from "node:fs/promises";
-import { extname, join, normalize } from "node:path";
+import { extname, join, normalize, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PORT = 5051;
 const HOST = "localhost";
 const ROOT = fileURLToPath(new URL(".", import.meta.url));
-// シンボリックリンクをたどった先も reFront/ の中かを確かめるため、実体のパスも持つ
-const REAL_ROOT = (await realpath(ROOT)).replace(/\/?$/, "/");
+// シンボリックリンクをたどった先も reFront/ の中かを確かめるため、実体のパスも持つ（末尾の区切りはOSに合わせる。Windowsは「\」）
+const REAL_ROOT = (await realpath(ROOT)).replace(/[\\/]?$/, sep);
 
 const CONTENT_TYPES = {
   ".html": "text/html; charset=utf-8",

@@ -36,6 +36,8 @@
   function show(view) {
     FX.clear();
     document.querySelectorAll(".view").forEach((s) => s.classList.toggle("hidden", s.id !== "view-" + view));
+    // 対戦中は対戦そのものに集中できるよう、見出し・説明などを隠す（CSSの .is-battling）
+    document.body.classList.toggle("is-battling", view === "battle");
     window.scrollTo({ top: 0 });
   }
 
@@ -385,7 +387,6 @@
     const slotOf = (index) => (index === meIndex ? 0 : 1);   // 画面の左＝自分、右＝相手
     const slotCards = [my, opp];
     state.replay = { result, slotOf, slotCards, step: 0, hp: [my.hp, opp.hp], timer: null, meIndex };
-    $("battle-seed").textContent = "battleSeed " + seed;
     $("cpu-note").classList.toggle("hidden", state.mode !== "CPU");
     $("cpu-note").textContent = state.mode === "CPU" ? "コンピュータ（P2）の思考：" + state.cpuReason : "";
     $("fighter-0").innerHTML = fighterHtml(my, 0);

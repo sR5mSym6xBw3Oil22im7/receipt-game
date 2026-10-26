@@ -102,6 +102,10 @@ public class MonsterCardRepository {
         jdbc.update("UPDATE monster_card SET svg = ? WHERE id = ?", svg, id);
     }
 
+    public void updateTexts(long id, String name, String skillName, String flavor) {
+        jdbc.update("UPDATE monster_card SET name = ?, skill_name = ?, flavor = ? WHERE id = ?", name, skillName, flavor, id);
+    }
+
     private void insert(MonsterCard card, String status, String receiptTableName) {
         jdbc.update("INSERT INTO monster_card (image_sha256, status, source, receipt_table_name, name, element, rarity, hp, atk, "
                         + "defense, spd, luck, power, skill_name, skill_power, lucky, flavor, store_category, svg, algorithm_version, "

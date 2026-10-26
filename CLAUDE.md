@@ -78,7 +78,7 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 ### モンスターレシート対戦
 
 - 要件は `doc/03_requirements_definition.html`、カード生成の計算は `doc/17_ai_receipt_analysis_specification.html`、ルームの進行と戦闘ルールは `doc/31_detailed_design.html`。対戦画面は `/game/index.html`（ログイン不要）、APIは `/api/monster/rooms`（席トークン `X-Seat-Token`）。勝敗はサーバーで計算する。
-- 対戦API（ログイン不要）が返すレシート情報は `ReceiptView`（店舗カテゴリー・金額帯・品数）だけ。店名・支店名・購入日時・レシート番号・商品名・単価・支払方法は返さない（`MonsterRoomIntegrationTest` が検査）。生成AIのカード名・技名・説明文に店名・商品名などが入ったら計算式の値に戻す（`MonsterCardGenerator.withoutReceiptDetails`）。
+- 対戦API（ログイン不要）が返すレシート情報は `ReceiptView`（店舗カテゴリー・金額帯・品数）だけ。店名・支店名・購入日時・レシート番号・商品名・単価・支払方法は返さない（`MonsterRoomIntegrationTest` が検査）。生成AIのカード名・技名・説明文に店名・商品名などが入ったら計算式の値に戻す（`MonsterCardGenerator.withoutReceiptDetails`）。保存済みのカードも起動時に同じ基準で点検する（`MonsterCardService.scrubReceiptDetailsFromStoredCards`）。
 - 連動：解析で下書き、保存で有効、削除でカードも削除。
 - 保存前に個人情報（氏名・電話番号・会員番号・住所・メール・カード番号）を検出して「（非表示）」に置換し、取り除けなければ保存しない。
 - 起動時にカードのない保存済みレシートへカードを作る（`MONSTER_BACKFILL_ON_STARTUP`）。レシートの自動削除はしない。

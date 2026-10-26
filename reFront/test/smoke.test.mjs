@@ -237,7 +237,9 @@ test("login form limits input length in the browser and the server limit is mirr
 
 test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET methods", async () => {
   const { spawn } = await import("node:child_process");
-  const child = spawn(process.execPath, [new URL("../server.mjs", import.meta.url).pathname], { stdio: "ignore" });
+  const { fileURLToPath } = await import("node:url");
+  // URL の pathname は Windows で「/E:/...」になり起動できないので、fileURLToPath でパスにする
+  const child = spawn(process.execPath, [fileURLToPath(new URL("../server.mjs", import.meta.url))], { stdio: "ignore" });
   try {
     await new Promise((resolve) => setTimeout(resolve, 800));
     const get = (path, init = {}) => fetch(`http://localhost:5051${path}`, init).then((r) => r.status);
@@ -246,9 +248,14 @@ test("server.mjs rejects foreign Host, dotfiles, bad encodings and non-GET metho
     assert.equal(await get("/%E0%A4%A"), 400);
     assert.equal(await get("/%00"), 400);
     assert.equal(await get("/index.html", { method: "POST" }), 405);
-    const res = await new Promise((resolve) => {
+    const res = await new Promise((resolve, reject) => {
       import("node:http").then(({ request }) => {
-        const r = request({ host: "localhost", port: 5051, path: "/index.html", headers: { Host: "evil.example" } }, (m) => resolve(m.statusCode));
+        // 応答を読み捨て、エラーも受け取る（サーバー停止時の ECONNRESET がテスト後に未処理で残らないように）
+        const r = request({ host: "localhost", port: 5051, path: "/index.html", headers: { Host: "evil.example" } }, (m) => {
+          m.resume();
+          resolve(m.statusCode);
+        });
+        r.on("error", reject);
         r.end();
       });
     });
@@ -419,4 +426,21 @@ test("menu: 対戦画面のイメージと遊び方をメニューより前に�
   assert.ok(index.indexOf('class="sc-steps"') < index.indexOf('id="game-link"'));
   // イラストは固定のインラインSVGだけ（外部の画像やスクリプトを読み込まない）
   assert.doesNotMatch(index.slice(showcase, index.indexOf('class="sc-steps"')), /<img|<script|href=/);
+});
+
+test("game / demo: 対戦中は見出し・説明・進行状況を隠し、battleSeed とコンピュータの理由は結果画面に出す", async () => {
+  for (const [js, html, css] of [[gameJs, gameHtml, await readStatic("game/game.css")], [demoJs, demoHtml, await readStatic("demo/demo.css")]]) {
+    assert.match(js, /document\.body\.classList\.toggle\("is-battling", view === "battle"\)/);
+    assert.match(css, /\.is-battling \.page-actions, \.is-battling \.hero-mini, \.is-battling \.footer-note, \.is-battling #view-battle \.steps \{ display: none; \}/);
+    const battle = html.slice(html.indexOf('id="view-battle"'), html.indexOf('id="view-result"'));
+    assert.doesNotMatch(battle, /id="battle-seed"|id="cpu-note"/);
+    assert.match(html.slice(html.indexOf('id="view-result"')), /id="cpu-note"/);
+  }
+});
+
+test("game / demo: スマートフォンの幅ではレシートを2列・1列に減らす（3列のままだと文字が縦に1文字ずつ折り返す）", async () => {
+  for (const css of [await readStatic("game/game.css"), await readStatic("demo/demo.css")]) {
+    assert.match(css, /@media \(max-width: 900px\) \{ \.receipt-field \{ grid-template-columns: repeat\(2, minmax\(0, 1fr\)\); \} \}/);
+    assert.match(css, /@media \(max-width: 560px\) \{ \.receipt-field \{ grid-template-columns: minmax\(0, 1fr\); \} \}/);
+  }
 });

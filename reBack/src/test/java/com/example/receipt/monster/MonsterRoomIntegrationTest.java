@@ -137,6 +137,23 @@ class MonsterRoomIntegrationTest {
     }
 
     @Test
+    void storedCardsMadeBeforeTheCheckAreScrubbedOnStartup() throws Exception {
+        // 照合を入れる前に保存されたカード（名前・技名・説明文に店名・商品名が入っている）を再現する
+        saveReceipt(0, "テスト店", List.of("米 10kg ¥800"));
+        long id = cardRepository.activeCardIds().getFirst();
+        MonsterCard before = cardRepository.findById(id).orElseThrow().card();
+        cardRepository.updateTexts(id, "コメドラ", "味噌砲", "テスト店で買った米の魔物。");
+
+        cardService.scrubReceiptDetailsFromStoredCards();
+
+        MonsterCard after = cardRepository.findById(id).orElseThrow().card();
+        assertThat(after.name()).isEqualTo("コメドラ");
+        assertThat(after.skillName()).isEqualTo(before.skillName());
+        assertThat(after.flavor()).doesNotContain("テスト店", "米");
+        assertThat(after.power()).isEqualTo(before.power());
+    }
+
+    @Test
     void savingFallsBackToDefaultKeyWhenMonsterKeyFails() {
         ai.illustrationSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 200\"><circle cx=\"100\" cy=\"100\" r=\"50\"/></svg>";
         ai.parameters = new MonsterParameters("コメドラ", "雷", 300, 60, 40, 50, 10, "稲妻米", 1.6, "米の魔物。");
@@ -440,6 +457,8 @@ class MonsterRoomIntegrationTest {
         String code = p1.get("code").getAsString(), t1 = p1.get("token").getAsString();
         expireWait(code);
         long before = cardRepository.countAll();
+        // seed の保存で記録されたキーを消し、画像からのカード作成で生成AIを呼ばないことだけを見る
+        ai.reset();
         ai.notReceipt = true;
 
         JsonObject error = json(mockMvc.perform(multipart("/api/monster/rooms/" + code + "/image-card")

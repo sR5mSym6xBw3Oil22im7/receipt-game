@@ -72,6 +72,8 @@ button.mcard:hover { transform: translateY(-3px); }
 .mc-foot .src { float: right; }
 
 /* 対戦 */
+/* 対戦中はページの見出し・説明・メニューへのリンク・進行状況を隠す（battleSeed とコンピュータの選んだ理由は結果画面に出す） */
+.is-battling .page-actions, .is-battling .hero-mini, .is-battling .footer-note, .is-battling #view-battle .steps { display: none; }
 .battle-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
 .arena { display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); align-items: center; gap: 10px; max-width: 720px; margin: 8px auto 12px; }
 .vs { text-align: center; font-family: var(--font-latin); font-weight: 700; font-size: 1.6rem; color: var(--gold-deep); }

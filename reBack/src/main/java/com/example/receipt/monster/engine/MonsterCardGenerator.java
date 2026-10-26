@@ -200,6 +200,15 @@ public final class MonsterCardGenerator {
                 leaks.test(p.flavor()) ? base.flavor() : p.flavor());
     }
 
+    /** 保存済みのカード（この照合を入れる前に作ったもの）の名前・必殺技名・説明文を、同じ基準で点検する。 */
+    public static MonsterCard withoutReceiptDetails(MonsterCard card, MonsterCard base, ReceiptStructuredData data) {
+        MonsterParameters p = withoutReceiptDetails(new MonsterParameters(card.name(), card.element(), card.hp(), card.atk(),
+                card.def(), card.spd(), card.luck(), card.skillName(), card.skillPower(), card.flavor()), base, data);
+        return new MonsterCard(card.id(), card.imageSha256(), card.source(), p.name(), card.element(), card.rarity(),
+                card.hp(), card.atk(), card.def(), card.spd(), card.luck(), card.power(), p.skillName(), card.skillPower(),
+                card.lucky(), p.flavor(), card.storeCategory(), card.svg(), card.algorithmVersion());
+    }
+
     private static final java.util.regex.Pattern KATAKANA = java.util.regex.Pattern.compile("[ァ-ヶー]+");
     private static final java.util.regex.Pattern LINK_LIKE = java.util.regex.Pattern.compile("(?i)https?:|www\\.|@|://|\\.(?:com|net|jp|org)\\b");
 
