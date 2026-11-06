@@ -30,30 +30,6 @@ services:
         value: "true"
       - key: MONSTER_TRUST_FORWARDED_FOR
         value: "true"
-      - key: DB_HOST
-        fromDatabase:
-          name: receipt-analysis-psl-service
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: receipt-analysis-psl-service
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: receipt-analysis-psl-service
-          property: database
-      - key: DB_USER
-        fromDatabase:
-          name: receipt-analysis-psl-service
-          property: user
-      - key: DB_PASSWORD
-        fromDatabase:
-          name: receipt-analysis-psl-service
-          property: password
-
-databases:
-  - name: receipt-analysis-psl-service
-    plan: free
-    # 外部（インターネット）からの接続を許可しない。アプリからは内部接続で使う
-    ipAllowList: []
-    postgresMajorVersion: "18"
+      # DBはH2のインメモリ（application-render.yml）。Render PostgreSQLは使わない
+      - key: SPRING_PROFILES_ACTIVE
+        value: render

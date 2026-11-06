@@ -1,0 +1,13 @@
+# 本番（Render）用。render.yml で SPRING_PROFILES_ACTIVE=render を指定して使う。
+# レシート情報をオンラインに残し続けないため、DBはH2のインメモリにする。
+# データはメモリ上にだけあり、再起動・再デプロイ・無操作によるスリープで消える。
+spring:
+  datasource:
+    url: jdbc:h2:mem:receipt;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  h2:
+    console:
+      # H2のWebコンソールは公開しない
+      enabled: false

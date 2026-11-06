@@ -18,7 +18,7 @@
 | --- | --- |
 | バージョン | 0.0.1-SNAPSHOT |
 | バックエンド | Java 21 / Spring Boot 4.1.0 / Spring Security 7.1.0 |
-| データベース | PostgreSQL（本番はRender、ローカルはDockerの `postgres:16-alpine`） |
+| データベース | ローカルはPostgreSQL（Dockerの `postgres:16-alpine`）、本番（Render）はH2のインメモリ |
 | AI | Google Gemini（既定モデル `gemini-3.5-flash-lite`） |
 | フロントエンド | ビルド不要の静的HTML/CSS/JavaScript |
 
@@ -93,7 +93,8 @@ node --test reFront/test/smoke.test.mjs      # リポジトリ直下で実行
 
 ## デプロイ
 
-- バックエンドとPostgreSQL：Render（[reBack/render.yml](reBack/render.yml)）。`sync: false` の環境変数は手動で設定します。
+- バックエンド：Render（[reBack/render.yml](reBack/render.yml)）。`sync: false` の環境変数は手動で設定します。
+- 本番のDBはH2のインメモリです（`render` プロファイル）。レシート情報をオンラインに残し続けないため、バックエンドの停止・再起動・再デプロイ（無料プランの無活動時の停止を含む）で保存済みのレシートとカードは消えます。Render PostgreSQLは使いません。
 - フロントエンド：GitHub Pages。`reFront/config.js` は localhost 以外で開かれると本番の接続先を使います。Renderのサービス名を変えたら `reFront/config.js` の接続先も変えてください。
 - 手順は [doc/23](doc/23_deployment_design.html)・[doc/27](doc/27_release_procedure.html)。
 

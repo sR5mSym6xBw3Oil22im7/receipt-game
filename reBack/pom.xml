@@ -55,11 +55,11 @@
             <artifactId>gson</artifactId>
             <version>${gson.version}</version>
         </dependency>
-
+        <!-- 本番（Render、render プロファイル）のインメモリDBとテストで使う -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

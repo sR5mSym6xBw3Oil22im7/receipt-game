@@ -87,7 +87,7 @@ public class ApiExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDatabaseException(DataAccessException e) {
         LOGGER.error("Database access failed", e);
         return error(HttpStatus.SERVICE_UNAVAILABLE, "DATABASE_ERROR",
-                "PostgreSQLとの通信に失敗しました。時間をおいて再度保存してください。");
+                "データベースとの通信に失敗しました。時間をおいて再度保存してください。");
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

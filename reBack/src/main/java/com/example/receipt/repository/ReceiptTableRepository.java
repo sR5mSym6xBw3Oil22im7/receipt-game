@@ -98,7 +98,7 @@ public class ReceiptTableRepository {
         return new ReceiptException(
                 HttpStatus.CONFLICT,
                 "DUPLICATE_RECEIPT_IMAGE",
-                "同じレシート画像は既にPostgreSQLへ登録されています。"
+                "同じレシート画像は既にデータベースへ登録されています。"
         );
     }
 

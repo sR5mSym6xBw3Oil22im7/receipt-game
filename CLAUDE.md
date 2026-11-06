@@ -20,6 +20,8 @@
 | `reFront/` | メニューの静的ページ（ビルド不要）、`server.mjs`（ローカル用、ポート5051固定）、`theme/` |
 | `doc/` | 開発文書（HTML、01〜34。目次は `doc/index.html`） |
 
+DBは、ローカルがPostgreSQL（Docker）、本番（Render）がH2のインメモリ（`render` プロファイル、`application-render.yml`）、テストがH2のインメモリ（`test` プロファイル）。
+
 ## コマンド
 
 ```sh
@@ -106,5 +108,5 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 
 ## デプロイ
 
-- バックエンドとPostgreSQLはRender（`reBack/render.yml`）。`sync: false` の環境変数は手動で設定する。サービス名を変えたら `reFront/config.js` の接続先も変える。
+- バックエンドはRender（`reBack/render.yml`、`SPRING_PROFILES_ACTIVE=render`）。DBはH2のインメモリで、停止・再起動・再デプロイで保存済みのデータが消える（レシート情報をオンラインに残し続けないため）。Render PostgreSQLに戻さない。`sync: false` の環境変数は手動で設定する。サービス名を変えたら `reFront/config.js` の接続先も変える。
 - `reFront/config.js` は localhost 以外で開かれると本番の接続先を使う。

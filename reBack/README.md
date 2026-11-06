@@ -6,7 +6,7 @@
 | --- | --- |
 | 言語・FW | Java 21 / Spring Boot 4.1.0（Spring Security 7.1.0、Spring Framework 7.0.8、Tomcat 11） |
 | アーティファクト | `receipt-backend-0.0.1-SNAPSHOT`（`com.example.receipt`） |
-| DB | PostgreSQL（テストはH2） |
+| DB | ローカルはPostgreSQL、本番（Render）とテストはH2のインメモリ |
 | AI | `google-genai` 1.67.0（`gemini-3.5-flash-lite`） |
 | ポート | `PORT`（既定 8081） |
 
@@ -18,6 +18,7 @@
 - Geminiの応答スキーマに `isReceipt` を含め、レシート以外の画像は解析・画像からのカード作成とも 422 `NOT_A_RECEIPT` で断る（`GeminiReceiptAnalyzer.parseResponse`）。
 - `/api/**` は既定で拒否し、認可を書いたものだけ公開する（`SecurityConfig`）。CSRF、ログイン失敗ロック、アップロードの型（先頭バイト）・画素数検査、IP別のレート制限を備える。管理者のセッションは無操作30分で失効する。
 - 保存前に個人情報を除去し、画像そのものは保存しない。
+- 本番（Render）のDBはH2のインメモリ（`render` プロファイル、`application-render.yml`）。レシート情報をオンラインに残し続けないため、再起動・再デプロイ・無操作によるスリープでデータが消える。
 - テストはH2で動き、Geminiを呼ばない。
 
 ## 起動
@@ -39,8 +40,9 @@ mvn spring-boot:run -Dspring-boot.run.profiles=local
 | `GEMINI_API_PLAYER1` / `GEMINI_API_PLAYER2` | 任意 | DEFAULT | 席ごとの画像カード作成用（PLAYER2はCPUの選択にも使用） |
 | `ADMIN_USERNAME` | 必須 | — | 管理者ID |
 | `ADMIN_PASSWORD_HASH` | 必須 | — | 管理者パスワードのBCryptハッシュ |
-| `DB_HOST` `DB_PORT` `DB_NAME` `DB_USER` | — | localhost / 5432 / receipt_db / postgres | DB接続先 |
-| `DB_PASSWORD` | 必須 | — | DBパスワード |
+| `DB_HOST` `DB_PORT` `DB_NAME` `DB_USER` | — | localhost / 5432 / receipt_db / postgres | DB接続先（ローカルのPostgreSQL。`render` プロファイルでは使わない） |
+| `DB_PASSWORD` | 必須（ローカル） | — | DBパスワード（`render` プロファイルでは不要） |
+| `SPRING_PROFILES_ACTIVE` | 任意 | — | ローカルは `local`。Renderは `render`（`render.yml` で設定済み）でDBがH2のインメモリになる |
 | `PORT` | 任意 | 8081 | ポート |
 | `SESSION_COOKIE_SECURE` | 任意 | true | セッション/CSRF Cookieの `Secure`（ローカルのHTTPのみfalse） |
 | `LOGIN_MAX_FAILURES` / `LOGIN_LOCK_MINUTES` | 任意 | 5 / 15 | ログイン失敗でのロック |
@@ -134,7 +136,7 @@ docker build -t receipt-game ./        # reBack/ で実行
 ```
 
 - `Dockerfile`：Maven（Temurin 21）でビルドし、`eclipse-temurin:21-jre-alpine` を非rootで実行します。メモリ不足時は終了して再起動させます（`-XX:+ExitOnOutOfMemoryError`）。
-- `render.yml`：Webサービス `receipt-game` とPostgreSQL `receipt-analysis-psl-service`（外部接続不可）。ヘルスチェックは `/api/health`。`sync: false` の環境変数（管理者・Geminiのキー）はRenderで手動設定します。
+- `render.yml`：Webサービス `receipt-game`。`SPRING_PROFILES_ACTIVE=render` でDBをH2のインメモリにする（Render PostgreSQLは使わない）。ヘルスチェックは `/api/health`。`sync: false` の環境変数（管理者・Geminiのキー）はRenderで手動設定します。
 - サービス名を変えたら `reFront/config.js` の接続先も変更してください。
 
 ## ログ
