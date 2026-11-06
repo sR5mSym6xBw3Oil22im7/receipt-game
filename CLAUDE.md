@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-レシート画像をGoogle Geminiで解析してPostgreSQLに保存し、保存済みレシートからモンスターカードを作って対戦するWebシステム。詳細は [README.md](README.md)、[reBack/README.md](reBack/README.md)、[reFront/README.md](reFront/README.md)、`doc/`（特に `doc/32_coding_and_development_guide.html` と `doc/21_environment_configuration.html`）を参照。
+レシート画像をGoogle Geminiで解析してデータベース（ローカルはPostgreSQL、本番・テストはH2のインメモリ）に保存し、保存済みレシートからモンスターカードを作って対戦するWebシステム。詳細は [README.md](README.md)、[reBack/README.md](reBack/README.md)、[reFront/README.md](reFront/README.md)、`doc/`（特に `doc/32_coding_and_development_guide.html` と `doc/21_environment_configuration.html`）を参照。
 
 ## 作業ルール
 
@@ -68,7 +68,7 @@ node --test reFront/test/smoke.test.mjs   # リポジトリ直下で実行
 ### レシート解析・保存
 
 - 解析できるのはJPEG / PNG（最大5 MiB）。JPEG / PNGだけのZIPはブラウザーで展開して1枚ずつ解析。
-- 「解析」ではDBに登録しない。確認後に「PostgreSQLへ保存」で保存する。
+- 「解析」ではDBに登録しない。確認後に「データベースへ保存」で保存する（保存先は、ローカルはPostgreSQL、本番・テストはH2のインメモリ）。
 - 画像ファイルそのものは保存しない。SHA-256（重複判定）、行ごとの文字列、構造化データを保存する。SHA-256が一致する画像は409（`DUPLICATE_RECEIPT_IMAGE`）。
 - レシートごとに `receipt_` + 32桁16進数のテーブルを作る。他に `receipt_structured_summary`、`receipt_structured_item`、`receipt_image_hash_registry`。テーブルはアプリが実行時に作成する。
 - Geminiの応答スキーマには `isReceipt` を含め、レシート以外の画像（人物・風景など）は解析・画像からのカード作成とも422（`NOT_A_RECEIPT`）で断る。キーを替えての再試行はしない。
