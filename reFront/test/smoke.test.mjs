@@ -40,7 +40,7 @@ test("analysis reports per-image progress and does not wait forever", () => {
 
 
 test("upload page cache-busts app.js so old upload code is not reused", () => {
-  assert.match(html, /<script src="\.\/app\.js\?v=20261013-db-label"><\/script>/);
+  assert.match(html, /<script src="\.\/app\.js\?v=20261107-save-retry"><\/script>/);
 });
 
 test("frontend posts multipart data to the receipt endpoint", () => {

@@ -389,14 +389,20 @@ function renderReceiptResults(receipts) {
 
 function buildSaveCompletionMessage(receipts) {
   const storedNumbers = receipts
-    .filter((receipt) => receipt.stored)
+    .filter((receipt) => receipt.stored && !receipt.alreadySaved)
+    .map((receipt) => receipt.fileNumber);
+  const alreadySavedNumbers = receipts
+    .filter((receipt) => receipt.alreadySaved)
     .map((receipt) => receipt.fileNumber);
 
+  const messages = [];
   if (storedNumbers.length) {
-    return `画像${storedNumbers.join("、")}をデータベースへ保存しました。`;
+    messages.push(`画像${storedNumbers.join("、")}をデータベースへ保存しました。`);
   }
-
-  return "データベースへ保存する対象がありません。";
+  if (alreadySavedNumbers.length) {
+    messages.push(`画像${alreadySavedNumbers.join("、")}は前回の保存でデータベースへ保存済みでした。`);
+  }
+  return messages.length ? messages.join("") : "データベースへ保存する対象がありません。";
 }
 
 form.addEventListener("submit", async (event) => {
@@ -502,8 +508,15 @@ saveButton.addEventListener("click", async () => {
         receipt.tableName = saved.tableName || "";
         receipt.stored = true;
       } catch (error) {
-        error.fileNumber = receipt.fileNumber;
-        throw error;
+        if (error.code === "DUPLICATE_RECEIPT_IMAGE") {
+          // 応答待ちが打ち切られた前回の保存が、サーバー側では最後まで完了していた場合。
+          // サーバーは内容まで揃って保存済みのときだけこのコードを返す（途中で失敗していれば INCOMPLETE_RECEIPT_SAVE）。
+          receipt.stored = true;
+          receipt.alreadySaved = true;
+        } else {
+          error.fileNumber = receipt.fileNumber;
+          throw error;
+        }
       }
 
       renderReceiptResults(analyzedReceipts);
@@ -516,8 +529,10 @@ saveButton.addEventListener("click", async () => {
     statusElement.textContent = `保存エラー${fileMessage}: ${error.message}`;
   } finally {
     if (saveCompleted) {
-      // 保存成功後は初期状態へ戻し、次の解析を開始できるようにする。
+      // 保存成功後は初期状態へ戻し、次の解析を開始できるようにする（完了メッセージは残す）。
+      const completionMessage = statusElement.textContent;
       resetUploadPage();
+      statusElement.textContent = completionMessage;
     } else {
       // 保存失敗時は解析結果と保存ボタンを残し、再試行できるようにする。
       setStep(2);

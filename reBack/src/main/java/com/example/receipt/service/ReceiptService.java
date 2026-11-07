@@ -66,12 +66,28 @@ public class ReceiptService {
         java.util.List<String> savedLines = clean.lines();
         // モンスターカードはDBへの登録と同時に作る。Geminiの呼び出しは時間がかかるのでトランザクションの外で行う
         MonsterCard card = monsterCardService.prepareCardForSave(normalizedSha256, clean.data(), savedLines);
-        return tx.execute(status -> {
-            String tableName = repository.createReceiptTableAndInsert(savedLines, normalizedSha256);
-            repository.saveStructuredData(tableName, normalizedSha256, clean.data());
-            monsterCardService.activateForSavedReceipt(tableName, card);
-            return new ReceiptUploadResponse(tableName, savedLines.size(), savedLines, normalizedSha256);
-        });
+
+        // PostgreSQLとH2で同じ手順にする。H2はテーブル定義の変更でそれまでの処理を自動で確定させるため、
+        // テーブル定義の変更はトランザクションの外で先に済ませ、トランザクションの中ではデータの登録・更新だけを行う。
+        repository.ensureSaveSchema();
+        // 保存済み（409 DUPLICATE_RECEIPT_IMAGE）、前回の保存が途中で失敗（409 INCOMPLETE_RECEIPT_SAVE）、
+        // 解析時の確保が消えた（409 ANALYSIS_EXPIRED）ならテーブルを作る前に断る
+        repository.requireImageNotSaved(normalizedSha256);
+        String tableName = repository.createEmptyReceiptTable();
+        try {
+            return tx.execute(status -> {
+                repository.insertReceiptLines(tableName, savedLines);
+                repository.insertStructuredData(tableName, normalizedSha256, clean.data());
+                monsterCardService.activateForSavedReceipt(tableName, card);
+                // ハッシュの登録は最後に行う。ここまでのどこで失敗しても、ハッシュは「未保存」のまま残る
+                repository.registerImageHash(normalizedSha256, tableName);
+                return new ReceiptUploadResponse(tableName, savedLines.size(), savedLines, normalizedSha256);
+            });
+        } catch (RuntimeException e) {
+            // トランザクションは取り消されたので、トランザクションの外で作ったテーブルも削除する
+            repository.dropReceiptTableQuietly(tableName);
+            throw e;
+        }
     }
 
     static String sha256(byte[] bytes) {
