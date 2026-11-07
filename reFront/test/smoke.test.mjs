@@ -40,7 +40,7 @@ test("analysis reports per-image progress and does not wait forever", () => {
 
 
 test("upload page cache-busts app.js so old upload code is not reused", () => {
-  assert.match(html, /<script src="\.\/app\.js\?v=20261107-save-retry"><\/script>/);
+  assert.match(html, /<script src="\.\/app\.js\?v=20261107-no-save-message"><\/script>/);
 });
 
 test("frontend posts multipart data to the receipt endpoint", () => {
@@ -56,16 +56,23 @@ test("frontend keeps each selected receipt result separate", () => {
   assert.match(js, /saveReceipt/);
 });
 
-test("analysis and PostgreSQL save are separate operations", () => {
+test("analysis and database save are separate operations", () => {
   assert.match(html, /id="submit-button"[^>]*>解析<\/button>/);
   assert.match(html, /id="save-button"[^>]*>データベースへ保存<\/button>/);
   assert.match(js, /\/api\/receipts\/analyze/);
   assert.match(js, /\/api\/receipts\/save/);
   assert.match(js, /saveButton\.addEventListener\("click"/);
   assert.match(js, /枚の解析が完了しました/);
-  assert.match(js, /データベースへ保存しました/);
   assert.doesNotMatch(js, /未保存 \/ /);
   assert.doesNotMatch(js, /PostgreSQL保存済み/);
+  assert.doesNotMatch(js, /H2保存済み/);
+});
+
+test("save completion message is not shown after saving", () => {
+  // 保存先（ローカルはPostgreSQL、本番・テストはH2）に関係なく、保存完了のメッセージは表示しない。
+  assert.doesNotMatch(js, /データベースへ保存しました/);
+  assert.doesNotMatch(js, /前回の保存でデータベースへ保存済みでした/);
+  assert.doesNotMatch(js, /buildSaveCompletionMessage/);
 });
 
 test("save button stores each analyzed receipt", () => {
