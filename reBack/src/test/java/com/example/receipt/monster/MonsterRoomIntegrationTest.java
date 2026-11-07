@@ -252,11 +252,16 @@ class MonsterRoomIntegrationTest {
         // レシートの応答に、カードの中身・行テキスト・画像ハッシュ・テーブル名は含めない
         String fieldText = f1.toString();
         assertThat(fieldText).doesNotContain("svg", "power", "sha", "receipt_", "lines", "TEL");
-        // ログイン不要のAPIなので、店名・日時・レシート番号・商品・支払方法などの購入の詳細も返さない
-        assertNoPurchaseDetails(fieldText);
+        // レシートの明細（店名・日時・レシート番号・商品・合計・支払方法）は返す。個人情報は保存時に置換済み
+        assertNoPersonalInfo(fieldText);
         JsonObject tile = f1.getAsJsonArray("receipts").get(0).getAsJsonObject().getAsJsonObject("receipt");
-        assertThat(tile.keySet()).containsExactlyInAnyOrder("storeCategory", "amountRange", "itemCount");
-        assertThat(tile.get("itemCount").getAsInt()).isEqualTo(2);
+        assertThat(tile.keySet()).containsExactlyInAnyOrder("storeCategory", "storeName", "branchName", "purchasedAt",
+                "receiptNumber", "items", "totalAmount", "paymentMethod");
+        assertThat(tile.get("storeName").getAsString()).startsWith("店");
+        assertThat(tile.get("purchasedAt").getAsString()).matches("2026-10-0\\d \\d{2}:\\d{2}");
+        assertThat(tile.getAsJsonArray("items")).hasSize(2);
+        assertThat(tile.getAsJsonArray("items").get(0).getAsJsonObject().get("name").getAsString()).isEqualTo("米 10kg");
+        assertThat(tile.get("paymentMethod").getAsString()).isEqualTo("現金");
         assertThat(fieldCardIds(code, "P1")).doesNotContainAnyElementsOf(fieldCardIds(code, "P2"));
 
         // シャッフルはレシートを選ぶ前だけ
@@ -299,8 +304,9 @@ class MonsterRoomIntegrationTest {
         assertThat(b1.getAsJsonObject("cards").getAsJsonObject("P1").get("id").getAsLong()).isEqualTo(myCard);
         assertThat(b1.getAsJsonObject("cards").getAsJsonObject("P2").get("id").getAsLong()).isEqualTo(p2Card);
         assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P1").get("storeCategory").getAsString()).isIn("スーパー", "飲食店");
-        assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P2").get("amountRange").getAsString()).isNotBlank();
-        assertNoPurchaseDetails(b1.toString());
+        assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P1").get("storeName").getAsString()).startsWith("店");
+        assertThat(b1.getAsJsonObject("receipts").getAsJsonObject("P2").get("totalAmount").getAsLong()).isPositive();
+        assertNoPersonalInfo(b1.toString());
         assertThat(b1.get("winner").getAsString()).isIn("P1", "P2", "DRAW");
         assertThat(b1.getAsJsonArray("log")).isNotEmpty();
 
@@ -408,9 +414,9 @@ class MonsterRoomIntegrationTest {
         assertThat(made.getAsJsonObject("card").get("source").getAsString()).isEqualTo("PLAYER1");
         assertThat(ai.readKeys).containsExactly("player1-key");
         assertThat(cardRepository.countAll()).isEqualTo(before + 1);
-        // 個人情報は取り除いてから使う。店名・商品名などの購入の詳細も返さない
-        assertThat(made.toString()).doesNotContain("山田", "画像の店", "おにぎり");
-        assertNoPurchaseDetails(made.toString());
+        // 個人情報は取り除いてから使う
+        assertThat(made.toString()).doesNotContain("山田");
+        assertNoPersonalInfo(made.toString());
 
         // 同じ画像なら新しく作らない
         JsonObject again = json(mockMvc.perform(multipart("/api/monster/rooms/" + code + "/image-card")
@@ -427,10 +433,11 @@ class MonsterRoomIntegrationTest {
         assertThat(battle.getAsJsonObject("cards").getAsJsonObject("P1").get("id").getAsLong()).isEqualTo(imageCard);
         JsonObject imageReceipt = battle.getAsJsonObject("receipts").getAsJsonObject("P1");
         assertThat(imageReceipt.get("storeCategory").getAsString()).isEqualTo("コンビニ");
-        assertThat(imageReceipt.get("amountRange").getAsString()).isEqualTo("1,000円未満");
-        assertThat(imageReceipt.get("itemCount").getAsInt()).isEqualTo(1);
-        assertThat(battle.toString()).doesNotContain("画像の店", "おにぎり");
-        assertNoPurchaseDetails(battle.toString());
+        assertThat(imageReceipt.get("storeName").getAsString()).isEqualTo("画像の店");
+        assertThat(imageReceipt.getAsJsonArray("items").get(0).getAsJsonObject().get("name").getAsString()).isEqualTo("おにぎり");
+        assertThat(imageReceipt.get("totalAmount").getAsLong()).isEqualTo(777L);
+        assertThat(battle.toString()).doesNotContain("山田");
+        assertNoPersonalInfo(battle.toString());
     }
 
     @Test
@@ -526,9 +533,9 @@ class MonsterRoomIntegrationTest {
         return ids;
     }
 
-    private static void assertNoPurchaseDetails(String body) {
-        assertThat(body).doesNotContain("storeName", "branchName", "purchasedAt", "receiptNumber", "paymentMethod",
-                "unitPrice", "totalAmount", "\"items\"", "支店", "米 10kg", "味噌", "2026-10-0");
+    /** 明細は返すが、保存時に置換した個人情報（会員番号・電話番号など）と行テキストは返さない。 */
+    private static void assertNoPersonalInfo(String body) {
+        assertThat(body).doesNotContain("4000100123", "TEL", "03-0000-", "\"lines\"");
     }
 
     private org.springframework.test.web.servlet.ResultActions postJson(String url, String token, String body) throws Exception {

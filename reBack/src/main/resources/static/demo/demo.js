@@ -208,22 +208,19 @@
     }, 3200 + Math.random() * 2000);
   }
 
-  // 合計金額を金額帯にまとめる（本番の MonsterViews.ReceiptView.amountRange と同じ区切り）
-  function amountRange(total) {
-    if (total == null) return "金額不明";
-    if (total < 1000) return "1,000円未満";
-    if (total < 3000) return "1,000〜2,999円";
-    if (total < 5000) return "3,000〜4,999円";
-    if (total < 10000) return "5,000〜9,999円";
-    return "10,000円以上";
-  }
-  // 配られたレシート。本番の対戦APIと同じく、店舗カテゴリー・金額帯・品数だけを表示する（店名・日時・商品などは出さない）
+  const yen = (n) => "¥" + Number(n).toLocaleString("ja-JP");
+  const yenOrBlank = (n) => (n == null ? "" : yen(n));
+  // 配られたレシート。本番の対戦画面と同じく、店名・日時・レシート番号・商品・合計・支払方法を表示する
   function receiptHtml(card, opt) {
     opt = opt || {};
     const r = card.receipt;
-    const itemCount = r.items.filter((it) => it.name && it.name.trim()).length;
+    const items = r.items.map((it) => `<tr><td>${esc(it.name)}</td><td class="q">${esc(it.quantity)}</td><td class="n">${esc(yenOrBlank(it.unitPrice))}</td><td class="n">${esc(yenOrBlank(it.amount))}</td></tr>`).join("");
     return `<span class="rt-no">${opt.title ? esc(opt.title) : ""} <em>${esc(r.storeCategory)}</em></span>
-      <dl class="rt-hints"><div><dt>金額帯</dt><dd>${esc(amountRange(card.totalAmount))}</dd></div><div><dt>品数</dt><dd>${esc(itemCount)}品</dd></div></dl>`;
+      <span class="rt-store">${esc(r.storeName)}${r.branchName ? " " + esc(r.branchName) : ""}</span>
+      <span class="rt-meta">${esc(r.purchasedAt.replace("T", " ").slice(0, 16))}　レシート番号 ${esc(r.receiptNumber)}</span>
+      <table class="rt-items"><thead><tr><th>商品</th><th class="q">数</th><th class="n">単価</th><th class="n">金額</th></tr></thead><tbody>${items}</tbody></table>
+      <span class="rt-total"><span>合計</span><b>${esc(yen(card.totalAmount))}</b></span>
+      <span class="rt-meta">お支払い：${esc(r.paymentMethod)}</span>`;
   }
 
   // 配られたレシート。内容はすべて表示する（見られるのは、そのルームのプレイヤーだけ。対戦前は配られた本人だけ）
